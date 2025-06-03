@@ -4,6 +4,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import morgan from 'morgan';
+import compression from 'compression';
 import { env } from './config/env';
 
 Sentry.init({
@@ -48,6 +50,9 @@ const reviewLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'TOO_MANY_REQUESTS', message: 'Too many review submissions, please try again later' },
 });
+
+app.use(compression());
+app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.use(
   helmet({
