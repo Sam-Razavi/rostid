@@ -49,6 +49,18 @@ export async function createCheckoutSession(
     throw AppError.badRequest('Your cart is empty');
   }
 
+  for (const item of cart.items) {
+    if (!item.product.isActive) {
+      throw AppError.badRequest(`${item.product.name} is no longer available`);
+    }
+    const availableStock = item.variant
+      ? (item.variant as unknown as { stock?: number }).stock ?? item.product.stock
+      : item.product.stock;
+    if (item.quantity > availableStock) {
+      throw AppError.badRequest(`Not enough stock for ${item.product.name}`);
+    }
+  }
+
   let verifiedShippingAddressId: string | undefined;
   if (shippingAddressId) {
     const address = await (prisma as unknown as ShippingRatePrisma).shippingAddress.findFirst({
