@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import compression from 'compression';
 import { requestId } from './middleware/requestId';
+import { responseTime } from './middleware/responseTime';
 import { env } from './config/env';
 
 Sentry.init({
@@ -61,6 +62,7 @@ const newsletterLimiter = rateLimit({
 });
 
 app.use(requestId);
+app.use(responseTime);
 app.use(compression());
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
