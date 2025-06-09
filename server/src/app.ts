@@ -93,6 +93,8 @@ app.get('/robots.txt', (_req, res) => {
 
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/auth/reset-password', authLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/products', productsRoutes);
