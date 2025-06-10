@@ -69,6 +69,18 @@ export const createDiscountSchema = z.object({
   }),
 });
 
+export const updateCustomerNoteSchema = z.object({
+  body: z.object({ adminNote: z.string().max(1000) }),
+});
+
+export const bulkProductActionSchema = z.object({
+  body: z.object({
+    ids: z.array(z.string().cuid()).min(1).max(100),
+    action: z.enum(['activate', 'deactivate']),
+  }),
+});
+
+export type BulkProductActionInput = z.infer<typeof bulkProductActionSchema>['body'];
 export type CreateGiftCardInput = z.infer<typeof createGiftCardSchema>['body'];
 export type CreateDiscountInput = z.infer<typeof createDiscountSchema>['body'];
 export type CreateProductInput = z.infer<typeof createProductSchema>['body'];

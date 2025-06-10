@@ -1,8 +1,9 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
 import { sendOrderStatusUpdate } from '../../utils/emails/orderStatusUpdate';
+import { sendShippingConfirmation } from '../../utils/emails/shippingConfirmation';
 import { sendEmail } from '../../utils/email';
-import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput, CreateVariantInput, UpdateVariantInput } from './admin.schema';
+import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput, CreateVariantInput, UpdateVariantInput, BulkProductActionInput } from './admin.schema';
 
 type VariantPrisma = {
   productVariant: {
@@ -107,8 +108,16 @@ export async function adminDeleteProduct(id: string) {
   });
 }
 
-export async function adminListOrders() {
+export async function adminListOrders(from?: string, to?: string) {
+  const where = (from || to) ? {
+    createdAt: {
+      ...(from ? { gte: new Date(from) } : {}),
+      ...(to ? { lte: new Date(to) } : {}),
+    },
+  } : undefined;
+
   return (prisma.order.findMany as unknown as (args: unknown) => Promise<unknown[]>)({
+    where,
     orderBy: { createdAt: 'desc' },
     include: {
       user: { select: { id: true, email: true, name: true } },
@@ -174,6 +183,12 @@ export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatus
   // Fire-and-forget status change email
   sendOrderStatusUpdate(updated.user.email, updated.user.name, id, data.status)
     .catch((err) => console.error('[email] order status update failed:', err));
+
+  // Send shipping confirmation when tracking number is added
+  if (data.trackingNumber) {
+    sendShippingConfirmation(updated.user.email, updated.user.name, id, data.trackingNumber, data.carrier ?? null)
+      .catch((err) => console.error('[email] shipping confirmation failed:', err));
+  }
 
   // Award loyalty points when order is delivered
   if (data.status === 'delivered') {
