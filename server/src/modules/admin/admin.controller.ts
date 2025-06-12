@@ -22,6 +22,8 @@ import {
   adminUpdateVariant,
   adminDeleteVariant,
   adminListSubscriptions,
+  adminListNewsletterSubscribers,
+  adminDeleteNewsletterSubscriber,
 } from './admin.service';
 import { createVariantSchema, updateVariantSchema } from './admin.schema';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
@@ -118,6 +120,27 @@ export async function updateVariantHandler(req: Request, res: Response): Promise
 export async function deleteVariantHandler(req: Request, res: Response): Promise<void> {
   await adminDeleteVariant(req.params.productId, req.params.variantId);
   res.json({ data: null, message: 'Variant deleted' });
+}
+
+export async function listNewsletterSubscribersHandler(_req: Request, res: Response): Promise<void> {
+  const subscribers = await adminListNewsletterSubscribers();
+  res.json({ data: subscribers, message: 'Subscribers retrieved' });
+}
+
+export async function deleteNewsletterSubscriberHandler(req: Request, res: Response): Promise<void> {
+  await adminDeleteNewsletterSubscriber(req.params.id);
+  res.json({ data: null, message: 'Subscriber removed' });
+}
+
+export async function exportNewsletterCsvHandler(_req: Request, res: Response): Promise<void> {
+  const subscribers = await adminListNewsletterSubscribers();
+  const rows = [
+    ['Email', 'Subscribed At'].join(','),
+    ...subscribers.map((s) => [s.email, s.createdAt.toISOString()].join(',')),
+  ];
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="newsletter-${new Date().toISOString().split('T')[0]}.csv"`);
+  res.send(rows.join('\n'));
 }
 
 export async function listAdminSubscriptionsHandler(_req: Request, res: Response): Promise<void> {

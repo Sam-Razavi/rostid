@@ -25,6 +25,9 @@ import {
   updateAdminReturnHandler,
   listAdminGiftCardsHandler,
   createAdminGiftCardHandler,
+  listNewsletterSubscribersHandler,
+  deleteNewsletterSubscriberHandler,
+  exportNewsletterCsvHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -56,6 +59,10 @@ router.patch('/returns/:id', asyncHandler(updateAdminReturnHandler));
 
 router.get('/gift-cards', asyncHandler(listAdminGiftCardsHandler));
 router.post('/gift-cards', asyncHandler(createAdminGiftCardHandler));
+
+router.get('/newsletter', asyncHandler(listNewsletterSubscribersHandler));
+router.get('/newsletter/export', asyncHandler(exportNewsletterCsvHandler));
+router.delete('/newsletter/:id', asyncHandler(deleteNewsletterSubscriberHandler));
 
 router.get('/discounts', asyncHandler(listDiscountsHandler));
 router.post('/discounts', asyncHandler(createDiscountHandler));

@@ -25,6 +25,16 @@ type AdminSubPrisma = {
 };
 const adminSubDb = prisma as unknown as AdminSubPrisma;
 
+type NewsletterRecord = { id: string; email: string; createdAt: Date };
+type NewsletterPrisma = {
+  newsletterSubscriber: {
+    findMany: (a: unknown) => Promise<NewsletterRecord[]>;
+    count: (a: unknown) => Promise<number>;
+    delete: (a: unknown) => Promise<unknown>;
+  };
+};
+const newsletterDb = prisma as unknown as NewsletterPrisma;
+
 const LOW_STOCK_THRESHOLD = 5;
 
 export async function adminListVariants(productId: string) {
@@ -223,6 +233,18 @@ export async function adminListCustomers() {
     orderCount: c._count.orders,
     totalSpendOre: c.orders.reduce((sum, o) => sum + o.totalOre, 0),
   }));
+}
+
+export async function adminListNewsletterSubscribers() {
+  return newsletterDb.newsletterSubscriber.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function adminDeleteNewsletterSubscriber(id: string) {
+  const subscriber = await newsletterDb.newsletterSubscriber.findMany({ where: { id } } as unknown as never);
+  if (!subscriber || (subscriber as unknown as unknown[]).length === 0) throw AppError.notFound('Subscriber not found');
+  return newsletterDb.newsletterSubscriber.delete({ where: { id } });
 }
 
 export async function adminListSubscriptions() {
