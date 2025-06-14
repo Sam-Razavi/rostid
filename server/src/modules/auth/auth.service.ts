@@ -173,6 +173,7 @@ export async function resetPassword(userId: string, rawToken: string, newPasswor
   const passwordHash = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
   await (prisma as unknown as { passwordResetToken: { deleteMany: (a: unknown) => Promise<unknown>; create: (a: unknown) => Promise<unknown>; findFirst: (a: unknown) => Promise<{ tokenHash: string } | null> } }).passwordResetToken.deleteMany({ where: { userId } });
+  await prisma.refreshToken.deleteMany({ where: { userId } });
 }
 
 export const REFRESH_COOKIE_OPTIONS = {
