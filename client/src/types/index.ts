@@ -105,6 +105,7 @@ export interface Order {
   stripeSessionId?: string | null;
   trackingNumber?: string | null;
   carrier?: string | null;
+  customerNote?: string | null;
   fulfilledAt?: string | null;
   createdAt: string;
   updatedAt: string;
