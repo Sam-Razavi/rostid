@@ -24,6 +24,7 @@ import {
   adminListSubscriptions,
   adminListNewsletterSubscribers,
   adminDeleteNewsletterSubscriber,
+  adminGetRevenueTimeSeries,
 } from './admin.service';
 import { createVariantSchema, updateVariantSchema } from './admin.schema';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
@@ -120,6 +121,16 @@ export async function updateVariantHandler(req: Request, res: Response): Promise
 export async function deleteVariantHandler(req: Request, res: Response): Promise<void> {
   await adminDeleteVariant(req.params.productId, req.params.variantId);
   res.json({ data: null, message: 'Variant deleted' });
+}
+
+export async function getRevenueTimeSeriesHandler(req: Request, res: Response): Promise<void> {
+  const granularity = (req.query.granularity as string) === 'daily' ? 'daily'
+    : (req.query.granularity as string) === 'monthly' ? 'monthly'
+    : 'weekly';
+  const from = req.query.from as string | undefined;
+  const to = req.query.to as string | undefined;
+  const data = await adminGetRevenueTimeSeries(granularity, from, to);
+  res.json({ data, message: 'Revenue time series retrieved' });
 }
 
 export async function listNewsletterSubscribersHandler(_req: Request, res: Response): Promise<void> {

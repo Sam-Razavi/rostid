@@ -235,6 +235,37 @@ export async function adminListCustomers() {
   }));
 }
 
+export async function adminGetRevenueTimeSeries(granularity: 'daily' | 'weekly' | 'monthly', from?: string, to?: string) {
+  const startDate = from ? new Date(from) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const endDate = to ? new Date(to) : new Date();
+
+  const orders = await (prisma.order.findMany as unknown as (args: unknown) => Promise<{ createdAt: Date; totalOre: number }[]>)({
+    where: { createdAt: { gte: startDate, lte: endDate } },
+    select: { createdAt: true, totalOre: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  const buckets = new Map<string, number>();
+
+  for (const order of orders) {
+    let key: string;
+    const d = order.createdAt;
+    if (granularity === 'daily') {
+      key = d.toISOString().split('T')[0];
+    } else if (granularity === 'weekly') {
+      const day = d.getDay();
+      const monday = new Date(d);
+      monday.setDate(d.getDate() - ((day + 6) % 7));
+      key = monday.toISOString().split('T')[0];
+    } else {
+      key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    }
+    buckets.set(key, (buckets.get(key) ?? 0) + order.totalOre);
+  }
+
+  return Array.from(buckets.entries()).map(([date, revenueOre]) => ({ date, revenueOre }));
+}
+
 export async function adminListNewsletterSubscribers() {
   return newsletterDb.newsletterSubscriber.findMany({
     orderBy: { createdAt: 'desc' },
