@@ -82,6 +82,7 @@ async function fulfillOrder(session: any) {
   const discountCode = session.metadata?.discountCode as string | undefined;
   const shippingRateId = session.metadata?.shippingRateId as string | undefined;
   const shippingAddressId = session.metadata?.shippingAddressId as string | undefined;
+  const customerNote = session.metadata?.customerNote as string | undefined;
   if (!userId || !cartId) return;
 
   const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<CartWithVariants | null>)({
@@ -131,6 +132,7 @@ async function fulfillOrder(session: any) {
         ...(shippingAddressId ? { shippingAddressId } : {}),
         status: 'processing',
         ...(session.id ? { stripeSessionId: session.id } : {}),
+        ...(customerNote ? { customerNote } : {}),
         items: {
           create: cart.items.map((item) => ({
             productId: item.productId,

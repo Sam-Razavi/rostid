@@ -20,7 +20,8 @@ export async function createCheckoutSession(
   shippingRateId?: string | null,
   loyaltyPoints?: number | null,
   giftCardCode?: string | null,
-  shippingAddressId?: string | null
+  shippingAddressId?: string | null,
+  customerNote?: string | null
 ) {
   if (!stripe) throw AppError.badRequest('Payments are not configured on this server');
 
@@ -182,6 +183,7 @@ export async function createCheckoutSession(
       giftCardOre: String(giftCardOre),
       ...(loyaltyPoints && loyaltyPoints > 0 ? { loyaltyPoints: String(loyaltyPoints) } : {}),
       ...(appliedGiftCard ? { giftCardCode: appliedGiftCard } : {}),
+      ...(customerNote ? { customerNote: customerNote.slice(0, 500) } : {}),
     },
   });
 
