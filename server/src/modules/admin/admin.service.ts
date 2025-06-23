@@ -235,6 +235,15 @@ export async function adminListCustomers() {
   }));
 }
 
+export async function adminBulkProductAction(data: BulkProductActionInput) {
+  const isActive = data.action === 'activate';
+  const result = await prisma.product.updateMany({
+    where: { id: { in: data.ids } },
+    data: { isActive },
+  });
+  return { updated: result.count };
+}
+
 export async function adminGetRevenueTimeSeries(granularity: 'daily' | 'weekly' | 'monthly', from?: string, to?: string) {
   const startDate = from ? new Date(from) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
   const endDate = to ? new Date(to) : new Date();

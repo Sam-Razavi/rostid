@@ -6,6 +6,7 @@ import {
   createGiftCardSchema,
   createDiscountSchema,
   updateReturnStatusSchema,
+  bulkProductActionSchema,
 } from './admin.schema';
 import {
   adminListProducts,
@@ -25,6 +26,7 @@ import {
   adminListNewsletterSubscribers,
   adminDeleteNewsletterSubscriber,
   adminGetRevenueTimeSeries,
+  adminBulkProductAction,
 } from './admin.service';
 import { createVariantSchema, updateVariantSchema } from './admin.schema';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
@@ -121,6 +123,12 @@ export async function updateVariantHandler(req: Request, res: Response): Promise
 export async function deleteVariantHandler(req: Request, res: Response): Promise<void> {
   await adminDeleteVariant(req.params.productId, req.params.variantId);
   res.json({ data: null, message: 'Variant deleted' });
+}
+
+export async function bulkProductActionHandler(req: Request, res: Response): Promise<void> {
+  const { body } = bulkProductActionSchema.parse({ body: req.body });
+  const result = await adminBulkProductAction(body);
+  res.json({ data: result, message: `Products ${body.action}d` });
 }
 
 export async function getRevenueTimeSeriesHandler(req: Request, res: Response): Promise<void> {

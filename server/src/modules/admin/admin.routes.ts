@@ -29,6 +29,7 @@ import {
   deleteNewsletterSubscriberHandler,
   exportNewsletterCsvHandler,
   getRevenueTimeSeriesHandler,
+  bulkProductActionHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -37,6 +38,7 @@ router.use(authenticate, requireAdmin);
 
 router.get('/products', asyncHandler(listProducts));
 router.post('/products', asyncHandler(createProduct));
+router.post('/products/bulk', asyncHandler(bulkProductActionHandler));
 router.patch('/products/:id', asyncHandler(updateProduct));
 router.delete('/products/:id', asyncHandler(deleteProduct));
 
