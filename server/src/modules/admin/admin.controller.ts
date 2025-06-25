@@ -53,8 +53,10 @@ export async function deleteProduct(req: Request, res: Response): Promise<void> 
   res.json({ data: null, message: 'Product deactivated' });
 }
 
-export async function listOrders(_req: Request, res: Response): Promise<void> {
-  const orders = await adminListOrders();
+export async function listOrders(req: Request, res: Response): Promise<void> {
+  const from = req.query.from as string | undefined;
+  const to = req.query.to as string | undefined;
+  const orders = await adminListOrders(from, to);
   res.json({ data: orders, message: 'Orders retrieved' });
 }
 
