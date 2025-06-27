@@ -7,6 +7,7 @@ import {
   createDiscountSchema,
   updateReturnStatusSchema,
   bulkProductActionSchema,
+  updateCustomerNoteSchema,
 } from './admin.schema';
 import {
   adminListProducts,
@@ -27,6 +28,7 @@ import {
   adminDeleteNewsletterSubscriber,
   adminGetRevenueTimeSeries,
   adminBulkProductAction,
+  adminUpdateCustomerNote,
 } from './admin.service';
 import { createVariantSchema, updateVariantSchema } from './admin.schema';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
@@ -79,6 +81,12 @@ export async function getStats(_req: Request, res: Response): Promise<void> {
 export async function listCustomersHandler(_req: Request, res: Response): Promise<void> {
   const customers = await adminListCustomers();
   res.json({ data: customers, message: 'Customers retrieved' });
+}
+
+export async function updateCustomerNoteHandler(req: Request, res: Response): Promise<void> {
+  const { body } = updateCustomerNoteSchema.parse({ body: req.body });
+  const customer = await adminUpdateCustomerNote(req.params.id, body.adminNote);
+  res.json({ data: customer, message: 'Customer note updated' });
 }
 
 export async function exportOrdersCsvHandler(_req: Request, res: Response): Promise<void> {

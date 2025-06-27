@@ -33,6 +33,7 @@ model User {
   passwordHash String   @map("password_hash")
   name         String
   role         Role     @default(customer)
+  adminNote    String?  @map("admin_note")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

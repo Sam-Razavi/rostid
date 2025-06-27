@@ -30,6 +30,7 @@ import {
   exportNewsletterCsvHandler,
   getRevenueTimeSeriesHandler,
   bulkProductActionHandler,
+  updateCustomerNoteHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -55,6 +56,7 @@ router.patch('/orders/:id/status', asyncHandler(updateOrderStatus));
 router.get('/stats', asyncHandler(getStats));
 router.get('/stats/revenue', asyncHandler(getRevenueTimeSeriesHandler));
 router.get('/customers', asyncHandler(listCustomersHandler));
+router.patch('/customers/:id/note', asyncHandler(updateCustomerNoteHandler));
 
 router.get('/subscriptions', asyncHandler(listAdminSubscriptionsHandler));
 

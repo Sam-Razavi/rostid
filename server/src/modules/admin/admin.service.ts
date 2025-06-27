@@ -235,6 +235,12 @@ export async function adminListCustomers() {
   }));
 }
 
+export async function adminUpdateCustomerNote(userId: string, adminNote: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw AppError.notFound('Customer not found');
+  return prisma.user.update({ where: { id: userId }, data: { adminNote }, select: { id: true, email: true, name: true, adminNote: true } });
+}
+
 export async function adminBulkProductAction(data: BulkProductActionInput) {
   const isActive = data.action === 'activate';
   const result = await prisma.product.updateMany({
