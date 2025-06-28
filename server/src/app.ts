@@ -52,6 +52,14 @@ const reviewLimiter = rateLimit({
   message: { error: 'TOO_MANY_REQUESTS', message: 'Too many review submissions, please try again later' },
 });
 
+const newsletterLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'TOO_MANY_REQUESTS', message: 'Too many subscription attempts, please try again later' },
+});
+
 app.use(requestId);
 app.use(compression());
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -105,6 +113,7 @@ app.use('/api/products/:slug/reviews', reviewLimiter, reviewsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/discounts', discountsRoutes);
+app.use('/api/newsletter/subscribe', newsletterLimiter);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/subscriptions', subscriptionsRoutes);
