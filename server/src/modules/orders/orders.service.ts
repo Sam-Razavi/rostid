@@ -102,12 +102,19 @@ export async function placeOrder(userId: string) {
   return order;
 }
 
-export async function listOrders(userId: string) {
-  return prisma.order.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' },
-    include: orderInclude,
-  });
+export async function listOrders(userId: string, page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: orderInclude,
+      skip,
+      take: limit,
+    }),
+    prisma.order.count({ where: { userId } }),
+  ]);
+  return { orders, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function getOrder(userId: string, orderId: string) {
