@@ -5,6 +5,7 @@ import { fetchWishlist, removeFromWishlist } from '../api/wishlist.api';
 import { useAddToCart } from '../hooks/useCart';
 import { ProductCardSkeleton } from '../components/ui/Skeleton';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { EmptyState } from '../components/ui/EmptyState';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -62,17 +63,11 @@ export default function WishlistPage() {
       </div>
 
       {items && items.length === 0 ? (
-        <div className="text-center py-24">
-          <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </div>
-          <p className="text-stone-500 mb-4">Your wishlist is empty</p>
-          <Link to="/products" className="btn-primary">
-            Browse coffees
-          </Link>
-        </div>
+        <EmptyState
+          title="Your wishlist is empty"
+          description="Save products you love to your wishlist and find them here."
+          action={<Link to="/products" className="btn-primary inline-flex">Browse coffees</Link>}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {items?.map((item) => (

@@ -5,6 +5,7 @@ import { fetchOrders } from '../api/orders.api';
 import { OrderCard } from '../components/orders/OrderCard';
 import { OrderCardSkeleton } from '../components/ui/Skeleton';
 import { Pagination } from '../components/ui/Pagination';
+import { EmptyState } from '../components/ui/EmptyState';
 
 const PAGE_SIZE = 10;
 
@@ -32,13 +33,11 @@ export default function OrdersPage() {
           <p className="text-stone-500">Failed to load orders. Please try again.</p>
         </div>
       ) : orders?.length === 0 ? (
-        <div className="text-center py-24">
-          <p className="font-serif text-3xl text-stone-400 mb-3">No orders yet</p>
-          <p className="text-stone-500 mb-8">Your order history will appear here.</p>
-          <Link to="/products" className="btn-primary inline-flex">
-            Shop coffee
-          </Link>
-        </div>
+        <EmptyState
+          title="No orders yet"
+          description="Your order history will appear here once you make a purchase."
+          action={<Link to="/products" className="btn-primary inline-flex">Shop coffee</Link>}
+        />
       ) : (
         <div className="max-w-2xl">
           <div className="space-y-4">

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../components/cart/CartItem';
 import { Button } from '../components/ui/Button';
+import { EmptyState } from '../components/ui/EmptyState';
 import { Input } from '../components/ui/Input';
 import { createCheckoutSession } from '../api/checkout.api';
 import { fetchAddresses, fetchShippingRates, type ShippingRate } from '../api/shipping.api';
@@ -148,12 +149,12 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="container-page py-24 text-center">
-        <p className="font-serif text-3xl text-stone-400 mb-3">Your cart is empty</p>
-        <p className="text-stone-500 mb-8">Looks like you haven't added anything yet.</p>
-        <Link to="/products" className="btn-primary inline-flex">
-          Browse coffee
-        </Link>
+      <div className="container-page py-12">
+        <EmptyState
+          title="Your cart is empty"
+          description="Looks like you haven't added anything yet."
+          action={<Link to="/products" className="btn-primary inline-flex">Browse coffee</Link>}
+        />
       </div>
     );
   }
