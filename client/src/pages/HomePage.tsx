@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ import { NewsletterSignup } from '../components/ui/NewsletterSignup';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
 import { staggerContainer, fadeUp } from '../animations/variants';
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 
 const FEATURES = [
   {
@@ -46,6 +47,8 @@ export default function HomePage() {
   const navigate = useNavigate();
   const addToCart = useAddToCart();
   const [addingId, setAddingId] = useState<string | null>(null);
+  const { getAll } = useRecentlyViewed();
+  const recentlyViewed = useMemo(() => getAll(), [getAll]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['products', 'featured'],
@@ -188,6 +191,29 @@ export default function HomePage() {
           </Link>
         </div>
       </motion.section>
+
+      {recentlyViewed.length > 0 && (
+        <section className="container-page py-16">
+          <h2 className="font-serif text-2xl font-semibold text-stone-900 mb-8">Recently viewed</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {recentlyViewed.map((item) => (
+              <Link key={item.id} to={`/products/${item.slug}`} className="group card p-3 hover:shadow-md transition-shadow">
+                <div className="aspect-square bg-stone-100 rounded-lg overflow-hidden mb-3">
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="font-serif text-3xl text-espresso-200">R</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm font-medium text-stone-900 leading-snug truncate">{item.name}</p>
+                <p className="text-sm text-espresso-700 mt-0.5">{Math.round(item.priceOre / 100)} kr</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <NewsletterSignup />
     </div>

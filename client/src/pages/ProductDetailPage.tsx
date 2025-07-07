@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ import { ReviewList } from '../components/products/ReviewList';
 import { AddReviewForm } from '../components/products/AddReviewForm';
 import { fetchReviews } from '../api/reviews.api';
 import { createSubscription } from '../api/subscriptions.api';
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -34,6 +35,7 @@ export default function ProductDetailPage() {
   const [intervalDays, setIntervalDays] = useState(30);
 
   const { user } = useAuthStore();
+  const { track } = useRecentlyViewed();
 
   const subscribeMutation = useMutation({
     mutationFn: createSubscription,
@@ -53,6 +55,12 @@ export default function ProductDetailPage() {
     queryFn: () => fetchProduct(slug!),
     enabled: !!slug,
   });
+
+  useEffect(() => {
+    if (product) {
+      track({ id: product.id, slug: product.slug, name: product.name, priceOre: product.priceOre, imageUrl: product.imageUrl });
+    }
+  }, [product, track]);
 
   const { data: reviewsData } = useQuery({
     queryKey: ['reviews', slug],
