@@ -30,6 +30,12 @@ export async function submitReturn(
   if (!order || order.userId !== userId) throw AppError.notFound('Order not found');
   if (order.status !== 'delivered') throw AppError.badRequest('Only delivered orders can be returned');
 
+  const orderAny = order as unknown as { fulfilledAt?: Date | null };
+  if (orderAny.fulfilledAt) {
+    const daysSinceDelivery = (Date.now() - orderAny.fulfilledAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceDelivery > 30) throw AppError.badRequest('Returns must be submitted within 30 days of delivery');
+  }
+
   const existingReturn = await returnDb.return.findFirst({ where: { orderId, userId } });
   if (existingReturn) throw AppError.badRequest('A return request already exists for this order');
 
