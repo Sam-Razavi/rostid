@@ -15,6 +15,15 @@ function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
 }
 
+function getTrackingUrl(carrier: string | null | undefined, trackingNumber: string): string | null {
+  const c = (carrier ?? '').toLowerCase();
+  if (c.includes('postnord') || c.includes('post nord')) return `https://tracking.postnord.com/en/?id=${trackingNumber}`;
+  if (c.includes('dhl')) return `https://www.dhl.com/se-en/home/tracking.html?tracking-id=${trackingNumber}`;
+  if (c.includes('budbee')) return `https://tracking.budbee.com/?packageId=${trackingNumber}`;
+  if (c.includes('gls')) return `https://gls-group.com/track/${trackingNumber}`;
+  return null;
+}
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-SE', {
     year: 'numeric',
@@ -107,7 +116,16 @@ export default function OrderDetailPage() {
           {order.trackingNumber && (
             <div className="mb-4 last:mb-0">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Tracking number</p>
-              <p className="font-mono text-stone-900 text-sm">{order.trackingNumber}</p>
+              {(() => {
+                const url = getTrackingUrl(order.carrier, order.trackingNumber!);
+                return url ? (
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="font-mono text-espresso-700 hover:text-espresso-900 text-sm underline underline-offset-2">
+                    {order.trackingNumber}
+                  </a>
+                ) : (
+                  <p className="font-mono text-stone-900 text-sm">{order.trackingNumber}</p>
+                );
+              })()}
               {order.carrier && (
                 <p className="text-xs text-stone-500 mt-0.5">via {order.carrier}</p>
               )}
