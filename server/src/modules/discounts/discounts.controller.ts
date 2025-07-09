@@ -9,6 +9,6 @@ const validateSchema = z.object({
 
 export async function validateDiscountHandler(req: Request, res: Response): Promise<void> {
   const { code, orderTotalOre } = validateSchema.parse(req.body);
-  const result = await validateDiscount(code.toUpperCase(), orderTotalOre);
+  const result = await validateDiscount(code.trim().toUpperCase(), orderTotalOre);
   res.json({ data: result, message: 'Discount code is valid' });
 }

@@ -18,7 +18,8 @@ type DiscountPrisma = {
 const db = prisma as unknown as DiscountPrisma;
 
 export async function validateDiscount(code: string, orderTotalOre: number) {
-  const discount = await db.discountCode.findUnique({ where: { code: code.toUpperCase() } });
+  const normalizedCode = code.trim().toUpperCase();
+  const discount = await db.discountCode.findUnique({ where: { code: normalizedCode } });
 
   if (!discount || !discount.isActive) {
     throw AppError.badRequest('Invalid or inactive discount code');
@@ -50,7 +51,7 @@ export async function validateDiscount(code: string, orderTotalOre: number) {
 
 export async function incrementUsedCount(code: string) {
   await db.discountCode.update({
-    where: { code: code.toUpperCase() },
+    where: { code: code.trim().toUpperCase() },
     data: { usedCount: { increment: 1 } },
   });
 }
@@ -65,7 +66,7 @@ export async function createDiscount(data: {
 }) {
   return db.discountCode.create({
     data: {
-      code: data.code.toUpperCase(),
+      code: data.code.trim().toUpperCase(),
       type: data.type,
       value: data.value,
       minOrderOre: data.minOrderOre ?? null,
