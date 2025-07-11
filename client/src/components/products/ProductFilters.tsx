@@ -6,10 +6,14 @@ interface FiltersProps {
   selectedRoast: string;
   search: string;
   sort: string;
+  minPrice: string;
+  maxPrice: string;
   onCategoryChange: (v: string) => void;
   onRoastChange: (v: string) => void;
   onSearchChange: (v: string) => void;
   onSortChange: (v: string) => void;
+  onMinPriceChange: (v: string) => void;
+  onMaxPriceChange: (v: string) => void;
 }
 
 export function ProductFilters({
@@ -17,10 +21,14 @@ export function ProductFilters({
   selectedRoast,
   search,
   sort,
+  minPrice,
+  maxPrice,
   onCategoryChange,
   onRoastChange,
   onSearchChange,
   onSortChange,
+  onMinPriceChange,
+  onMaxPriceChange,
 }: FiltersProps) {
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -60,6 +68,26 @@ export function ProductFilters({
         <option value="medium">Medium</option>
         <option value="dark">Dark</option>
       </select>
+
+      <div className="flex items-center gap-1.5">
+        <input
+          type="number"
+          placeholder="Min kr"
+          value={minPrice}
+          onChange={(e) => onMinPriceChange(e.target.value)}
+          min={0}
+          className="input-field w-20 text-sm py-2"
+        />
+        <span className="text-stone-400 text-sm">–</span>
+        <input
+          type="number"
+          placeholder="Max kr"
+          value={maxPrice}
+          onChange={(e) => onMaxPriceChange(e.target.value)}
+          min={0}
+          className="input-field w-20 text-sm py-2"
+        />
+      </div>
 
       <select
         value={sort}

@@ -26,9 +26,15 @@ export default function ProductsPage() {
   const roast = searchParams.get('roast') ?? '';
   const sort = searchParams.get('sort') ?? 'newest';
   const searchParam = searchParams.get('search') ?? '';
+  const minPriceParam = searchParams.get('minPrice') ?? '';
+  const maxPriceParam = searchParams.get('maxPrice') ?? '';
 
   const [searchInput, setSearchInput] = useState(searchParam);
+  const [minPrice, setMinPrice] = useState(minPriceParam);
+  const [maxPrice, setMaxPrice] = useState(maxPriceParam);
   const debouncedSearch = useDebounce(searchInput, 300);
+  const debouncedMin = useDebounce(minPrice, 400);
+  const debouncedMax = useDebounce(maxPrice, 400);
 
   useEffect(() => {
     const next = new URLSearchParams(searchParams);
@@ -49,9 +55,12 @@ export default function ProductsPage() {
     setPage(1);
   }
 
+  const minPriceVal = debouncedMin ? parseInt(debouncedMin, 10) : undefined;
+  const maxPriceVal = debouncedMax ? parseInt(debouncedMax, 10) : undefined;
+
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['products', { category, roast, search: debouncedSearch, sort, page }],
-    queryFn: () => fetchProducts({ category, roast, search: debouncedSearch, sort, page, limit: 12 }),
+    queryKey: ['products', { category, roast, search: debouncedSearch, sort, page, minPriceVal, maxPriceVal }],
+    queryFn: () => fetchProducts({ category, roast, search: debouncedSearch, sort, page, limit: 12, minPrice: minPriceVal, maxPrice: maxPriceVal }),
     placeholderData: (prev) => prev,
   });
 
@@ -92,10 +101,14 @@ export default function ProductsPage() {
           selectedRoast={roast}
           search={searchInput}
           sort={sort}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
           onCategoryChange={(v) => updateParam('category', v)}
           onRoastChange={(v) => updateParam('roast', v)}
           onSearchChange={setSearchInput}
           onSortChange={(v) => updateParam('sort', v)}
+          onMinPriceChange={setMinPrice}
+          onMaxPriceChange={setMaxPrice}
         />
       </div>
 
@@ -109,7 +122,7 @@ export default function ProductsPage() {
       ) : (
         <>
           <motion.div
-            key={`${category}-${roast}-${debouncedSearch}-${page}`}
+            key={`${category}-${roast}-${debouncedSearch}-${page}-${minPriceVal}-${maxPriceVal}`}
             className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}
             variants={staggerContainer}
             initial="hidden"
