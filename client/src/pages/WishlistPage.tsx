@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -36,7 +37,20 @@ export default function WishlistPage() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] }),
   });
 
-  const { mutate: addToCart, isPending: addingToCart } = useAddToCart();
+  const [addingToCartId, setAddingToCartId] = useState<string | null>(null);
+  const addToCartMutation = useAddToCart();
+
+  async function handleAddToCart(productId: string) {
+    setAddingToCartId(productId);
+    try {
+      await addToCartMutation.mutateAsync({ productId, quantity: 1 });
+      toast.success('Added to cart');
+    } catch {
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCartId(null);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -118,11 +132,11 @@ export default function WishlistPage() {
                     {formatPrice(item.product.priceOre)}
                   </p>
                   <button
-                    onClick={() => addToCart({ productId: item.productId, quantity: 1 })}
-                    disabled={item.product.stock === 0 || addingToCart}
+                    onClick={() => handleAddToCart(item.productId)}
+                    disabled={item.product.stock === 0 || addingToCartId === item.productId}
                     className="btn-primary text-xs px-3 py-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Add to cart
+                    {addingToCartId === item.productId ? 'Adding…' : 'Add to cart'}
                   </button>
                 </div>
               </div>
