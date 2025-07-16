@@ -60,9 +60,10 @@ export async function addItem(userId: string, data: AddItemInput) {
   // Determine stock limit from variant or product
   let stockLimit = product.stock;
   if (data.variantId) {
-    const variant = await (prisma as unknown as { productVariant: { findUnique: (a: unknown) => Promise<{ stock: number } | null> } })
+    const variant = await (prisma as unknown as { productVariant: { findUnique: (a: unknown) => Promise<{ stock: number; isActive: boolean } | null> } })
       .productVariant.findUnique({ where: { id: data.variantId } });
-    if (variant) stockLimit = variant.stock;
+    if (!variant || !variant.isActive) throw AppError.notFound('Product variant not found');
+    stockLimit = variant.stock;
   }
 
   const cart = await getOrCreateCart(userId);
