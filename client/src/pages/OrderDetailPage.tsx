@@ -101,6 +101,27 @@ export default function OrderDetailPage() {
         <OrderTimeline status={order.status} />
       </div>
 
+      {/* Shipping info */}
+      {((order as unknown as { trackingNumber?: string | null }).trackingNumber || (order as unknown as { customerNote?: string | null }).customerNote) && (
+        <div className="card p-6 mb-6">
+          {(order as unknown as { trackingNumber?: string | null }).trackingNumber && (
+            <div className="mb-4 last:mb-0">
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Tracking number</p>
+              <p className="font-mono text-stone-900 text-sm">{(order as unknown as { trackingNumber: string }).trackingNumber}</p>
+              {(order as unknown as { carrier?: string | null }).carrier && (
+                <p className="text-xs text-stone-500 mt-0.5">via {(order as unknown as { carrier: string }).carrier}</p>
+              )}
+            </div>
+          )}
+          {(order as unknown as { customerNote?: string | null }).customerNote && (
+            <div>
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Your note</p>
+              <p className="text-stone-700 text-sm">{(order as unknown as { customerNote: string }).customerNote}</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Items */}
       <div className="card p-6 mb-6">
         <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-5">Items</h2>
