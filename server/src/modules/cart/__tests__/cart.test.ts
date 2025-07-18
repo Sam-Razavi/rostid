@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../../../app';
-import { testProductId } from '../../../test/setup';
+import { prisma, testProductId } from '../../../test/setup';
 
 async function loginCustomer() {
   const res = await request(app).post('/api/auth/login').send({
@@ -58,6 +58,26 @@ describe('Cart API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ productId: testProductId, quantity: 0 });
       expect(res.status).toBe(400);
+    });
+
+    it('returns 404 when product is inactive', async () => {
+      await prisma.product.update({ where: { id: testProductId }, data: { isActive: false } });
+      const token = await loginCustomer();
+      const res = await request(app)
+        .post('/api/cart/items')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId: testProductId, quantity: 1 });
+      expect(res.status).toBe(404);
+    });
+
+    it('returns 400 when quantity exceeds available stock', async () => {
+      const token = await loginCustomer();
+      const res = await request(app)
+        .post('/api/cart/items')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId: testProductId, quantity: 51 });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/in stock/i);
     });
   });
 
