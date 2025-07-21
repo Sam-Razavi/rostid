@@ -103,4 +103,81 @@ describe('Admin API', () => {
       expect(res.body.data.orders).toBeInstanceOf(Array);
     });
   });
+
+  describe('POST /api/admin/products/bulk', () => {
+    it('deactivates products in bulk', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .post('/api/admin/products/bulk')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ids: [testProductId], action: 'deactivate' });
+      expect(res.status).toBe(200);
+      expect(res.body.message).toMatch(/deactivat/i);
+    });
+
+    it('activates products in bulk', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .post('/api/admin/products/bulk')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ids: [testProductId], action: 'activate' });
+      expect(res.status).toBe(200);
+      expect(res.body.message).toMatch(/activat/i);
+    });
+
+    it('returns 400 for empty ids array', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .post('/api/admin/products/bulk')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ids: [], action: 'activate' });
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 for unknown action', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .post('/api/admin/products/bulk')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ids: [testProductId], action: 'delete' });
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('GET /api/admin/stats/revenue', () => {
+    it('returns revenue time series with default granularity', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/stats/revenue')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toBeInstanceOf(Array);
+    });
+
+    it('accepts daily granularity param', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/stats/revenue?granularity=daily')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toBeInstanceOf(Array);
+    });
+
+    it('accepts monthly granularity param', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/stats/revenue?granularity=monthly')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toBeInstanceOf(Array);
+    });
+
+    it('accepts from/to date range params', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/stats/revenue?granularity=daily&from=2025-01-01&to=2025-12-31')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+    });
+  });
 });
