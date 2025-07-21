@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  PieChart, Pie, Cell, Legend, LineChart, Line,
 } from 'recharts';
-import { fetchAdminStats, fetchAdminProducts } from '../../api/admin.api';
+import { fetchAdminStats, fetchAdminProducts, fetchRevenueTimeSeries } from '../../api/admin.api';
 import { OrderStatusBadge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
 
@@ -34,6 +34,11 @@ export default function AdminDashboard() {
   const { data: allProducts } = useQuery({
     queryKey: ['admin', 'products'],
     queryFn: fetchAdminProducts,
+  });
+
+  const { data: weeklyRevenue } = useQuery({
+    queryKey: ['admin', 'revenue', 'weekly'],
+    queryFn: () => fetchRevenueTimeSeries('weekly'),
   });
 
   const lowStockProducts = (allProducts ?? []).filter((p) => p.isActive && p.stock > 0 && p.stock <= 5);
@@ -178,6 +183,22 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Weekly revenue trend */}
+      {weeklyRevenue && weeklyRevenue.length > 1 && (
+        <div className="bg-white rounded-xl shadow-soft border border-stone-100 p-6 mb-6 mt-6">
+          <h2 className="font-semibold text-stone-900 mb-6">Weekly revenue trend</h2>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={weeklyRevenue.map((d) => ({ week: d.date, revenue: Math.round(d.revenueOre / 100) }))} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" />
+              <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#78716c' }} />
+              <YAxis tick={{ fontSize: 11, fill: '#78716c' }} />
+              <Tooltip formatter={(v) => [`${v} kr`, 'Revenue']} contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }} />
+              <Line type="monotone" dataKey="revenue" stroke="#5E3516" strokeWidth={2} dot={{ r: 3, fill: '#5E3516' }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Revenue by product */}
       {stats && stats.revenueByProduct && stats.revenueByProduct.length > 0 && (

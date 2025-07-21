@@ -16,6 +16,11 @@ export async function fetchAdminStats(): Promise<AdminStats> {
   return data.data;
 }
 
+export async function fetchRevenueTimeSeries(granularity: 'daily' | 'weekly' | 'monthly' = 'weekly'): Promise<Array<{ date: string; revenueOre: number }>> {
+  const { data } = await apiClient.get<ApiResponse<Array<{ date: string; revenueOre: number }>>>('/admin/stats/revenue', { params: { granularity } });
+  return data.data;
+}
+
 export async function fetchAdminProducts(): Promise<Product[]> {
   const { data } = await apiClient.get<ApiResponse<Product[]>>('/admin/products');
   return data.data;
