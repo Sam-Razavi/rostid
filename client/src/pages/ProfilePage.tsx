@@ -11,6 +11,12 @@ import { fetchLoyaltyBalance } from '../api/loyalty.api';
 import { checkPasswordStrength } from '../utils/passwordStrength';
 import type { ApiResponse, User } from '../types';
 
+const REASON_LABELS: Record<string, string> = {
+  order_earn: 'Earned on order',
+  redemption: 'Redeemed at checkout',
+  adjustment: 'Manual adjustment',
+};
+
 function AddressBook() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -219,6 +225,33 @@ export default function ProfilePage() {
       </div>
 
       <AddressBook />
+
+      {/* Loyalty points history */}
+      {loyalty && (loyalty as unknown as { transactions?: Array<{ id: string; delta: number; reason: string; createdAt: string }> }).transactions && (
+        <div className="card p-8 mb-6">
+          <h2 className="text-lg font-semibold text-stone-900 mb-1">Loyalty points</h2>
+          <p className="text-sm text-stone-500 mb-5">
+            You have <span className="font-semibold text-espresso-800">{loyalty.points} pts</span> — lifetime earned: {(loyalty as unknown as { lifetimeEarned?: number }).lifetimeEarned ?? 0} pts
+          </p>
+          {((loyalty as unknown as { transactions?: unknown[] }).transactions?.length ?? 0) === 0 ? (
+            <p className="text-sm text-stone-400 text-center py-4">No transactions yet.</p>
+          ) : (
+            <div className="divide-y divide-stone-100">
+              {(loyalty as unknown as { transactions: Array<{ id: string; delta: number; reason: string; createdAt: string }> }).transactions.map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between py-3 text-sm">
+                  <div>
+                    <p className="text-stone-700">{REASON_LABELS[tx.reason] ?? tx.reason}</p>
+                    <p className="text-xs text-stone-400">{new Date(tx.createdAt).toLocaleDateString('sv-SE')}</p>
+                  </div>
+                  <span className={`font-semibold tabular-nums ${tx.delta > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {tx.delta > 0 ? '+' : ''}{tx.delta} pts
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Password section */}
       <div className="card p-8">
