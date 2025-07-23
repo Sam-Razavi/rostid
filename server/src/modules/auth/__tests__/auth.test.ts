@@ -1,6 +1,17 @@
 import { describe, it, expect } from 'vitest';
+import bcrypt from 'bcryptjs';
 import request from 'supertest';
 import app from '../../../app';
+import { prisma, testCustomerId } from '../../../test/setup';
+
+type ResetTokenPrisma = {
+  passwordResetToken: {
+    create: (a: unknown) => Promise<unknown>;
+    deleteMany: (a: unknown) => Promise<unknown>;
+    findFirst: (a: unknown) => Promise<{ tokenHash: string } | null>;
+  };
+};
+const resetDb = prisma as unknown as ResetTokenPrisma;
 
 describe('Auth API', () => {
   describe('POST /api/auth/register', () => {
@@ -82,6 +93,63 @@ describe('Auth API', () => {
     it('rejects unauthenticated request', async () => {
       const res = await request(app).get('/api/auth/me');
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe('POST /api/auth/forgot-password', () => {
+    it('always returns 200 for known email', async () => {
+      const res = await request(app)
+        .post('/api/auth/forgot-password')
+        .send({ email: 'customer@test.com' });
+      expect(res.status).toBe(200);
+    });
+
+    it('always returns 200 for unknown email (no user enumeration)', async () => {
+      const res = await request(app)
+        .post('/api/auth/forgot-password')
+        .send({ email: 'ghost@nobody.test' });
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('POST /api/auth/reset-password', () => {
+    it('returns 400 when required fields are missing', async () => {
+      const res = await request(app)
+        .post('/api/auth/reset-password')
+        .send({ userId: testCustomerId });
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 for invalid token', async () => {
+      const res = await request(app)
+        .post('/api/auth/reset-password')
+        .send({ userId: testCustomerId, token: 'badtoken', password: 'newpassword99' });
+      expect(res.status).toBe(400);
+    });
+
+    it('resets password with valid token and invalidates refresh tokens', async () => {
+      const rawToken = 'validresettoken123';
+      const tokenHash = await bcrypt.hash(rawToken, 10);
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+      await resetDb.passwordResetToken.create({
+        data: { userId: testCustomerId, tokenHash, expiresAt },
+      });
+
+      const loginBefore = await request(app).post('/api/auth/login').send({
+        email: 'customer@test.com',
+        password: 'password123',
+      });
+      const refreshCookie = loginBefore.headers['set-cookie'];
+
+      const res = await request(app)
+        .post('/api/auth/reset-password')
+        .send({ userId: testCustomerId, token: rawToken, password: 'newpassword456' });
+      expect(res.status).toBe(200);
+
+      const refreshRes = await request(app)
+        .post('/api/auth/refresh')
+        .set('Cookie', refreshCookie);
+      expect(refreshRes.status).toBe(401);
     });
   });
 
