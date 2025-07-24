@@ -21,6 +21,21 @@ export async function fetchRevenueTimeSeries(granularity: 'daily' | 'weekly' | '
   return data.data;
 }
 
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+export async function fetchNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
+  const { data } = await apiClient.get<ApiResponse<NewsletterSubscriber[]>>('/admin/newsletter');
+  return data.data;
+}
+
+export async function deleteNewsletterSubscriber(id: string): Promise<void> {
+  await apiClient.delete(`/admin/newsletter/${id}`);
+}
+
 export async function fetchAdminProducts(): Promise<Product[]> {
   const { data } = await apiClient.get<ApiResponse<Product[]>>('/admin/products');
   return data.data;

@@ -25,6 +25,7 @@ export default function AdminLayout() {
     { to: '/admin/subscriptions', label: 'Subscriptions', end: false },
     { to: '/admin/returns', label: 'Returns', end: false },
     { to: '/admin/gift-cards', label: 'Gift Cards', end: false },
+    { to: '/admin/newsletter', label: 'Newsletter', end: false },
   ];
 
   return (
