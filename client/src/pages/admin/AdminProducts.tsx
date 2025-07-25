@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
   fetchAdminProducts, deleteProduct, createProduct, updateProduct,
-  fetchAdminVariants, createAdminVariant, deleteAdminVariant,
+  fetchAdminVariants, createAdminVariant, deleteAdminVariant, bulkProductAction,
 } from '../../api/admin.api';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -104,6 +104,7 @@ export default function AdminProducts() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [variantsProduct, setVariantsProduct] = useState<Product | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['admin', 'products'],
@@ -139,10 +140,36 @@ export default function AdminProducts() {
     onError: () => toast.error('Failed to update product'),
   });
 
+  const bulk = useMutation({
+    mutationFn: ({ ids, action }: { ids: string[]; action: 'activate' | 'deactivate' }) => bulkProductAction(ids, action),
+    onSuccess: (result, vars) => {
+      qc.invalidateQueries({ queryKey: ['admin', 'products'] });
+      setSelectedIds(new Set());
+      toast.success(`${result.updated} products ${vars.action}d`);
+    },
+    onError: () => toast.error('Bulk action failed'),
+  });
+
   const filtered = products?.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    if (selectedIds.size === (filtered?.length ?? 0)) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered?.map((p) => p.id) ?? []));
+    }
+  }
 
   return (
     <div>
@@ -153,7 +180,7 @@ export default function AdminProducts() {
         </Button>
       </div>
 
-      <div className="mb-5">
+      <div className="flex items-center gap-3 mb-5">
         <input
           type="search"
           placeholder="Search products..."
@@ -161,6 +188,17 @@ export default function AdminProducts() {
           onChange={(e) => setSearch(e.target.value)}
           className="input-field max-w-xs text-sm py-2"
         />
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-2 ml-4">
+            <span className="text-sm text-stone-600">{selectedIds.size} selected</span>
+            <Button size="sm" variant="secondary" onClick={() => bulk.mutate({ ids: Array.from(selectedIds), action: 'activate' })} loading={bulk.isPending}>
+              Activate
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => bulk.mutate({ ids: Array.from(selectedIds), action: 'deactivate' })} loading={bulk.isPending} className="text-red-600 hover:text-red-800">
+              Deactivate
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-soft border border-stone-100 overflow-hidden">
@@ -168,6 +206,9 @@ export default function AdminProducts() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-stone-100 text-xs text-stone-500 uppercase tracking-wide">
+                <th className="px-4 py-3 w-10">
+                  <input type="checkbox" onChange={toggleAll} checked={selectedIds.size > 0 && selectedIds.size === filtered?.length} className="accent-espresso-700" />
+                </th>
                 <th className="text-left px-6 py-3 font-medium">Product</th>
                 <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Category</th>
                 <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Roast</th>
@@ -181,6 +222,7 @@ export default function AdminProducts() {
               {isLoading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
+                      <td className="px-4 py-4"><Skeleton className="h-4 w-4" /></td>
                       <td className="px-6 py-4"><Skeleton className="h-4 w-40" /></td>
                       <td className="px-4 py-4 hidden md:table-cell"><Skeleton className="h-4 w-24" /></td>
                       <td className="px-4 py-4 hidden lg:table-cell"><Skeleton className="h-4 w-16" /></td>
@@ -192,6 +234,9 @@ export default function AdminProducts() {
                   ))
                 : filtered?.map((product) => (
                     <tr key={product.id} className="hover:bg-stone-50 transition-colors">
+                      <td className="px-4 py-4">
+                        <input type="checkbox" checked={selectedIds.has(product.id)} onChange={() => toggleSelect(product.id)} className="accent-espresso-700" />
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-espresso-50 overflow-hidden shrink-0">

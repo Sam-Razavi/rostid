@@ -41,6 +41,11 @@ export async function fetchAdminProducts(): Promise<Product[]> {
   return data.data;
 }
 
+export async function bulkProductAction(ids: string[], action: 'activate' | 'deactivate'): Promise<{ updated: number }> {
+  const { data } = await apiClient.post<ApiResponse<{ updated: number }>>('/admin/products/bulk', { ids, action });
+  return data.data;
+}
+
 export async function createProduct(payload: Partial<Product>): Promise<Product> {
   const { data } = await apiClient.post<ApiResponse<Product>>('/admin/products', payload);
   return data.data;
