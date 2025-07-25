@@ -67,6 +67,60 @@ describe('Orders API', () => {
     });
   });
 
+  describe('PATCH /api/orders/:id/cancel', () => {
+    it('cancels a pending order', async () => {
+      const token = await loginCustomer();
+      const orderRes = await addToCartAndCheckout(token);
+      const orderId = orderRes.body.data.order.id;
+
+      const res = await request(app)
+        .patch(`/api/orders/${orderId}/cancel`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.order.status).toBe('cancelled');
+    });
+
+    it('restores stock after cancellation', async () => {
+      const token = await loginCustomer();
+      const before = await prisma.product.findUniqueOrThrow({ where: { id: testProductId } });
+      const orderRes = await addToCartAndCheckout(token);
+      const orderId = orderRes.body.data.order.id;
+
+      await request(app)
+        .patch(`/api/orders/${orderId}/cancel`)
+        .set('Authorization', `Bearer ${token}`);
+
+      const after = await prisma.product.findUniqueOrThrow({ where: { id: testProductId } });
+      expect(after.stock).toBe(before.stock);
+    });
+
+    it('returns 400 when trying to cancel a delivered order', async () => {
+      const token = await loginCustomer();
+      const orderRes = await addToCartAndCheckout(token);
+      const orderId = orderRes.body.data.order.id;
+      await prisma.order.update({ where: { id: orderId }, data: { status: 'delivered' } });
+
+      const res = await request(app)
+        .patch(`/api/orders/${orderId}/cancel`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('GET /api/orders (pagination)', () => {
+    it('returns pagination metadata', async () => {
+      const token = await loginCustomer();
+      await addToCartAndCheckout(token);
+      const res = await request(app)
+        .get('/api/orders?page=1&limit=10')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('total');
+      expect(res.body.data).toHaveProperty('totalPages');
+      expect(res.body.data.orders).toBeInstanceOf(Array);
+    });
+  });
+
   describe('GET /api/orders/:id', () => {
     it('returns order detail', async () => {
       const token = await loginCustomer();
