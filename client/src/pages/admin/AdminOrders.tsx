@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -45,9 +46,12 @@ const STATUS_FLOW: OrderStatus[] = ['pending', 'confirmed', 'processing', 'shipp
 
 export default function AdminOrders() {
   const qc = useQueryClient();
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+
   const { data: orders, isLoading } = useQuery({
-    queryKey: ['admin', 'orders'],
-    queryFn: fetchAdminOrders,
+    queryKey: ['admin', 'orders', fromDate, toDate],
+    queryFn: () => fetchAdminOrders({ from: fromDate || undefined, to: toDate || undefined }),
   });
 
   const statusUpdate = useMutation({
@@ -58,12 +62,28 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-900">Orders</h1>
         {orders && orders.length > 0 && (
           <Button variant="secondary" size="sm" onClick={() => exportCSV(orders)}>
             Export CSV
           </Button>
+        )}
+      </div>
+
+      <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-2 text-sm text-stone-600">
+          <label className="font-medium">From</label>
+          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="input-field text-sm py-1.5" />
+        </div>
+        <div className="flex items-center gap-2 text-sm text-stone-600">
+          <label className="font-medium">To</label>
+          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="input-field text-sm py-1.5" />
+        </div>
+        {(fromDate || toDate) && (
+          <button onClick={() => { setFromDate(''); setToDate(''); }} className="text-xs text-stone-500 hover:text-stone-700 cursor-pointer">
+            Clear
+          </button>
         )}
       </div>
 

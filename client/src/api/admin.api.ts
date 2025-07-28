@@ -74,8 +74,8 @@ export interface AdminOrder extends Order {
   returns?: AdminReturn[];
 }
 
-export async function fetchAdminOrders(): Promise<AdminOrder[]> {
-  const { data } = await apiClient.get<ApiResponse<AdminOrder[]>>('/admin/orders');
+export async function fetchAdminOrders(params?: { from?: string; to?: string }): Promise<AdminOrder[]> {
+  const { data } = await apiClient.get<ApiResponse<AdminOrder[]>>('/admin/orders', { params });
   return data.data;
 }
 
