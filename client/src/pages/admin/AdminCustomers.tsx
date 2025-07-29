@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAdminCustomers } from '../../api/admin.api';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -11,16 +12,33 @@ function formatDate(iso: string) {
 }
 
 export default function AdminCustomers() {
+  const [search, setSearch] = useState('');
+
   const { data: customers, isLoading } = useQuery({
     queryKey: ['admin', 'customers'],
     queryFn: fetchAdminCustomers,
   });
 
+  const filtered = customers?.filter((c) => {
+    const q = search.toLowerCase();
+    return !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
+  });
+
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-900">Customers</h1>
-        <span className="text-stone-500 text-sm">{customers?.length ?? 0} registered</span>
+        <span className="text-stone-500 text-sm">{filtered?.length ?? 0} of {customers?.length ?? 0}</span>
+      </div>
+
+      <div className="mb-5">
+        <input
+          type="search"
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input-field max-w-xs text-sm py-2"
+        />
       </div>
 
       <div className="card overflow-hidden">
@@ -46,7 +64,7 @@ export default function AdminCustomers() {
                       ))}
                     </tr>
                   ))
-                : customers?.map((c) => (
+                : filtered?.map((c) => (
                     <tr key={c.id} className="hover:bg-stone-50 transition-colors">
                       <td className="px-4 py-3 font-medium text-stone-900">{c.name}</td>
                       <td className="px-4 py-3 text-stone-600">{c.email}</td>
