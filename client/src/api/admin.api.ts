@@ -46,6 +46,11 @@ export async function bulkProductAction(ids: string[], action: 'activate' | 'dea
   return data.data;
 }
 
+export async function updateCustomerNote(customerId: string, adminNote: string): Promise<unknown> {
+  const { data } = await apiClient.patch<ApiResponse<unknown>>(`/admin/customers/${customerId}/note`, { adminNote });
+  return data.data;
+}
+
 export async function createProduct(payload: Partial<Product>): Promise<Product> {
   const { data } = await apiClient.post<ApiResponse<Product>>('/admin/products', payload);
   return data.data;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchAdminCustomers } from '../../api/admin.api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import { fetchAdminCustomers, updateCustomerNote } from '../../api/admin.api';
 import { Skeleton } from '../../components/ui/Skeleton';
 
 function formatPrice(ore: number) {
@@ -12,7 +13,20 @@ function formatDate(iso: string) {
 }
 
 export default function AdminCustomers() {
+  const qc = useQueryClient();
   const [search, setSearch] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [noteValue, setNoteValue] = useState('');
+
+  const noteMutation = useMutation({
+    mutationFn: ({ id, note }: { id: string; note: string }) => updateCustomerNote(id, note),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'customers'] });
+      setEditingNoteId(null);
+      toast.success('Note saved');
+    },
+    onError: () => toast.error('Failed to save note'),
+  });
 
   const { data: customers, isLoading } = useQuery({
     queryKey: ['admin', 'customers'],
@@ -51,6 +65,7 @@ export default function AdminCustomers() {
                 <th className="text-left px-4 py-3 font-medium text-stone-500">Joined</th>
                 <th className="text-right px-4 py-3 font-medium text-stone-500">Orders</th>
                 <th className="text-right px-4 py-3 font-medium text-stone-500">Total spend</th>
+                <th className="text-left px-4 py-3 font-medium text-stone-500">Admin note</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -72,6 +87,31 @@ export default function AdminCustomers() {
                       <td className="px-4 py-3 text-right text-stone-700 tabular-nums">{c.orderCount}</td>
                       <td className="px-4 py-3 text-right font-medium text-espresso-800 tabular-nums">
                         {formatPrice(c.totalSpendOre)}
+                      </td>
+                      <td className="px-4 py-3 max-w-[200px]">
+                        {editingNoteId === c.id ? (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="text"
+                              value={noteValue}
+                              onChange={(e) => setNoteValue(e.target.value)}
+                              className="input-field text-xs py-1 flex-1"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') noteMutation.mutate({ id: c.id, note: noteValue });
+                                if (e.key === 'Escape') setEditingNoteId(null);
+                              }}
+                            />
+                            <button onClick={() => noteMutation.mutate({ id: c.id, note: noteValue })} className="text-xs text-espresso-700 font-medium cursor-pointer hover:text-espresso-900">Save</button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => { setEditingNoteId(c.id); setNoteValue((c as unknown as { adminNote?: string }).adminNote ?? ''); }}
+                            className="text-xs text-stone-500 hover:text-stone-800 cursor-pointer truncate max-w-full text-left"
+                          >
+                            {(c as unknown as { adminNote?: string }).adminNote || <span className="text-stone-300">+ Add note</span>}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
