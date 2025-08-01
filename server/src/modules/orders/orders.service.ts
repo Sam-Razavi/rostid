@@ -31,7 +31,10 @@ export async function placeOrder(userId: string) {
     where: { userId },
     include: {
       items: {
-        include: { product: true },
+        include: {
+          product: true,
+          variant: { select: { id: true, priceOre: true, stock: true } },
+        },
       },
     },
   });
@@ -44,13 +47,14 @@ export async function placeOrder(userId: string) {
     if (!item.product.isActive) {
       throw AppError.badRequest(`${item.product.name} is no longer available`);
     }
-    if (item.quantity > item.product.stock) {
+    const stock = item.variant?.stock ?? item.product.stock;
+    if (item.quantity > stock) {
       throw AppError.badRequest(`Not enough stock for ${item.product.name}`);
     }
   }
 
   const totalOre = cart.items.reduce(
-    (sum, item) => sum + item.product.priceOre * item.quantity,
+    (sum, item) => sum + (item.variant?.priceOre ?? item.product.priceOre) * item.quantity,
     0
   );
 
@@ -63,8 +67,9 @@ export async function placeOrder(userId: string) {
         items: {
           create: cart.items.map((item) => ({
             productId: item.productId,
+            variantId: item.variantId ?? undefined,
             quantity: item.quantity,
-            unitPriceOre: item.product.priceOre,
+            unitPriceOre: item.variant?.priceOre ?? item.product.priceOre,
           })),
         },
       },
