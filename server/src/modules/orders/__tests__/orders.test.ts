@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../../../app';
-import { testProductId, prisma } from '../../../test/setup';
+import { testProductId, prisma, testCategoryId } from '../../../test/setup';
+
+type VariantPrisma = {
+  productVariant: {
+    create: (a: unknown) => Promise<{ id: string; priceOre: number }>;
+  };
+};
+const variantDb = prisma as unknown as VariantPrisma;
 
 async function loginCustomer() {
   const res = await request(app).post('/api/auth/login').send({
@@ -64,6 +71,34 @@ describe('Orders API', () => {
       const res = await request(app).get('/api/orders').set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data.orders.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('POST /api/orders (variant pricing)', () => {
+    it('uses variant priceOre instead of base product price', async () => {
+      const token = await loginCustomer();
+      const variant = await variantDb.productVariant.create({
+        data: {
+          productId: testProductId,
+          name: '250g',
+          priceOre: 9900,
+          stock: 10,
+          isActive: true,
+        },
+      });
+
+      await request(app)
+        .post('/api/cart/items')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId: testProductId, variantId: variant.id, quantity: 1 });
+
+      const res = await request(app)
+        .post('/api/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ shippingAddress: '1 Variant St, Stockholm' });
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.order.totalOre).toBe(9900);
     });
   });
 
