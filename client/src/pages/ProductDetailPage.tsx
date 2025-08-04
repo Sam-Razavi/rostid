@@ -148,6 +148,21 @@ export default function ProductDetailPage() {
         "name": product.name,
         "description": product.description,
         "image": product.imageUrl ?? undefined,
+        "sku": product.id,
+        "url": `${window.location.origin}/products/${product.slug}`,
+        "brand": { "@type": "Brand", "name": "Rostid" },
+        "category": product.category.name,
+        ...(product.origin ? { "countryOfOrigin": product.origin } : {}),
+        ...(product.weightGrams ? { "weight": { "@type": "QuantitativeValue", "value": product.weightGrams, "unitCode": "GRM" } } : {}),
+        ...(reviewsData?.averageRating ? {
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": reviewsData.averageRating,
+            "reviewCount": reviewsData.total,
+            "bestRating": 5,
+            "worstRating": 1,
+          },
+        } : {}),
         "offers": {
           "@type": "Offer",
           "priceCurrency": "SEK",
@@ -155,8 +170,8 @@ export default function ProductDetailPage() {
           "availability": product.stock > 0
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
+          "seller": { "@type": "Organization", "name": "Rostid" },
         },
-        "brand": { "@type": "Brand", "name": "Rostid" },
       })}</script>
     </Helmet>
     <div className="container-page py-12">
