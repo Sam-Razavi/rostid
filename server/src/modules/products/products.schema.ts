@@ -11,6 +11,7 @@ export const listProductsSchema = z.object({
     limit: z.string().optional().transform((v) => (v ? Math.min(parseInt(v, 10), 50) : 12)),
     sort: z.enum(['newest', 'price_asc', 'price_desc', 'name_asc']).optional().default('newest'),
     exclude: z.string().optional(),
+    inStock: z.string().optional().transform((v) => v === 'true' ? true : undefined),
   }),
 });
 

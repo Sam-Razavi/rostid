@@ -4,11 +4,12 @@ import { AppError } from '../../utils/AppError';
 import type { ListProductsQuery } from './products.schema';
 
 export async function listProducts(query: ListProductsQuery) {
-  const { category, roast, search, minPrice, maxPrice, page, limit, sort, exclude } = query;
+  const { category, roast, search, minPrice, maxPrice, page, limit, sort, exclude, inStock } = query;
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
     ...(exclude && { id: { not: exclude } }),
+    ...(inStock && { stock: { gt: 0 } }),
     ...(category && { category: { slug: category } }),
     ...(roast && { roastLevel: roast }),
     ...(search && {
