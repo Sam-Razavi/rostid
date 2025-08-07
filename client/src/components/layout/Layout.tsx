@@ -14,10 +14,9 @@ export default function Layout() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Skip to main content — visible on focus for keyboard users */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-espresso-800 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-medium focus:outline-none focus:ring-2 focus:ring-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-1/2 focus:-translate-x-1/2 focus:z-[200] focus:bg-espresso-900 focus:text-white focus:px-6 focus:py-3 focus:rounded-xl focus:text-sm focus:font-semibold focus:shadow-warm focus:outline-none focus:ring-2 focus:ring-espresso-400 focus:ring-offset-2"
       >
         Skip to main content
       </a>
