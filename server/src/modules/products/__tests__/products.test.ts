@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../../../app';
-import { testProductSlug, testCategoryId } from '../../../test/setup';
+import { testProductSlug, testCategoryId, prisma } from '../../../test/setup';
 
 describe('Products API', () => {
   describe('GET /api/products', () => {
@@ -35,6 +35,62 @@ describe('Products API', () => {
       const productId = allRes.body.data.products[0].id;
       const res = await request(app).get(`/api/products?exclude=${productId}`);
       expect(res.body.data.products.every((p: { id: string }) => p.id !== productId)).toBe(true);
+    });
+
+    it('filters by minPrice', async () => {
+      await prisma.product.create({
+        data: {
+          name: 'Cheap Coffee',
+          slug: 'cheap-coffee',
+          description: 'Budget option',
+          priceOre: 4900,
+          stock: 5,
+          categoryId: testCategoryId,
+        },
+      });
+      const res = await request(app).get('/api/products?minPrice=10000');
+      expect(res.status).toBe(200);
+      expect(
+        res.body.data.products.every((p: { priceOre: number }) => p.priceOre >= 10000)
+      ).toBe(true);
+    });
+
+    it('filters by maxPrice', async () => {
+      const res = await request(app).get('/api/products?maxPrice=10000');
+      expect(res.status).toBe(200);
+      expect(
+        res.body.data.products.every((p: { priceOre: number }) => p.priceOre <= 10000)
+      ).toBe(true);
+    });
+
+    it('sorts by price ascending', async () => {
+      await prisma.product.create({
+        data: {
+          name: 'Premium Coffee',
+          slug: 'premium-coffee',
+          description: 'Premium',
+          priceOre: 29900,
+          stock: 5,
+          categoryId: testCategoryId,
+        },
+      });
+      const res = await request(app).get('/api/products?sort=price_asc');
+      expect(res.status).toBe(200);
+      const prices = res.body.data.products.map((p: { priceOre: number }) => p.priceOre);
+      expect(prices).toEqual([...prices].sort((a, b) => a - b));
+    });
+
+    it('sorts by price descending', async () => {
+      const res = await request(app).get('/api/products?sort=price_desc');
+      expect(res.status).toBe(200);
+      const prices = res.body.data.products.map((p: { priceOre: number }) => p.priceOre);
+      expect(prices).toEqual([...prices].sort((a, b) => b - a));
+    });
+
+    it('supports multi-word search', async () => {
+      const res = await request(app).get('/api/products?search=Test+Coffee');
+      expect(res.status).toBe(200);
+      expect(res.body.data.products.length).toBeGreaterThanOrEqual(1);
     });
   });
 
