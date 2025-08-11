@@ -3,6 +3,7 @@ import { useLocation, Outlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
+import { CookieBanner } from '../ui/CookieBanner';
 
 export default function Layout() {
   const location = useLocation();
@@ -43,6 +44,7 @@ export default function Layout() {
       </main>
 
       <Footer />
+      <CookieBanner />
     </div>
   );
 }
