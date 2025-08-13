@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 const apiClient = axios.create({
   baseURL: '/api',
   withCredentials: true,
+  timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -22,6 +23,14 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config;
+
+    if (axios.isCancel(error)) return Promise.reject(error);
+
+    if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
+      const networkError = new Error('Network error. Please check your connection.');
+      (networkError as unknown as { response: unknown }).response = { data: { message: 'Network error. Please check your connection.' } };
+      return Promise.reject(networkError);
+    }
 
     if (error.response?.status !== 401 || original._retried) {
       return Promise.reject(error);
