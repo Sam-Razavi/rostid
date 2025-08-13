@@ -9,10 +9,16 @@ export function errorHandler(
   _next: NextFunction
 ): void {
   if (err instanceof ZodError) {
+    const fields: Record<string, string> = {};
+    for (const issue of err.errors) {
+      const key = issue.path.join('.');
+      if (key && !fields[key]) fields[key] = issue.message;
+    }
     res.status(400).json({
       error: 'VALIDATION_ERROR',
       message: 'Invalid request data',
       issues: err.errors,
+      fields,
     });
     return;
   }
