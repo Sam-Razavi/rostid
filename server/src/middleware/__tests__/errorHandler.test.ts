@@ -32,6 +32,51 @@ describe('errorHandler', () => {
     );
   });
 
+  it('includes field-level error map in ZodError response', () => {
+    const schema = z.object({ email: z.string().email(), age: z.number().min(18) });
+    let zodErr: ZodError;
+    try {
+      schema.parse({ email: 'not-an-email', age: 5 });
+    } catch (e) {
+      zodErr = e as ZodError;
+    }
+    const { res, json } = mockRes();
+    errorHandler(zodErr!, req, res, next);
+    const body = (json.mock.calls[0][0] as { fields: Record<string, string> });
+    expect(body.fields).toBeDefined();
+    expect(body.fields).toHaveProperty('email');
+    expect(body.fields).toHaveProperty('age');
+    expect(typeof body.fields.email).toBe('string');
+  });
+
+  it('field map key uses dot-notation for nested paths', () => {
+    const schema = z.object({ address: z.object({ zip: z.string().min(5) }) });
+    let zodErr: ZodError;
+    try {
+      schema.parse({ address: { zip: '12' } });
+    } catch (e) {
+      zodErr = e as ZodError;
+    }
+    const { res, json } = mockRes();
+    errorHandler(zodErr!, req, res, next);
+    const body = (json.mock.calls[0][0] as { fields: Record<string, string> });
+    expect(body.fields).toHaveProperty('address.zip');
+  });
+
+  it('fields map only contains first error per field', () => {
+    const schema = z.object({ name: z.string().min(2).max(3) });
+    let zodErr: ZodError;
+    try {
+      schema.parse({ name: 'a' });
+    } catch (e) {
+      zodErr = e as ZodError;
+    }
+    const { res, json } = mockRes();
+    errorHandler(zodErr!, req, res, next);
+    const body = (json.mock.calls[0][0] as { fields: Record<string, string> });
+    expect(Object.keys(body.fields).filter(k => k === 'name')).toHaveLength(1);
+  });
+
   it('handles AppError with its statusCode and code', () => {
     const err = AppError.notFound('Order not found');
     const { res, json, status } = mockRes();
