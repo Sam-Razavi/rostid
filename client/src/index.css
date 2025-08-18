@@ -55,3 +55,10 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 }
+
+@media print {
+  nav, footer, .print\:hidden { display: none !important; }
+  body { background: white; color: black; }
+  .card { box-shadow: none; border: 1px solid #e7e5e4; }
+  a { color: inherit; text-decoration: none; }
+}
