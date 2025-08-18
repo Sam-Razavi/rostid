@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../../../app';
-import { testCategoryId, testProductId } from '../../../test/setup';
+import { testCategoryId, testProductId, testCustomerId } from '../../../test/setup';
 
 async function adminToken() {
   const res = await request(app).post('/api/auth/login').send({
@@ -141,6 +141,79 @@ describe('Admin API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ ids: [testProductId], action: 'delete' });
       expect(res.status).toBe(400);
+    });
+  });
+
+  describe('PATCH /api/admin/customers/:id/note', () => {
+    it('updates admin note for a customer', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .patch(`/api/admin/customers/${testCustomerId}/note`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ adminNote: 'VIP customer, handle with care' });
+      expect(res.status).toBe(200);
+      expect(res.body.data.adminNote).toBe('VIP customer, handle with care');
+    });
+
+    it('clears admin note when empty string provided', async () => {
+      const token = await adminToken();
+      await request(app)
+        .patch(`/api/admin/customers/${testCustomerId}/note`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ adminNote: 'Initial note' });
+      const res = await request(app)
+        .patch(`/api/admin/customers/${testCustomerId}/note`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ adminNote: '' });
+      expect(res.status).toBe(200);
+      expect(res.body.data.adminNote).toBe('');
+    });
+
+    it('returns 404 for unknown customer id', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .patch('/api/admin/customers/nonexistentid/note')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ adminNote: 'Note' });
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('GET /api/admin/orders (date range filter)', () => {
+    it('returns all orders without date filter', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/orders')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.orders).toBeInstanceOf(Array);
+    });
+
+    it('filters orders by from date', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/orders?from=2025-01-01')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.orders).toBeInstanceOf(Array);
+    });
+
+    it('filters orders by to date', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/orders?to=2099-12-31')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.orders).toBeInstanceOf(Array);
+    });
+
+    it('filters orders by date range returning empty for far future', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .get('/api/admin/orders?from=2099-01-01&to=2099-12-31')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.orders).toHaveLength(0);
     });
   });
 
