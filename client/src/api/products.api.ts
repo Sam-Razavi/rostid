@@ -11,6 +11,7 @@ export interface ProductsQuery {
   limit?: number;
   sort?: string;
   exclude?: string;
+  inStock?: boolean;
 }
 
 export async function fetchProducts(query: ProductsQuery = {}): Promise<ProductsResponse> {

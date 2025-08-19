@@ -28,10 +28,12 @@ export default function ProductsPage() {
   const searchParam = searchParams.get('search') ?? '';
   const minPriceParam = searchParams.get('minPrice') ?? '';
   const maxPriceParam = searchParams.get('maxPrice') ?? '';
+  const inStockParam = searchParams.get('inStock') === 'true';
 
   const [searchInput, setSearchInput] = useState(searchParam);
   const [minPrice, setMinPrice] = useState(minPriceParam);
   const [maxPrice, setMaxPrice] = useState(maxPriceParam);
+  const [inStock, setInStock] = useState(inStockParam);
   const debouncedSearch = useDebounce(searchInput, 300);
   const debouncedMin = useDebounce(minPrice, 400);
   const debouncedMax = useDebounce(maxPrice, 400);
@@ -78,9 +80,19 @@ export default function ProductsPage() {
   const minPriceVal = debouncedMin ? parseInt(debouncedMin, 10) : undefined;
   const maxPriceVal = debouncedMax ? parseInt(debouncedMax, 10) : undefined;
 
+  function handleInStockChange(value: boolean) {
+    setInStock(value);
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('inStock', 'true');
+    else next.delete('inStock');
+    next.delete('page');
+    setSearchParams(next, { replace: true });
+    setPage(1);
+  }
+
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['products', { category, roast, search: debouncedSearch, sort, page, minPriceVal, maxPriceVal }],
-    queryFn: () => fetchProducts({ category, roast, search: debouncedSearch, sort, page, limit: 12, minPrice: minPriceVal, maxPrice: maxPriceVal }),
+    queryKey: ['products', { category, roast, search: debouncedSearch, sort, page, minPriceVal, maxPriceVal, inStock }],
+    queryFn: () => fetchProducts({ category, roast, search: debouncedSearch, sort, page, limit: 12, minPrice: minPriceVal, maxPrice: maxPriceVal, inStock: inStock || undefined }),
     placeholderData: (prev) => prev,
   });
 
@@ -123,12 +135,14 @@ export default function ProductsPage() {
           sort={sort}
           minPrice={minPrice}
           maxPrice={maxPrice}
+          inStock={inStock}
           onCategoryChange={(v) => updateParam('category', v)}
           onRoastChange={(v) => updateParam('roast', v)}
           onSearchChange={setSearchInput}
           onSortChange={(v) => updateParam('sort', v)}
           onMinPriceChange={setMinPrice}
           onMaxPriceChange={setMaxPrice}
+          onInStockChange={handleInStockChange}
         />
       </div>
 

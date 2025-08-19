@@ -8,12 +8,14 @@ interface FiltersProps {
   sort: string;
   minPrice: string;
   maxPrice: string;
+  inStock: boolean;
   onCategoryChange: (v: string) => void;
   onRoastChange: (v: string) => void;
   onSearchChange: (v: string) => void;
   onSortChange: (v: string) => void;
   onMinPriceChange: (v: string) => void;
   onMaxPriceChange: (v: string) => void;
+  onInStockChange: (v: boolean) => void;
 }
 
 export function ProductFilters({
@@ -23,12 +25,14 @@ export function ProductFilters({
   sort,
   minPrice,
   maxPrice,
+  inStock,
   onCategoryChange,
   onRoastChange,
   onSearchChange,
   onSortChange,
   onMinPriceChange,
   onMaxPriceChange,
+  onInStockChange,
 }: FiltersProps) {
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -88,6 +92,16 @@ export function ProductFilters({
           className="input-field w-20 text-sm py-2"
         />
       </div>
+
+      <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-stone-600 hover:text-stone-900">
+        <input
+          type="checkbox"
+          checked={inStock}
+          onChange={(e) => onInStockChange(e.target.checked)}
+          className="w-4 h-4 rounded border-stone-300 text-espresso-700 focus:ring-espresso-500 cursor-pointer"
+        />
+        In stock only
+      </label>
 
       <select
         value={sort}
