@@ -74,6 +74,39 @@ describe('Orders API', () => {
     });
   });
 
+  describe('POST /api/orders (stock validation)', () => {
+    it('rejects order when product stock is 0', async () => {
+      const token = await loginCustomer();
+      await request(app)
+        .post('/api/cart/items')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId: testProductId, quantity: 1 });
+      await prisma.product.update({ where: { id: testProductId }, data: { stock: 0 } });
+
+      const res = await request(app)
+        .post('/api/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ shippingAddress: '1 Out-of-Stock St' });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/stock/i);
+    });
+
+    it('rejects order when product is inactive at checkout time', async () => {
+      const token = await loginCustomer();
+      await request(app)
+        .post('/api/cart/items')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId: testProductId, quantity: 1 });
+      await prisma.product.update({ where: { id: testProductId }, data: { isActive: false } });
+
+      const res = await request(app)
+        .post('/api/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ shippingAddress: '1 Inactive St' });
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('POST /api/orders (variant pricing)', () => {
     it('uses variant priceOre instead of base product price', async () => {
       const token = await loginCustomer();
