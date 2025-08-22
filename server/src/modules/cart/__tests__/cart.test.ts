@@ -81,6 +81,51 @@ describe('Cart API', () => {
     });
   });
 
+  describe('PATCH /api/cart/items/:id (update quantity)', () => {
+    it('updates item quantity', async () => {
+      const token = await loginCustomer();
+      await request(app)
+        .post('/api/cart/items')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId: testProductId, quantity: 1 });
+      const cartRes = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
+      const itemId = cartRes.body.data.cart.items[0].id;
+
+      const res = await request(app)
+        .patch(`/api/cart/items/${itemId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ quantity: 3 });
+      expect(res.status).toBe(200);
+      expect(res.body.data.cart.items[0].quantity).toBe(3);
+    });
+
+    it('returns 400 when updated quantity exceeds stock', async () => {
+      const token = await loginCustomer();
+      await request(app)
+        .post('/api/cart/items')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId: testProductId, quantity: 1 });
+      const cartRes = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
+      const itemId = cartRes.body.data.cart.items[0].id;
+
+      const res = await request(app)
+        .patch(`/api/cart/items/${itemId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ quantity: 999 });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/in stock/i);
+    });
+
+    it('returns 404 when item does not belong to user cart', async () => {
+      const token = await loginCustomer();
+      const res = await request(app)
+        .patch('/api/cart/items/nonexistent-item-id')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ quantity: 2 });
+      expect(res.status).toBe(404);
+    });
+  });
+
   describe('DELETE /api/cart/items/:id', () => {
     it('removes an item from the cart', async () => {
       const token = await loginCustomer();
