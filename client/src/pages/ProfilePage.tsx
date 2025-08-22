@@ -8,6 +8,7 @@ import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { fetchAddresses, createAddress, deleteAddress, updateAddress, type ShippingAddress } from '../api/shipping.api';
 import { fetchLoyaltyBalance } from '../api/loyalty.api';
+import { checkPasswordStrength } from '../utils/passwordStrength';
 import type { ApiResponse, User } from '../types';
 
 function AddressBook() {
@@ -206,15 +207,30 @@ export default function ProfilePage() {
             required
             autoComplete="current-password"
           />
-          <Input
-            label="New password"
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="At least 8 characters"
-            required
-            autoComplete="new-password"
-          />
+          <div>
+            <Input
+              label="New password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="At least 8 characters"
+              required
+              autoComplete="new-password"
+            />
+            {newPassword.length > 0 && (() => {
+              const s = checkPasswordStrength(newPassword);
+              return (
+                <div className="mt-2">
+                  <div className="flex gap-1 mb-1">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`} />
+                    ))}
+                  </div>
+                  <p className="text-xs text-stone-500">{s.label}</p>
+                </div>
+              );
+            })()}
+          </div>
           <Input
             label="Confirm new password"
             type="password"

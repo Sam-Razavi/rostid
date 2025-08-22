@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { register } from '../api/auth.api';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { checkPasswordStrength } from '../utils/passwordStrength';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -67,15 +68,30 @@ export default function RegisterPage() {
               required
               autoComplete="email"
             />
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
-              required
-              autoComplete="new-password"
-            />
+            <div>
+              <Input
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 8 characters"
+                required
+                autoComplete="new-password"
+              />
+              {password.length > 0 && (() => {
+                const s = checkPasswordStrength(password);
+                return (
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`} />
+                      ))}
+                    </div>
+                    <p className="text-xs text-stone-500">{s.label}</p>
+                  </div>
+                );
+              })()}
+            </div>
 
             {error && (
               <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
