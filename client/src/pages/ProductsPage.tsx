@@ -46,6 +46,26 @@ export default function ProductsPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (debouncedMin) next.set('minPrice', debouncedMin);
+    else next.delete('minPrice');
+    next.delete('page');
+    setSearchParams(next, { replace: true });
+    setPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedMin]);
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (debouncedMax) next.set('maxPrice', debouncedMax);
+    else next.delete('maxPrice');
+    next.delete('page');
+    setSearchParams(next, { replace: true });
+    setPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedMax]);
+
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams);
     if (value) next.set(key, value);
