@@ -92,6 +92,38 @@ describe('Products API', () => {
       expect(res.status).toBe(200);
       expect(res.body.data.products.length).toBeGreaterThanOrEqual(1);
     });
+
+    it('returns pagination total in response', async () => {
+      const res = await request(app).get('/api/products');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('total');
+      expect(typeof res.body.data.total).toBe('number');
+      expect(res.body.data.total).toBeGreaterThanOrEqual(1);
+    });
+
+    it('total matches products count when no filters applied', async () => {
+      const res = await request(app).get('/api/products?limit=100');
+      expect(res.status).toBe(200);
+      expect(res.body.data.total).toBe(res.body.data.products.length);
+    });
+
+    it('category filter returns only matching products', async () => {
+      await prisma.category.create({ data: { name: 'Espresso', slug: 'espresso', description: 'Espresso beans' } }).then(async (cat) => {
+        await prisma.product.create({
+          data: {
+            name: 'Espresso Blend',
+            slug: 'espresso-blend',
+            description: 'Bold',
+            priceOre: 14900,
+            stock: 20,
+            categoryId: cat.id,
+          },
+        });
+      });
+      const res = await request(app).get('/api/products?category=test-category');
+      expect(res.status).toBe(200);
+      expect(res.body.data.products.every((p: { category: { slug: string } }) => p.category.slug === 'test-category')).toBe(true);
+    });
   });
 
   describe('GET /api/products/:slug', () => {
