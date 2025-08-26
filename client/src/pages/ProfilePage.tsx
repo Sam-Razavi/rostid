@@ -14,6 +14,7 @@ import type { ApiResponse, User } from '../types';
 function AddressBook() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [line1, setLine1] = useState('');
   const [city, setCity] = useState('');
@@ -33,7 +34,7 @@ function AddressBook() {
 
   const remove = useMutation({
     mutationFn: deleteAddress,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['addresses'] }); toast.success('Address removed'); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['addresses'] }); toast.success('Address removed'); setConfirmDeleteId(null); },
   });
 
   const setDefault = useMutation({
@@ -69,7 +70,7 @@ function AddressBook() {
                   Set default
                 </button>
               )}
-              <button onClick={() => remove.mutate(addr.id)} className="text-xs text-red-500 hover:text-red-700 cursor-pointer">
+              <button onClick={() => setConfirmDeleteId(addr.id)} className="text-xs text-red-500 hover:text-red-700 cursor-pointer">
                 Remove
               </button>
             </div>
@@ -88,6 +89,30 @@ function AddressBook() {
             <Button type="submit" size="sm" loading={add.isPending}>Save address</Button>
           </div>
         </form>
+      )}
+
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-warm">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Remove address?</h3>
+            <p className="text-stone-500 text-sm mb-6">This address will be permanently deleted.</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="text-sm font-medium text-stone-600 hover:text-stone-900 cursor-pointer min-h-[44px] px-4"
+              >
+                Cancel
+              </button>
+              <Button
+                onClick={() => remove.mutate(confirmDeleteId)}
+                loading={remove.isPending}
+                className="bg-red-600 hover:bg-red-700 text-sm"
+              >
+                Remove
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
