@@ -10,7 +10,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      thresholds: { lines: 70 },
+      thresholds: { lines: 75 },
       exclude: ['dist/**', 'prisma/**', 'src/test/**'],
     },
     testTimeout: 30000,
