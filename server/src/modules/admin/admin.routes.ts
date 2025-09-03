@@ -31,6 +31,7 @@ import {
   getRevenueTimeSeriesHandler,
   bulkProductActionHandler,
   updateCustomerNoteHandler,
+  adjustLoyaltyHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -57,6 +58,7 @@ router.get('/stats', asyncHandler(getStats));
 router.get('/stats/revenue', asyncHandler(getRevenueTimeSeriesHandler));
 router.get('/customers', asyncHandler(listCustomersHandler));
 router.patch('/customers/:id/note', asyncHandler(updateCustomerNoteHandler));
+router.post('/customers/:id/loyalty', asyncHandler(adjustLoyaltyHandler));
 
 router.get('/subscriptions', asyncHandler(listAdminSubscriptionsHandler));
 

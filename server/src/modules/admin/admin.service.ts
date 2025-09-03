@@ -3,7 +3,7 @@ import { AppError } from '../../utils/AppError';
 import { sendOrderStatusUpdate } from '../../utils/emails/orderStatusUpdate';
 import { sendShippingConfirmation } from '../../utils/emails/shippingConfirmation';
 import { sendEmail } from '../../utils/email';
-import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput, CreateVariantInput, UpdateVariantInput, BulkProductActionInput } from './admin.schema';
+import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput, CreateVariantInput, UpdateVariantInput, BulkProductActionInput, AdjustLoyaltyInput } from './admin.schema';
 
 type VariantPrisma = {
   productVariant: {
@@ -239,6 +239,37 @@ export async function adminUpdateCustomerNote(userId: string, adminNote: string)
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw AppError.notFound('Customer not found');
   return prisma.user.update({ where: { id: userId }, data: { adminNote }, select: { id: true, email: true, name: true, adminNote: true } });
+}
+
+type LoyaltyAdjustPrisma = {
+  loyaltyAccount: {
+    upsert: (a: unknown) => Promise<{ id: string; points: number; lifetimeEarned: number }>;
+  };
+  loyaltyTransaction: {
+    create: (a: unknown) => Promise<unknown>;
+  };
+};
+
+export async function adminAdjustLoyalty(userId: string, data: AdjustLoyaltyInput) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw AppError.notFound('Customer not found');
+
+  const loyaltyDb = prisma as unknown as LoyaltyAdjustPrisma;
+
+  const account = await loyaltyDb.loyaltyAccount.upsert({
+    where: { userId },
+    create: { userId, points: Math.max(0, data.delta), lifetimeEarned: data.delta > 0 ? data.delta : 0 },
+    update: {
+      points: { increment: data.delta },
+      ...(data.delta > 0 ? { lifetimeEarned: { increment: data.delta } } : {}),
+    },
+  });
+
+  await loyaltyDb.loyaltyTransaction.create({
+    data: { accountId: account.id, delta: data.delta, reason: 'adjustment', orderId: null },
+  });
+
+  return { points: account.points, delta: data.delta };
 }
 
 export async function adminBulkProductAction(data: BulkProductActionInput) {

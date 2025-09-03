@@ -8,6 +8,7 @@ import {
   updateReturnStatusSchema,
   bulkProductActionSchema,
   updateCustomerNoteSchema,
+  adjustLoyaltySchema,
 } from './admin.schema';
 import {
   adminListProducts,
@@ -29,6 +30,7 @@ import {
   adminGetRevenueTimeSeries,
   adminBulkProductAction,
   adminUpdateCustomerNote,
+  adminAdjustLoyalty,
 } from './admin.service';
 import { createVariantSchema, updateVariantSchema } from './admin.schema';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
@@ -87,6 +89,12 @@ export async function updateCustomerNoteHandler(req: Request, res: Response): Pr
   const { body } = updateCustomerNoteSchema.parse({ body: req.body });
   const customer = await adminUpdateCustomerNote(req.params.id, body.adminNote);
   res.json({ data: customer, message: 'Customer note updated' });
+}
+
+export async function adjustLoyaltyHandler(req: Request, res: Response): Promise<void> {
+  const { body } = adjustLoyaltySchema.parse({ body: req.body });
+  const result = await adminAdjustLoyalty(req.params.id, body);
+  res.json({ data: result, message: 'Loyalty points adjusted' });
 }
 
 export async function exportOrdersCsvHandler(_req: Request, res: Response): Promise<void> {
