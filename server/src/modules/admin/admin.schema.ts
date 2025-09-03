@@ -73,6 +73,13 @@ export const updateCustomerNoteSchema = z.object({
   body: z.object({ adminNote: z.string().max(1000) }),
 });
 
+export const adjustLoyaltySchema = z.object({
+  body: z.object({
+    delta: z.number().int().refine((n) => n !== 0, { message: 'delta must be non-zero' }),
+    reason: z.string().min(1).max(200),
+  }),
+});
+
 export const bulkProductActionSchema = z.object({
   body: z.object({
     ids: z.array(z.string().cuid()).min(1).max(100),
@@ -80,6 +87,7 @@ export const bulkProductActionSchema = z.object({
   }),
 });
 
+export type AdjustLoyaltyInput = z.infer<typeof adjustLoyaltySchema>['body'];
 export type BulkProductActionInput = z.infer<typeof bulkProductActionSchema>['body'];
 export type CreateGiftCardInput = z.infer<typeof createGiftCardSchema>['body'];
 export type CreateDiscountInput = z.infer<typeof createDiscountSchema>['body'];
