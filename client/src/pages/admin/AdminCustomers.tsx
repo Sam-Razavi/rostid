@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { fetchAdminCustomers, updateCustomerNote } from '../../api/admin.api';
+import { fetchAdminCustomers, updateCustomerNote, adminAdjustLoyalty } from '../../api/admin.api';
 import { Skeleton } from '../../components/ui/Skeleton';
 
 function formatPrice(ore: number) {
@@ -17,6 +17,9 @@ export default function AdminCustomers() {
   const [search, setSearch] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteValue, setNoteValue] = useState('');
+  const [loyaltyModalId, setLoyaltyModalId] = useState<string | null>(null);
+  const [loyaltyDelta, setLoyaltyDelta] = useState('');
+  const [loyaltyReason, setLoyaltyReason] = useState('');
 
   const noteMutation = useMutation({
     mutationFn: ({ id, note }: { id: string; note: string }) => updateCustomerNote(id, note),
@@ -26,6 +29,18 @@ export default function AdminCustomers() {
       toast.success('Note saved');
     },
     onError: () => toast.error('Failed to save note'),
+  });
+
+  const loyaltyMutation = useMutation({
+    mutationFn: ({ id, delta, reason }: { id: string; delta: number; reason: string }) =>
+      adminAdjustLoyalty(id, delta, reason),
+    onSuccess: (result) => {
+      toast.success(`Points adjusted. New balance: ${result.points} pts`);
+      setLoyaltyModalId(null);
+      setLoyaltyDelta('');
+      setLoyaltyReason('');
+    },
+    onError: () => toast.error('Failed to adjust points'),
   });
 
   const { data: customers, isLoading } = useQuery({
@@ -66,6 +81,7 @@ export default function AdminCustomers() {
                 <th className="text-right px-4 py-3 font-medium text-stone-500">Orders</th>
                 <th className="text-right px-4 py-3 font-medium text-stone-500">Total spend</th>
                 <th className="text-left px-4 py-3 font-medium text-stone-500">Admin note</th>
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -113,12 +129,71 @@ export default function AdminCustomers() {
                           </button>
                         )}
                       </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => { setLoyaltyModalId(c.id); setLoyaltyDelta(''); setLoyaltyReason(''); }}
+                          className="text-xs text-espresso-700 hover:text-espresso-900 font-medium cursor-pointer"
+                        >
+                          Adjust pts
+                        </button>
+                      </td>
                     </tr>
                   ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {loyaltyModalId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-lg">
+            <h3 className="text-lg font-semibold text-stone-900 mb-1">Adjust loyalty points</h3>
+            <p className="text-sm text-stone-500 mb-5">Use a positive number to credit, negative to debit.</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">Points (e.g. 100 or -50)</label>
+                <input
+                  type="number"
+                  value={loyaltyDelta}
+                  onChange={(e) => setLoyaltyDelta(e.target.value)}
+                  className="input-field text-sm py-2 w-full"
+                  placeholder="100"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">Reason</label>
+                <input
+                  type="text"
+                  value={loyaltyReason}
+                  onChange={(e) => setLoyaltyReason(e.target.value)}
+                  className="input-field text-sm py-2 w-full"
+                  placeholder="Compensation for delayed order"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                onClick={() => setLoyaltyModalId(null)}
+                className="text-sm font-medium text-stone-600 hover:text-stone-900 cursor-pointer px-4 min-h-[44px]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const delta = parseInt(loyaltyDelta, 10);
+                  if (!delta || !loyaltyReason.trim()) return;
+                  loyaltyMutation.mutate({ id: loyaltyModalId, delta, reason: loyaltyReason.trim() });
+                }}
+                disabled={loyaltyMutation.isPending || !loyaltyDelta || !loyaltyReason.trim()}
+                className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loyaltyMutation.isPending ? 'Saving…' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

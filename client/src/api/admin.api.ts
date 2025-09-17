@@ -186,3 +186,8 @@ export async function updateAdminVariant(productId: string, variantId: string, p
 export async function deleteAdminVariant(productId: string, variantId: string): Promise<void> {
   await apiClient.delete(`/admin/products/${productId}/variants/${variantId}`);
 }
+
+export async function adminAdjustLoyalty(customerId: string, delta: number, reason: string): Promise<{ points: number; delta: number }> {
+  const { data } = await apiClient.post<ApiResponse<{ points: number; delta: number }>>(`/admin/customers/${customerId}/loyalty`, { delta, reason });
+  return data.data;
+}
