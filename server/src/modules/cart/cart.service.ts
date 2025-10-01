@@ -26,6 +26,15 @@ const cartInclude = {
           isActive: true,
         },
       },
+      variant: {
+        select: {
+          id: true,
+          name: true,
+          grind: true,
+          priceOre: true,
+          stock: true,
+        },
+      },
     },
     orderBy: { createdAt: 'asc' as const },
   },
