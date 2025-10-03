@@ -104,7 +104,7 @@ export default function CartPage() {
   }
 
   const items = cart?.items ?? [];
-  const subtotalOre = items.reduce((sum, item) => sum + item.product.priceOre * item.quantity, 0);
+  const subtotalOre = items.reduce((sum, item) => sum + (item.variant?.priceOre ?? item.product.priceOre) * item.quantity, 0);
   const discountOre = appliedDiscount?.discountOre ?? 0;
 
   const { data: shippingRates = [] } = useQuery({
@@ -164,7 +164,7 @@ export default function CartPage() {
                     {item.product.name} ×{item.quantity}
                   </span>
                   <span className="text-stone-900 font-medium">
-                    {formatPrice(item.product.priceOre * item.quantity)}
+                    {formatPrice((item.variant?.priceOre ?? item.product.priceOre) * item.quantity)}
                   </span>
                 </div>
               ))}

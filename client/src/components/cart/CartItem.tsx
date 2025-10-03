@@ -11,7 +11,9 @@ export function CartItem({ item }: { item: CartItemType }) {
   const updateItem = useUpdateCartItem();
   const removeItem = useRemoveCartItem();
 
-  const lineTotal = item.product.priceOre * item.quantity;
+  const unitPrice = item.variant?.priceOre ?? item.product.priceOre;
+  const stockLimit = item.variant?.stock ?? item.product.stock;
+  const lineTotal = unitPrice * item.quantity;
 
   return (
     <motion.div
@@ -40,8 +42,13 @@ export function CartItem({ item }: { item: CartItemType }) {
             {item.product.name}
           </h3>
         </Link>
+        {item.variant && (
+          <p className="text-xs text-stone-400 mt-0.5">
+            {item.variant.name}{item.variant.grind ? ` · ${item.variant.grind.replace('_', ' ')}` : ''}
+          </p>
+        )}
         <p className="text-sm text-stone-500 mt-0.5">
-          {formatPrice(item.product.priceOre)} each
+          {formatPrice(unitPrice)} each
         </p>
 
         <div className="flex items-center gap-3 mt-3">
@@ -71,7 +78,7 @@ export function CartItem({ item }: { item: CartItemType }) {
             </AnimatePresence>
             <button
               onClick={() => updateItem.mutate({ id: item.id, quantity: item.quantity + 1 })}
-              disabled={item.quantity >= item.product.stock || updateItem.isPending}
+              disabled={item.quantity >= stockLimit || updateItem.isPending}
               aria-label="Increase quantity"
               className="px-3 py-1.5 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors disabled:opacity-40"
             >

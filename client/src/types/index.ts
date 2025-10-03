@@ -47,12 +47,22 @@ export interface Product {
   variants?: ProductVariant[];
 }
 
+export interface CartItemVariant {
+  id: string;
+  name: string;
+  grind: string | null;
+  priceOre: number;
+  stock: number;
+}
+
 export interface CartItem {
   id: string;
   cartId: string;
   productId: string;
+  variantId: string | null;
   quantity: number;
   product: Pick<Product, 'id' | 'name' | 'slug' | 'priceOre' | 'imageUrl' | 'stock' | 'isActive'>;
+  variant: CartItemVariant | null;
 }
 
 export interface Cart {
