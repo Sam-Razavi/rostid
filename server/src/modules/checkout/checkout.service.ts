@@ -20,12 +20,22 @@ export async function createCheckoutSession(
 ) {
   if (!stripe) throw AppError.badRequest('Payments are not configured on this server');
 
-  const cart = await prisma.cart.findUnique({
+  const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<{
+    id: string;
+    items: Array<{
+      productId: string;
+      variantId: string | null;
+      quantity: number;
+      product: { id: string; name: string; priceOre: number; stock: number; isActive: boolean };
+      variant: { id: string; name: string; priceOre: number } | null;
+    }>;
+  } | null>)({
     where: { userId },
     include: {
       items: {
         include: {
           product: { select: { id: true, name: true, priceOre: true, stock: true, isActive: true } },
+          variant: { select: { id: true, name: true, priceOre: true } },
         },
       },
     },
@@ -35,19 +45,26 @@ export async function createCheckoutSession(
     throw AppError.badRequest('Your cart is empty');
   }
 
-  const subtotalOre = cart.items.reduce((sum, i) => sum + i.product.priceOre * i.quantity, 0);
+  const subtotalOre = cart.items.reduce(
+    (sum, i) => sum + (i.variant?.priceOre ?? i.product.priceOre) * i.quantity,
+    0
+  );
 
   const lineItems: {
     price_data: { currency: string; product_data: { name: string }; unit_amount: number };
     quantity: number;
-  }[] = cart.items.map((item) => ({
-    price_data: {
-      currency: 'sek',
-      product_data: { name: item.product.name },
-      unit_amount: item.product.priceOre,
-    },
-    quantity: item.quantity,
-  }));
+  }[] = cart.items.map((item) => {
+    const unitPrice = item.variant?.priceOre ?? item.product.priceOre;
+    const label = item.variant ? `${item.product.name} — ${item.variant.name}` : item.product.name;
+    return {
+      price_data: {
+        currency: 'sek',
+        product_data: { name: label },
+        unit_amount: unitPrice,
+      },
+      quantity: item.quantity,
+    };
+  });
 
   // Shipping
   let shippingOre = 0;
