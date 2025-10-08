@@ -89,15 +89,24 @@ export async function updateItem(userId: string, itemId: string, data: UpdateIte
   const cart = await prisma.cart.findUnique({ where: { userId } });
   if (!cart) throw AppError.notFound('Cart not found');
 
-  const item = await prisma.cartItem.findFirst({
+  const item = await (prisma.cartItem.findFirst as unknown as (a: unknown) => Promise<{
+    id: string;
+    variantId: string | null;
+    product: { stock: number };
+    variant: { stock: number } | null;
+  } | null>)({
     where: { id: itemId, cartId: cart.id },
-    include: { product: { select: { stock: true } } },
+    include: {
+      product: { select: { stock: true } },
+      variant: { select: { stock: true } },
+    },
   });
 
   if (!item) throw AppError.notFound('Cart item not found');
 
-  if (data.quantity > item.product.stock) {
-    throw AppError.badRequest(`Only ${item.product.stock} in stock`);
+  const stockLimit = item.variant?.stock ?? item.product.stock;
+  if (data.quantity > stockLimit) {
+    throw AppError.badRequest(`Only ${stockLimit} in stock`);
   }
 
   await prisma.cartItem.update({
