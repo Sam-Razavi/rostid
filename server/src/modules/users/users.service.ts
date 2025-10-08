@@ -29,3 +29,26 @@ export async function changePassword(userId: string, data: ChangePasswordInput) 
   const passwordHash = await bcrypt.hash(data.newPassword, 12);
   await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
 }
+
+export async function deleteAccount(userId: string) {
+  await prisma.$transaction(async (tx) => {
+    // Anonymise user record — hard delete is risky due to order FK constraints
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        email: `deleted_${userId}@deleted`,
+        name: 'Deleted User',
+        passwordHash: '',
+      },
+    });
+
+    // Cancel active subscriptions
+    await (tx as unknown as { subscription: { updateMany: (a: unknown) => Promise<unknown> } }).subscription.updateMany({
+      where: { userId, status: { in: ['active', 'paused'] } },
+      data: { status: 'cancelled' },
+    });
+
+    // Revoke all refresh tokens so existing sessions stop working
+    await tx.refreshToken.deleteMany({ where: { userId } });
+  });
+}
