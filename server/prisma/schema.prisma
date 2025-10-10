@@ -264,7 +264,8 @@ model Return {
   stripeRefundId String?  @map("stripe_refund_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  order User    @relation("returns", fields: [userId], references: [id], onDelete: Cascade)
+  order Order  @relation(fields: [orderId], references: [id])
+  user  User   @relation("returns", fields: [userId], references: [id], onDelete: Cascade)
   items ReturnItem[]
 
   @@index([userId])
@@ -348,6 +349,7 @@ model Order {
   user            User             @relation(fields: [userId], references: [id])
   shippingAddress ShippingAddress? @relation(fields: [shippingAddressId], references: [id])
   items           OrderItem[]
+  returns         Return[]
 
   @@index([userId])
   @@index([status])
