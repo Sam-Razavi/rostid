@@ -29,6 +29,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [selectedGrind, setSelectedGrind] = useState<string | null>(null);
   const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscribe'>('one-time');
   const [intervalDays, setIntervalDays] = useState(30);
 
@@ -61,13 +62,24 @@ export default function ProductDetailPage() {
 
   const hasReviewed = !!reviewsData?.reviews.some((r) => r.userId === user?.id);
 
-  const selectedVariant = product?.variants?.find((v) => v.id === selectedVariantId) ?? null;
+  const hasVariants = (product?.variants?.length ?? 0) > 0;
+  const uniqueSizes = hasVariants
+    ? [...new Set(product!.variants!.map((v) => v.name))]
+    : [];
+  const selectedSizeName = product?.variants?.find((v) => v.id === selectedVariantId)?.name ?? null;
+  const grindsForSize = selectedSizeName
+    ? [...new Set(product!.variants!.filter((v) => v.name === selectedSizeName && v.grind).map((v) => v.grind!))]
+    : [];
+
+  const selectedVariant = product?.variants?.find((v) => {
+    if (!selectedVariantId) return false;
+    const base = v.id === selectedVariantId;
+    if (selectedGrind) return v.name === selectedSizeName && v.grind === selectedGrind;
+    return base;
+  }) ?? (selectedVariantId ? product?.variants?.find((v) => v.id === selectedVariantId) : null) ?? null;
+
   const displayPrice = selectedVariant ? selectedVariant.priceOre : product?.priceOre ?? 0;
   const displayStock = selectedVariant ? selectedVariant.stock : product?.stock ?? 0;
-  const hasVariants = (product?.variants?.length ?? 0) > 0;
-  const uniqueGrinds = hasVariants
-    ? [...new Set(product!.variants!.filter((v) => v.grind).map((v) => v.grind!))]
-    : [];
 
   async function handleAddToCart() {
     if (!isAuthenticated) {
@@ -221,30 +233,43 @@ export default function ProductDetailPage() {
               <div>
                 <p className="text-sm font-medium text-stone-700 mb-2">Size</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.variants!.map((v) => (
-                    <button
-                      key={v.id}
-                      onClick={() => setSelectedVariantId(v.id)}
-                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
-                        selectedVariantId === v.id
-                          ? 'border-espresso-800 bg-espresso-800 text-white'
-                          : 'border-stone-300 text-stone-700 hover:border-espresso-600'
-                      }`}
-                    >
-                      {v.name}
-                    </button>
-                  ))}
+                  {uniqueSizes.map((sizeName) => {
+                    const firstVariantForSize = product.variants!.find((v) => v.name === sizeName)!;
+                    const isSelected = selectedSizeName === sizeName;
+                    return (
+                      <button
+                        key={sizeName}
+                        onClick={() => {
+                          setSelectedVariantId(firstVariantForSize.id);
+                          setSelectedGrind(null);
+                        }}
+                        className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                          isSelected
+                            ? 'border-espresso-800 bg-espresso-800 text-white'
+                            : 'border-stone-300 text-stone-700 hover:border-espresso-600'
+                        }`}
+                      >
+                        {sizeName}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-              {uniqueGrinds.length > 0 && selectedVariant && (
+              {grindsForSize.length > 0 && selectedSizeName && (
                 <div>
                   <p className="text-sm font-medium text-stone-700 mb-2">Grind</p>
                   <select
+                    value={selectedGrind ?? ''}
+                    onChange={(e) => {
+                      const grind = e.target.value;
+                      setSelectedGrind(grind || null);
+                      const match = product.variants!.find((v) => v.name === selectedSizeName && v.grind === grind);
+                      if (match) setSelectedVariantId(match.id);
+                    }}
                     className="w-full max-w-xs px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-espresso-500"
-                    defaultValue=""
                   >
-                    <option value="" disabled>Select grind</option>
-                    {uniqueGrinds.map((g) => (
+                    <option value="">Select grind</option>
+                    {grindsForSize.map((g) => (
                       <option key={g} value={g}>{g.replace('_', ' ')}</option>
                     ))}
                   </select>
