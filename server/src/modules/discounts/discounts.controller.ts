@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
+import { z } from 'zod';
 import { validateDiscount } from './discounts.service';
 
+const validateSchema = z.object({
+  code: z.string().min(1).max(64),
+  orderTotalOre: z.number().int().min(0),
+});
+
 export async function validateDiscountHandler(req: Request, res: Response): Promise<void> {
-  const { code, orderTotalOre } = req.body as { code?: string; orderTotalOre?: number };
-  if (!code || orderTotalOre === undefined) {
-    res.status(400).json({ error: 'VALIDATION_ERROR', message: 'code and orderTotalOre are required' });
-    return;
-  }
-  const result = await validateDiscount(code, orderTotalOre);
+  const { code, orderTotalOre } = validateSchema.parse(req.body);
+  const result = await validateDiscount(code.toUpperCase(), orderTotalOre);
   res.json({ data: result, message: 'Discount code is valid' });
 }
