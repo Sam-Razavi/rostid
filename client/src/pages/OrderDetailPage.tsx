@@ -128,6 +128,11 @@ export default function OrderDetailPage() {
                   >
                     {item.product.name}
                   </Link>
+                  {item.variant && (
+                    <p className="text-xs text-stone-400">
+                      {item.variant.name}{item.variant.grind ? ` · ${item.variant.grind.replace('_', ' ')}` : ''}
+                    </p>
+                  )}
                   <p className="text-stone-500 text-xs">Qty {item.quantity} × {formatPrice(item.unitPriceOre)}</p>
                 </div>
               </div>

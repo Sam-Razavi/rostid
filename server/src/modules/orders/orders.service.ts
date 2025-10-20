@@ -8,6 +8,9 @@ const orderInclude = {
       product: {
         select: { id: true, name: true, slug: true, imageUrl: true },
       },
+      variant: {
+        select: { id: true, name: true, grind: true },
+      },
     },
   },
 };

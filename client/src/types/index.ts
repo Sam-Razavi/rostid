@@ -71,13 +71,21 @@ export interface Cart {
   items: CartItem[];
 }
 
+export interface OrderItemVariant {
+  id: string;
+  name: string;
+  grind: string | null;
+}
+
 export interface OrderItem {
   id: string;
   orderId: string;
   productId: string;
+  variantId: string | null;
   quantity: number;
   unitPriceOre: number;
   product: Pick<Product, 'id' | 'name' | 'slug' | 'imageUrl'>;
+  variant: OrderItemVariant | null;
 }
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
