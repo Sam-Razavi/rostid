@@ -11,6 +11,7 @@ const envSchema = z.object({
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
   COOKIE_SECRET: z.string().min(16),
   SENTRY_DSN: z.string().url().optional(),
+  CRON_SECRET: z.string().min(16).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
