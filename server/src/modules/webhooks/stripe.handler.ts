@@ -21,6 +21,44 @@ type VariantTx = {
 
 type OrderResult = { id: string };
 
+type SubPrisma = {
+  subscription: {
+    findUnique: (a: unknown) => Promise<{ id: string; userId: string; productId: string; variantId: string | null; intervalDays: number; product: { name: string; priceOre: number } } | null>;
+  };
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fulfillSubscription(session: any) {
+  const subscriptionId = session.metadata?.subscriptionId as string | undefined;
+  const userId = session.metadata?.userId as string | undefined;
+  if (!subscriptionId || !userId) return;
+
+  const sub = await (prisma as unknown as SubPrisma).subscription.findUnique({
+    where: { id: subscriptionId },
+    include: { product: { select: { name: true, priceOre: true } } },
+  });
+  if (!sub) return;
+
+  const amountPaid = session.amount_total as number ?? Math.round(sub.product.priceOre * 0.9);
+
+  await (prisma.order.create as unknown as (a: unknown) => Promise<OrderResult>)({
+    data: {
+      userId,
+      totalOre: amountPaid,
+      status: 'processing',
+      ...(session.id ? { stripeSessionId: session.id } : {}),
+      items: {
+        create: [{
+          productId: sub.productId,
+          variantId: sub.variantId ?? undefined,
+          quantity: 1,
+          unitPriceOre: amountPaid,
+        }],
+      },
+    },
+  });
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fulfillOrder(session: any) {
   const userId = session.metadata?.userId as string | undefined;
@@ -119,7 +157,12 @@ export async function stripeWebhook(req: Request, res: Response): Promise<void> 
   }
 
   if (event.type === 'checkout.session.completed') {
-    await fulfillOrder(event.data.object);
+    const sess = event.data.object;
+    if (sess.metadata?.subscriptionId) {
+      await fulfillSubscription(sess);
+    } else {
+      await fulfillOrder(sess);
+    }
   }
 
   res.json({ received: true });
