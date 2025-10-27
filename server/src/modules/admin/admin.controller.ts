@@ -3,6 +3,8 @@ import {
   createProductSchema,
   updateProductSchema,
   updateOrderStatusSchema,
+  createGiftCardSchema,
+  createDiscountSchema,
 } from './admin.schema';
 import {
   adminListProducts,
@@ -162,8 +164,8 @@ export async function listAdminGiftCardsHandler(_req: Request, res: Response): P
 
 export async function createAdminGiftCardHandler(req: Request, res: Response): Promise<void> {
   const { adminCreateGiftCard } = await import('../giftcards/giftcards.service');
-  const { balanceOre, expiresAt } = req.body as { balanceOre: number; expiresAt?: string };
-  const card = await adminCreateGiftCard(balanceOre, expiresAt ? new Date(expiresAt) : null);
+  const { body } = createGiftCardSchema.parse({ body: req.body });
+  const card = await adminCreateGiftCard(body.balanceOre, body.expiresAt ? new Date(body.expiresAt) : null);
   res.status(201).json({ data: card, message: 'Gift card created' });
 }
 
@@ -173,19 +175,15 @@ export async function listDiscountsHandler(_req: Request, res: Response): Promis
 }
 
 export async function createDiscountHandler(req: Request, res: Response): Promise<void> {
-  const { code, type, value, minOrderOre, maxUses, expiresAt } = req.body as {
-    code?: string; type?: string; value?: number;
-    minOrderOre?: number; maxUses?: number; expiresAt?: string;
-  };
-  if (!code || !type || value === undefined) {
-    res.status(400).json({ error: 'VALIDATION_ERROR', message: 'code, type, and value are required' });
-    return;
-  }
-  if (type !== 'percentage' && type !== 'fixed') {
-    res.status(400).json({ error: 'VALIDATION_ERROR', message: 'type must be percentage or fixed' });
-    return;
-  }
-  const discount = await createDiscount({ code, type, value, minOrderOre, maxUses, expiresAt });
+  const { body } = createDiscountSchema.parse({ body: req.body });
+  const discount = await createDiscount({
+    code: body.code,
+    type: body.type,
+    value: body.value,
+    minOrderOre: body.minOrderOre,
+    maxUses: body.maxUses,
+    expiresAt: body.expiresAt,
+  });
   res.status(201).json({ data: discount, message: 'Discount code created' });
 }
 

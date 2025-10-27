@@ -42,6 +42,26 @@ export const updateVariantSchema = z.object({
   body: createVariantSchema.shape.body.partial(),
 });
 
+export const createGiftCardSchema = z.object({
+  body: z.object({
+    balanceOre: z.number().int().positive(),
+    expiresAt: z.string().datetime().optional().nullable(),
+  }),
+});
+
+export const createDiscountSchema = z.object({
+  body: z.object({
+    code: z.string().min(1).max(64).toUpperCase(),
+    type: z.enum(['percentage', 'fixed']),
+    value: z.number().positive(),
+    minOrderOre: z.number().int().min(0).optional().nullable(),
+    maxUses: z.number().int().positive().optional().nullable(),
+    expiresAt: z.string().datetime().optional().nullable(),
+  }),
+});
+
+export type CreateGiftCardInput = z.infer<typeof createGiftCardSchema>['body'];
+export type CreateDiscountInput = z.infer<typeof createDiscountSchema>['body'];
 export type CreateProductInput = z.infer<typeof createProductSchema>['body'];
 export type UpdateProductInput = z.infer<typeof updateProductSchema>['body'];
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>['body'];
