@@ -5,6 +5,7 @@ import {
   updateOrderStatusSchema,
   createGiftCardSchema,
   createDiscountSchema,
+  updateReturnStatusSchema,
 } from './admin.schema';
 import {
   adminListProducts,
@@ -128,7 +129,8 @@ export async function updateAdminReturnHandler(req: Request, res: Response): Pro
   const { adminListReturns: _list, adminUpdateReturn } = await import('../returns/returns.service');
   const { stripe } = await import('../../config/stripe');
   const { prisma } = await import('../../config/prisma');
-  const { status, refundOre } = req.body as { status: string; refundOre?: number };
+  const { body } = updateReturnStatusSchema.parse({ body: req.body });
+  const { status, refundOre } = body;
 
   let stripeRefundId: string | undefined;
 

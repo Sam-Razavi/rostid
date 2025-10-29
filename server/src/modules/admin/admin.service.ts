@@ -115,6 +115,7 @@ export async function adminListOrders() {
       items: {
         include: {
           product: { select: { id: true, name: true, slug: true, imageUrl: true } },
+          variant: { select: { id: true, name: true, grind: true } },
         },
       },
     },

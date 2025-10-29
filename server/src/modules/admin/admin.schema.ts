@@ -42,6 +42,13 @@ export const updateVariantSchema = z.object({
   body: createVariantSchema.shape.body.partial(),
 });
 
+export const updateReturnStatusSchema = z.object({
+  body: z.object({
+    status: z.enum(['approved', 'rejected', 'refunded']),
+    refundOre: z.number().int().positive().optional(),
+  }),
+});
+
 export const createGiftCardSchema = z.object({
   body: z.object({
     balanceOre: z.number().int().positive(),
