@@ -125,7 +125,7 @@ function AddressBook() {
 }
 
 export default function ProfilePage() {
-  const { user, setAuth, accessToken } = useAuthStore();
+  const { user, setAuth, accessToken, clearAuth } = useAuthStore();
   const navigate = useNavigate();
 
   const [name, setName] = useState(user?.name ?? '');
@@ -137,6 +137,9 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { data: loyalty } = useQuery({ queryKey: ['loyalty'], queryFn: fetchLoyaltyBalance });
 
@@ -174,6 +177,19 @@ export default function ProfilePage() {
       setPasswordError(message);
     } finally {
       setPasswordLoading(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteLoading(true);
+    try {
+      await apiClient.delete('/users/me');
+      clearAuth();
+      navigate('/');
+    } catch {
+      toast.error('Failed to delete account. Please try again.');
+    } finally {
+      setDeleteLoading(false);
     }
   }
 
@@ -254,7 +270,7 @@ export default function ProfilePage() {
       )}
 
       {/* Password section */}
-      <div className="card p-8">
+      <div className="card p-8 mb-6">
         <h2 className="text-lg font-semibold text-stone-900 mb-6">Change password</h2>
         <form onSubmit={handlePasswordSubmit} className="space-y-5">
           <Input
@@ -307,6 +323,54 @@ export default function ProfilePage() {
           </div>
         </form>
       </div>
+
+      {/* Delete account */}
+      <div className="card p-8 border border-red-100">
+        <h2 className="text-lg font-semibold text-stone-900 mb-2">Delete account</h2>
+        <p className="text-sm text-stone-500 mb-5">
+          Permanently anonymise your account and cancel active subscriptions. Order history is retained for legal purposes. This cannot be undone.
+        </p>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+        >
+          Delete my account
+        </button>
+      </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-lg">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Are you sure?</h3>
+            <p className="text-sm text-stone-500 mb-5">
+              Type <strong>DELETE</strong> to confirm. This will anonymise your account and cannot be undone.
+            </p>
+            <Input
+              label=""
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="DELETE"
+              autoComplete="off"
+            />
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }}
+                className="text-sm font-medium text-stone-600 hover:text-stone-900 cursor-pointer px-4 min-h-[44px]"
+              >
+                Cancel
+              </button>
+              <Button
+                onClick={handleDeleteAccount}
+                loading={deleteLoading}
+                disabled={deleteConfirmText !== 'DELETE'}
+                className="bg-red-600 hover:bg-red-700 text-sm disabled:opacity-50"
+              >
+                Delete account
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
