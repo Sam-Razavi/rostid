@@ -19,10 +19,13 @@ type VariantTx = {
   };
 };
 
+type OrderResult = { id: string };
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fulfillOrder(session: any) {
-  const userId = session.metadata?.userId;
-  const cartId = session.metadata?.cartId;
+  const userId = session.metadata?.userId as string | undefined;
+  const cartId = session.metadata?.cartId as string | undefined;
+  const loyaltyPointsStr = session.metadata?.loyaltyPoints as string | undefined;
   if (!userId || !cartId) return;
 
   const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<CartWithVariants | null>)({
@@ -44,8 +47,10 @@ async function fulfillOrder(session: any) {
     0
   );
 
+  let createdOrderId: string | null = null;
+
   await prisma.$transaction(async (tx) => {
-    await (tx.order.create as unknown as (a: unknown) => Promise<unknown>)({
+    const order = await (tx.order.create as unknown as (a: unknown) => Promise<OrderResult>)({
       data: {
         userId,
         totalOre,
@@ -61,6 +66,8 @@ async function fulfillOrder(session: any) {
         },
       },
     });
+
+    createdOrderId = order.id;
 
     for (const item of cart.items) {
       if (item.variantId) {
@@ -78,6 +85,14 @@ async function fulfillOrder(session: any) {
 
     await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
   });
+
+  if (loyaltyPointsStr && createdOrderId) {
+    const pts = parseInt(loyaltyPointsStr, 10);
+    if (pts >= 100) {
+      const { redeemPoints } = await import('../loyalty/loyalty.service');
+      await redeemPoints(userId, pts, createdOrderId).catch(console.error);
+    }
+  }
 }
 
 export async function stripeWebhook(req: Request, res: Response): Promise<void> {
