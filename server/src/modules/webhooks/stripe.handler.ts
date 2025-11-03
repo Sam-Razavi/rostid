@@ -26,6 +26,7 @@ async function fulfillOrder(session: any) {
   const userId = session.metadata?.userId as string | undefined;
   const cartId = session.metadata?.cartId as string | undefined;
   const loyaltyPointsStr = session.metadata?.loyaltyPoints as string | undefined;
+  const giftCardCode = session.metadata?.giftCardCode as string | undefined;
   if (!userId || !cartId) return;
 
   const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<CartWithVariants | null>)({
@@ -92,6 +93,11 @@ async function fulfillOrder(session: any) {
       const { redeemPoints } = await import('../loyalty/loyalty.service');
       await redeemPoints(userId, pts, createdOrderId).catch(console.error);
     }
+  }
+
+  if (giftCardCode) {
+    const { useGiftCard } = await import('../giftcards/giftcards.service');
+    await useGiftCard(giftCardCode, totalOre).catch(console.error);
   }
 }
 
