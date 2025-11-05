@@ -7,8 +7,8 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV ?? 'development',
+  dsn: env.SENTRY_DSN,
+  environment: env.NODE_ENV,
   tracesSampleRate: 0.2,
   integrations: [Sentry.expressIntegration()],
 });
