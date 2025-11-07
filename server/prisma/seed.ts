@@ -223,31 +223,32 @@ async function main() {
     });
   }
 
-  // Users
-  const adminHash = await bcrypt.hash('admin123', 12);
-  const customerHash = await bcrypt.hash('password123', 12);
+  if (process.env.NODE_ENV !== 'production') {
+    const adminHash = await bcrypt.hash('admin123', 12);
+    const customerHash = await bcrypt.hash('password123', 12);
 
-  await prisma.user.upsert({
-    where: { email: 'admin@rostid.se' },
-    update: {},
-    create: {
-      email: 'admin@rostid.se',
-      passwordHash: adminHash,
-      name: 'Admin',
-      role: 'admin',
-    },
-  });
+    await prisma.user.upsert({
+      where: { email: 'admin@rostid.se' },
+      update: {},
+      create: {
+        email: 'admin@rostid.se',
+        passwordHash: adminHash,
+        name: 'Admin',
+        role: 'admin',
+      },
+    });
 
-  await prisma.user.upsert({
-    where: { email: 'customer@rostid.se' },
-    update: {},
-    create: {
-      email: 'customer@rostid.se',
-      passwordHash: customerHash,
-      name: 'Test Customer',
-      role: 'customer',
-    },
-  });
+    await prisma.user.upsert({
+      where: { email: 'customer@rostid.se' },
+      update: {},
+      create: {
+        email: 'customer@rostid.se',
+        passwordHash: customerHash,
+        name: 'Test Customer',
+        role: 'customer',
+      },
+    });
+  }
 
   console.log('[seed] Database seeded successfully');
 }
