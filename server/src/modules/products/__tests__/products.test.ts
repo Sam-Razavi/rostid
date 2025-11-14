@@ -107,6 +107,39 @@ describe('Products API', () => {
       expect(res.body.data.pagination.total).toBe(res.body.data.products.length);
     });
 
+    it('inStock=true filters out products with stock 0', async () => {
+      await prisma.product.create({
+        data: {
+          name: 'Out of Stock Coffee',
+          slug: 'out-of-stock-coffee',
+          description: 'Gone',
+          priceOre: 9900,
+          stock: 0,
+          categoryId: testCategoryId,
+        },
+      });
+      const res = await request(app).get('/api/products?inStock=true');
+      expect(res.status).toBe(200);
+      expect(res.body.data.products.every((p: { stock: number }) => p.stock > 0)).toBe(true);
+    });
+
+    it('without inStock filter shows all products including out-of-stock', async () => {
+      await prisma.product.create({
+        data: {
+          name: 'Out of Stock Coffee 2',
+          slug: 'out-of-stock-coffee-2',
+          description: 'Gone',
+          priceOre: 9900,
+          stock: 0,
+          categoryId: testCategoryId,
+        },
+      });
+      const res = await request(app).get('/api/products');
+      expect(res.status).toBe(200);
+      const stocks = res.body.data.products.map((p: { stock: number }) => p.stock);
+      expect(stocks.some((s: number) => s === 0)).toBe(true);
+    });
+
     it('category filter returns only matching products', async () => {
       await prisma.category.create({ data: { name: 'Espresso', slug: 'espresso', description: 'Espresso beans' } }).then(async (cat) => {
         await prisma.product.create({
