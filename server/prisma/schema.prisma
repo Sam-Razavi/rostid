@@ -166,6 +166,7 @@ model ProductVariant {
   cartItems  CartItem[]
   orderItems OrderItem[]
 
+  @@index([productId])
   @@map("product_variants")
 }
 
