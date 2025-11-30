@@ -148,6 +148,8 @@ model Product {
   variants      ProductVariant[]
   subscriptions Subscription[]
 
+  @@index([categoryId, isActive])
+  @@index([isActive, createdAt(sort: Desc)])
   @@map("products")
 }
 
@@ -265,6 +267,8 @@ model Return {
   order User    @relation("returns", fields: [userId], references: [id], onDelete: Cascade)
   items ReturnItem[]
 
+  @@index([userId])
+  @@index([orderId])
   @@map("returns")
 }
 
