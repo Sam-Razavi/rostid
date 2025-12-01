@@ -136,13 +136,32 @@ model Product {
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  category      Category      @relation(fields: [categoryId], references: [id])
+  category      Category        @relation(fields: [categoryId], references: [id])
   cartItems     CartItem[]
   orderItems    OrderItem[]
   reviews       Review[]
   wishlistItems WishlistItem[]
+  variants      ProductVariant[]
 
   @@map("products")
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  name      String
+  grind     String?
+  priceOre  Int      @map("price_ore")
+  stock     Int      @default(0)
+  sku       String?  @unique
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@map("product_variants")
 }
 
 model Review {
@@ -176,14 +195,16 @@ model CartItem {
   id        String   @id @default(cuid())
   cartId    String   @map("cart_id")
   productId String   @map("product_id")
+  variantId String?  @map("variant_id")
   quantity  Int      @default(1)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  cart    Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
 
-  @@unique([cartId, productId])
+  @@unique([cartId, productId, variantId])
   @@map("cart_items")
 }
 
@@ -206,11 +227,13 @@ model OrderItem {
   id           String  @id @default(cuid())
   orderId      String  @map("order_id")
   productId    String  @map("product_id")
+  variantId    String? @map("variant_id")
   quantity     Int
   unitPriceOre Int     @map("unit_price_ore")
 
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@map("order_items")
 }
