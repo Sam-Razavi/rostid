@@ -13,7 +13,12 @@ import {
   adminUpdateOrderStatus,
   adminGetStats,
   adminListCustomers,
+  adminListVariants,
+  adminCreateVariant,
+  adminUpdateVariant,
+  adminDeleteVariant,
 } from './admin.service';
+import { createVariantSchema, updateVariantSchema } from './admin.schema';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
 
 export async function listProducts(_req: Request, res: Response): Promise<void> {
@@ -81,6 +86,28 @@ export async function exportOrdersCsvHandler(_req: Request, res: Response): Prom
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename="orders-${new Date().toISOString().split('T')[0]}.csv"`);
   res.send(rows.join('\n'));
+}
+
+export async function listVariantsHandler(req: Request, res: Response): Promise<void> {
+  const variants = await adminListVariants(req.params.productId);
+  res.json({ data: variants, message: 'Variants retrieved' });
+}
+
+export async function createVariantHandler(req: Request, res: Response): Promise<void> {
+  const { body } = createVariantSchema.parse({ body: req.body });
+  const variant = await adminCreateVariant(req.params.productId, body);
+  res.status(201).json({ data: variant, message: 'Variant created' });
+}
+
+export async function updateVariantHandler(req: Request, res: Response): Promise<void> {
+  const { body } = updateVariantSchema.parse({ body: req.body });
+  const variant = await adminUpdateVariant(req.params.productId, req.params.variantId, body);
+  res.json({ data: variant, message: 'Variant updated' });
+}
+
+export async function deleteVariantHandler(req: Request, res: Response): Promise<void> {
+  await adminDeleteVariant(req.params.productId, req.params.variantId);
+  res.json({ data: null, message: 'Variant deleted' });
 }
 
 export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {

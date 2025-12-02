@@ -15,6 +15,10 @@ import {
   deleteDiscountHandler,
   listCustomersHandler,
   exportOrdersCsvHandler,
+  listVariantsHandler,
+  createVariantHandler,
+  updateVariantHandler,
+  deleteVariantHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -25,6 +29,11 @@ router.get('/products', asyncHandler(listProducts));
 router.post('/products', asyncHandler(createProduct));
 router.patch('/products/:id', asyncHandler(updateProduct));
 router.delete('/products/:id', asyncHandler(deleteProduct));
+
+router.get('/products/:productId/variants', asyncHandler(listVariantsHandler));
+router.post('/products/:productId/variants', asyncHandler(createVariantHandler));
+router.patch('/products/:productId/variants/:variantId', asyncHandler(updateVariantHandler));
+router.delete('/products/:productId/variants/:variantId', asyncHandler(deleteVariantHandler));
 
 router.get('/orders', asyncHandler(listOrders));
 router.get('/orders/export', asyncHandler(exportOrdersCsvHandler));

@@ -2,9 +2,42 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
 import { sendOrderStatusUpdate } from '../../utils/emails/orderStatusUpdate';
 import { sendEmail } from '../../utils/email';
-import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput } from './admin.schema';
+import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput, CreateVariantInput, UpdateVariantInput } from './admin.schema';
+
+type VariantPrisma = {
+  productVariant: {
+    findMany: (a: unknown) => Promise<unknown[]>;
+    findFirst: (a: unknown) => Promise<unknown | null>;
+    create: (a: unknown) => Promise<unknown>;
+    update: (a: unknown) => Promise<unknown>;
+    delete: (a: unknown) => Promise<unknown>;
+  };
+};
+const variantDb = prisma as unknown as VariantPrisma;
 
 const LOW_STOCK_THRESHOLD = 5;
+
+export async function adminListVariants(productId: string) {
+  return variantDb.productVariant.findMany({ where: { productId }, orderBy: { createdAt: 'asc' } } as unknown as never);
+}
+
+export async function adminCreateVariant(productId: string, data: CreateVariantInput) {
+  const product = await prisma.product.findUnique({ where: { id: productId } });
+  if (!product) throw AppError.notFound('Product not found');
+  return variantDb.productVariant.create({ data: { ...data, productId } } as unknown as never);
+}
+
+export async function adminUpdateVariant(productId: string, variantId: string, data: UpdateVariantInput) {
+  const variant = await variantDb.productVariant.findFirst({ where: { id: variantId, productId } } as unknown as never);
+  if (!variant) throw AppError.notFound('Variant not found');
+  return variantDb.productVariant.update({ where: { id: variantId }, data } as unknown as never);
+}
+
+export async function adminDeleteVariant(productId: string, variantId: string) {
+  const variant = await variantDb.productVariant.findFirst({ where: { id: variantId, productId } } as unknown as never);
+  if (!variant) throw AppError.notFound('Variant not found');
+  return variantDb.productVariant.delete({ where: { id: variantId } } as unknown as never);
+}
 
 export async function adminListProducts() {
   return prisma.product.findMany({
