@@ -253,4 +253,50 @@ describe('Admin API', () => {
       expect(res.status).toBe(200);
     });
   });
+
+  describe('POST /api/admin/customers/:id/loyalty', () => {
+    it('credits loyalty points to a customer', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .post(`/api/admin/customers/${testCustomerId}/loyalty`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ delta: 200, reason: 'Compensation for delayed shipment' });
+      expect(res.status).toBe(200);
+      expect(res.body.data.delta).toBe(200);
+      expect(res.body.data.points).toBeGreaterThanOrEqual(200);
+    });
+
+    it('debits loyalty points from a customer', async () => {
+      const token = await adminToken();
+      // Credit first so balance >= debit amount
+      await request(app)
+        .post(`/api/admin/customers/${testCustomerId}/loyalty`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ delta: 500, reason: 'Initial credit' });
+      const res = await request(app)
+        .post(`/api/admin/customers/${testCustomerId}/loyalty`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ delta: -100, reason: 'Correction' });
+      expect(res.status).toBe(200);
+      expect(res.body.data.delta).toBe(-100);
+    });
+
+    it('rejects delta of 0', async () => {
+      const token = await adminToken();
+      const res = await request(app)
+        .post(`/api/admin/customers/${testCustomerId}/loyalty`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ delta: 0, reason: 'Nothing' });
+      expect(res.status).toBe(400);
+    });
+
+    it('blocks customer role', async () => {
+      const token = await customerToken();
+      const res = await request(app)
+        .post(`/api/admin/customers/${testCustomerId}/loyalty`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ delta: 100, reason: 'Self-service' });
+      expect(res.status).toBe(403);
+    });
+  });
 });
