@@ -26,6 +26,7 @@ export default function ProductDetailPage() {
   const addToCart = useAddToCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
   const { user } = useAuthStore();
 
@@ -43,12 +44,21 @@ export default function ProductDetailPage() {
 
   const hasReviewed = !!reviewsData?.reviews.some((r) => r.userId === user?.id);
 
+  const selectedVariant = product?.variants?.find((v) => v.id === selectedVariantId) ?? null;
+  const displayPrice = selectedVariant ? selectedVariant.priceOre : product?.priceOre ?? 0;
+  const displayStock = selectedVariant ? selectedVariant.stock : product?.stock ?? 0;
+  const hasVariants = (product?.variants?.length ?? 0) > 0;
+  const uniqueGrinds = hasVariants
+    ? [...new Set(product!.variants!.filter((v) => v.grind).map((v) => v.grind!))]
+    : [];
+
   async function handleAddToCart() {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: `/products/${slug}` } });
       return;
     }
-    await addToCart.mutateAsync({ productId: product!.id, quantity });
+    if (hasVariants && !selectedVariantId) return;
+    await addToCart.mutateAsync({ productId: product!.id, quantity, variantId: selectedVariantId ?? undefined });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
@@ -189,10 +199,50 @@ export default function ProductDetailPage() {
             </div>
           </motion.div>
 
+          {hasVariants && (
+            <motion.div variants={fadeUp} className="mb-6 space-y-4">
+              <div>
+                <p className="text-sm font-medium text-stone-700 mb-2">Size</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants!.map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => setSelectedVariantId(v.id)}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                        selectedVariantId === v.id
+                          ? 'border-espresso-800 bg-espresso-800 text-white'
+                          : 'border-stone-300 text-stone-700 hover:border-espresso-600'
+                      }`}
+                    >
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {uniqueGrinds.length > 0 && selectedVariant && (
+                <div>
+                  <p className="text-sm font-medium text-stone-700 mb-2">Grind</p>
+                  <select
+                    className="w-full max-w-xs px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-espresso-500"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Select grind</option>
+                    {uniqueGrinds.map((g) => (
+                      <option key={g} value={g}>{g.replace('_', ' ')}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </motion.div>
+          )}
+
           <motion.div variants={fadeUp} className="flex items-center gap-6 mb-6">
             <p className="font-serif text-3xl font-semibold text-espresso-800">
-              {formatPrice(product.priceOre)}
+              {formatPrice(displayPrice)}
             </p>
+            {hasVariants && !selectedVariantId && (
+              <span className="text-sm text-stone-500">Select a size</span>
+            )}
           </motion.div>
 
           <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4">
@@ -208,8 +258,8 @@ export default function ProductDetailPage() {
                 {quantity}
               </span>
               <button
-                onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                disabled={quantity >= product.stock}
+                onClick={() => setQuantity((q) => Math.min(displayStock, q + 1))}
+                disabled={quantity >= displayStock}
                 aria-label="Increase quantity"
                 className="px-4 py-3 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold disabled:opacity-40"
               >
@@ -221,11 +271,11 @@ export default function ProductDetailPage() {
               <Button
                 onClick={handleAddToCart}
                 loading={addToCart.isPending}
-                disabled={product.stock === 0}
+                disabled={displayStock === 0 || (hasVariants && !selectedVariantId)}
                 size="lg"
                 className="w-full"
               >
-                {added ? 'Added to cart' : product.stock === 0 ? 'Out of stock' : 'Add to cart'}
+                {added ? 'Added to cart' : displayStock === 0 ? 'Out of stock' : hasVariants && !selectedVariantId ? 'Select a size' : 'Add to cart'}
               </Button>
             </motion.div>
           </motion.div>

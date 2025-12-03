@@ -14,6 +14,18 @@ export interface Category {
   _count?: { products: number };
 }
 
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  name: string;
+  grind: string | null;
+  priceOre: number;
+  stock: number;
+  sku: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -32,6 +44,7 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   avgRating?: number | null;
+  variants?: ProductVariant[];
 }
 
 export interface CartItem {

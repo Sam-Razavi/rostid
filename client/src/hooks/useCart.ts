@@ -20,7 +20,7 @@ export function useCart() {
 export function useAddToCart() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { productId: string; quantity: number }) => {
+    mutationFn: async (payload: { productId: string; quantity: number; variantId?: string }) => {
       const { data } = await apiClient.post<ApiResponse<Cart>>('/cart/items', payload);
       return data.data;
     },

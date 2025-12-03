@@ -59,10 +59,16 @@ export async function listProducts(query: ListProductsQuery) {
 }
 
 export async function getProductBySlug(slug: string) {
-  const product = await prisma.product.findUnique({
+  const product = await (prisma.product.findUnique as unknown as (a: unknown) => Promise<unknown>)({
     where: { slug },
-    include: { category: { select: { id: true, name: true, slug: true } } },
-  });
+    include: {
+      category: { select: { id: true, name: true, slug: true } },
+      variants: {
+        where: { isActive: true },
+        orderBy: { priceOre: 'asc' },
+      },
+    },
+  }) as (Awaited<ReturnType<typeof prisma.product.findUnique>> & { variants: unknown[] }) | null;
 
   if (!product || !product.isActive) {
     throw AppError.notFound('Product not found');
