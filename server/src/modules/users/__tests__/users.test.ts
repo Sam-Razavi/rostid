@@ -99,4 +99,26 @@ describe('Users API', () => {
       expect(res.status).toBe(401);
     });
   });
+
+  describe('DELETE /api/users/me', () => {
+    it('returns 204 and subsequent login fails', async () => {
+      const token = await loginCustomer();
+
+      const deleteRes = await request(app)
+        .delete('/api/users/me')
+        .set('Authorization', `Bearer ${token}`);
+      expect(deleteRes.status).toBe(204);
+
+      // Original credentials should no longer work
+      const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'customer@test.com', password: 'password123' });
+      expect(loginRes.status).toBe(401);
+    });
+
+    it('requires authentication', async () => {
+      const res = await request(app).delete('/api/users/me');
+      expect(res.status).toBe(401);
+    });
+  });
 });
