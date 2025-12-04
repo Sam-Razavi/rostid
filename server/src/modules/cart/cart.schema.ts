@@ -4,6 +4,7 @@ export const addItemSchema = z.object({
   body: z.object({
     productId: z.string().cuid(),
     quantity: z.number().int().min(1).max(99).default(1),
+    variantId: z.string().cuid().optional(),
   }),
 });
 

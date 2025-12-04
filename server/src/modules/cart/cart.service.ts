@@ -2,6 +2,16 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
 import type { AddItemInput, UpdateItemInput } from './cart.schema';
 
+type CartPrisma = {
+  cartItem: {
+    findUnique: (a: unknown) => Promise<unknown | null>;
+    findFirst: (a: unknown) => Promise<unknown | null>;
+    create: (a: unknown) => Promise<unknown>;
+    update: (a: unknown) => Promise<unknown>;
+  };
+};
+const cartDb = prisma as unknown as CartPrisma;
+
 const cartInclude = {
   items: {
     include: {
@@ -36,35 +46,30 @@ export async function getCart(userId: string) {
 
 export async function addItem(userId: string, data: AddItemInput) {
   const product = await prisma.product.findUnique({ where: { id: data.productId } });
-  if (!product || !product.isActive) {
-    throw AppError.notFound('Product not found');
+  if (!product || !product.isActive) throw AppError.notFound('Product not found');
+
+  // Determine stock limit from variant or product
+  let stockLimit = product.stock;
+  if (data.variantId) {
+    const variant = await (prisma as unknown as { productVariant: { findUnique: (a: unknown) => Promise<{ stock: number } | null> } })
+      .productVariant.findUnique({ where: { id: data.variantId } });
+    if (variant) stockLimit = variant.stock;
   }
 
   const cart = await getOrCreateCart(userId);
 
-  const existing = await prisma.cartItem.findUnique({
-    where: { cartId_productId: { cartId: cart.id, productId: data.productId } },
-  });
+  const existing = await cartDb.cartItem.findFirst({
+    where: { cartId: cart.id, productId: data.productId, variantId: data.variantId ?? null },
+  }) as ({ id: string; quantity: number } | null);
 
   if (existing) {
     const newQty = existing.quantity + data.quantity;
-    if (newQty > product.stock) {
-      throw AppError.badRequest(`Only ${product.stock} in stock`);
-    }
-    await prisma.cartItem.update({
-      where: { id: existing.id },
-      data: { quantity: newQty },
-    });
+    if (newQty > stockLimit) throw AppError.badRequest(`Only ${stockLimit} in stock`);
+    await prisma.cartItem.update({ where: { id: existing.id }, data: { quantity: newQty } });
   } else {
-    if (data.quantity > product.stock) {
-      throw AppError.badRequest(`Only ${product.stock} in stock`);
-    }
-    await prisma.cartItem.create({
-      data: {
-        cartId: cart.id,
-        productId: data.productId,
-        quantity: data.quantity,
-      },
+    if (data.quantity > stockLimit) throw AppError.badRequest(`Only ${stockLimit} in stock`);
+    await cartDb.cartItem.create({
+      data: { cartId: cart.id, productId: data.productId, variantId: data.variantId ?? null, quantity: data.quantity },
     });
   }
 
