@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { ApiResponse, Product, Order } from '../types';
+import type { ApiResponse, Product, Order, ProductVariant } from '../types';
 
 export interface AdminStats {
   totalOrders: number;
@@ -91,4 +91,23 @@ export async function createAdminDiscount(payload: {
 
 export async function deleteAdminDiscount(id: string): Promise<void> {
   await apiClient.delete(`/admin/discounts/${id}`);
+}
+
+export async function fetchAdminVariants(productId: string): Promise<ProductVariant[]> {
+  const { data } = await apiClient.get<ApiResponse<ProductVariant[]>>(`/admin/products/${productId}/variants`);
+  return data.data;
+}
+
+export async function createAdminVariant(productId: string, payload: Partial<ProductVariant>): Promise<ProductVariant> {
+  const { data } = await apiClient.post<ApiResponse<ProductVariant>>(`/admin/products/${productId}/variants`, payload);
+  return data.data;
+}
+
+export async function updateAdminVariant(productId: string, variantId: string, payload: Partial<ProductVariant>): Promise<ProductVariant> {
+  const { data } = await apiClient.patch<ApiResponse<ProductVariant>>(`/admin/products/${productId}/variants/${variantId}`, payload);
+  return data.data;
+}
+
+export async function deleteAdminVariant(productId: string, variantId: string): Promise<void> {
+  await apiClient.delete(`/admin/products/${productId}/variants/${variantId}`);
 }

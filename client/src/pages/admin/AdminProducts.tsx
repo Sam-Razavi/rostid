@@ -1,13 +1,98 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { fetchAdminProducts, deleteProduct, createProduct, updateProduct } from '../../api/admin.api';
+import {
+  fetchAdminProducts, deleteProduct, createProduct, updateProduct,
+  fetchAdminVariants, createAdminVariant, deleteAdminVariant,
+} from '../../api/admin.api';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Modal } from '../../components/ui/Modal';
+import { Input } from '../../components/ui/Input';
 import { ProductForm } from '../../components/products/ProductForm';
-import type { Product } from '../../types';
+import type { Product, ProductVariant } from '../../types';
+
+function VariantManager({ product }: { product: Product }) {
+  const qc = useQueryClient();
+  const [name, setName] = useState('');
+  const [priceOre, setPriceOre] = useState('');
+  const [stock, setStock] = useState('');
+
+  const { data: variants = [], isLoading } = useQuery({
+    queryKey: ['admin', 'variants', product.id],
+    queryFn: () => fetchAdminVariants(product.id),
+  });
+
+  const addVariant = useMutation({
+    mutationFn: (v: Partial<ProductVariant>) => createAdminVariant(product.id, v),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'variants', product.id] });
+      setName(''); setPriceOre(''); setStock('');
+      toast.success('Variant added');
+    },
+  });
+
+  const removeVariant = useMutation({
+    mutationFn: (variantId: string) => deleteAdminVariant(product.id, variantId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'variants', product.id] });
+      toast.success('Variant removed');
+    },
+  });
+
+  function handleAdd(e: FormEvent) {
+    e.preventDefault();
+    if (!name || !priceOre) return;
+    addVariant.mutate({ name, priceOre: Math.round(Number(priceOre) * 100), stock: Number(stock) || 0 });
+  }
+
+  return (
+    <div className="space-y-4">
+      {isLoading ? (
+        <Skeleton className="h-20 w-full rounded" />
+      ) : variants.length === 0 ? (
+        <p className="text-sm text-stone-400 text-center py-4">No variants yet</p>
+      ) : (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-xs text-stone-500 border-b border-stone-100">
+              <th className="pb-2 font-medium">Name</th>
+              <th className="pb-2 font-medium text-right">Price</th>
+              <th className="pb-2 font-medium text-right">Stock</th>
+              <th className="pb-2" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-stone-50">
+            {variants.map((v) => (
+              <tr key={v.id}>
+                <td className="py-2 font-mono text-stone-800">{v.name}</td>
+                <td className="py-2 text-right tabular-nums">{Math.round(v.priceOre / 100)} kr</td>
+                <td className="py-2 text-right tabular-nums text-stone-500">{v.stock}</td>
+                <td className="py-2 text-right">
+                  <button
+                    onClick={() => removeVariant.mutate(v.id)}
+                    className="text-xs text-red-500 hover:text-red-700 cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <form onSubmit={handleAdd} className="grid grid-cols-3 gap-2 pt-2 border-t border-stone-100">
+        <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="250g" required />
+        <Input label="Price (SEK)" type="number" value={priceOre} onChange={(e) => setPriceOre(e.target.value)} placeholder="149" required />
+        <Input label="Stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} placeholder="0" />
+        <div className="col-span-3 flex justify-end">
+          <Button type="submit" size="sm" loading={addVariant.isPending}>Add variant</Button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -18,6 +103,7 @@ export default function AdminProducts() {
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [variantsProduct, setVariantsProduct] = useState<Product | null>(null);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['admin', 'products'],
@@ -147,6 +233,13 @@ export default function AdminProducts() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => setVariantsProduct(product)}
+                          >
+                            Variants
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => setEditingProduct(product)}
                           >
                             Edit
@@ -170,6 +263,15 @@ export default function AdminProducts() {
           </table>
         </div>
       </div>
+
+      <Modal
+        isOpen={!!variantsProduct}
+        onClose={() => setVariantsProduct(null)}
+        title={`Variants: ${variantsProduct?.name ?? ''}`}
+        size="lg"
+      >
+        {variantsProduct && <VariantManager product={variantsProduct} />}
+      </Modal>
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="New product" size="lg">
         <ProductForm
