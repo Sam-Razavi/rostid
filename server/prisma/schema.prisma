@@ -42,6 +42,7 @@ model User {
   passwordResets     PasswordResetToken[]
   reviews            Review[]
   wishlistItems      WishlistItem[]
+  shippingAddresses  ShippingAddress[]
 
   @@map("users")
 }
@@ -208,17 +209,50 @@ model CartItem {
   @@map("cart_items")
 }
 
-model Order {
-  id               String      @id @default(cuid())
-  userId           String      @map("user_id")
-  status           OrderStatus @default(pending)
-  totalOre         Int         @map("total_ore")
-  stripeSessionId  String?     @map("stripe_session_id")
-  createdAt        DateTime    @default(now()) @map("created_at")
-  updatedAt        DateTime    @updatedAt @map("updated_at")
+model ShippingAddress {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  name       String
+  line1      String
+  line2      String?
+  city       String
+  postalCode String   @map("postal_code")
+  country    String   @default("SE")
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  user  User        @relation(fields: [userId], references: [id])
-  items OrderItem[]
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("shipping_addresses")
+}
+
+model ShippingRate {
+  id               String  @id @default(cuid())
+  name             String
+  priceOre         Int     @map("price_ore")
+  freeThresholdOre Int?    @map("free_threshold_ore")
+  estimatedDays    String? @map("estimated_days")
+  isActive         Boolean @default(true) @map("is_active")
+
+  @@map("shipping_rates")
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  userId            String      @map("user_id")
+  status            OrderStatus @default(pending)
+  totalOre          Int         @map("total_ore")
+  shippingOre       Int         @default(0) @map("shipping_ore")
+  shippingAddressId String?     @map("shipping_address_id")
+  shippingRateId    String?     @map("shipping_rate_id")
+  stripeSessionId   String?     @map("stripe_session_id")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  user            User             @relation(fields: [userId], references: [id])
+  shippingAddress ShippingAddress? @relation(fields: [shippingAddressId], references: [id])
+  items           OrderItem[]
 
   @@map("orders")
 }
