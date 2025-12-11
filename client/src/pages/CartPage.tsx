@@ -2,11 +2,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../components/cart/CartItem';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { createCheckoutSession } from '../api/checkout.api';
+import { fetchShippingRates, type ShippingRate } from '../api/shipping.api';
 import apiClient from '../api/client';
 import type { ApiResponse } from '../types';
 
@@ -28,6 +30,7 @@ export default function CartPage() {
   const [discountCode, setDiscountCode] = useState('');
   const [discountLoading, setDiscountLoading] = useState(false);
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountResult | null>(null);
+  const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
 
   async function handleApplyDiscount() {
     if (!discountCode.trim()) return;
@@ -51,7 +54,7 @@ export default function CartPage() {
   async function handleCheckout() {
     setCheckingOut(true);
     try {
-      const url = await createCheckoutSession(appliedDiscount?.code);
+      const url = await createCheckoutSession(appliedDiscount?.code, selectedRate?.id);
       window.location.href = url;
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Checkout failed';
@@ -79,7 +82,16 @@ export default function CartPage() {
   const items = cart?.items ?? [];
   const subtotalOre = items.reduce((sum, item) => sum + item.product.priceOre * item.quantity, 0);
   const discountOre = appliedDiscount?.discountOre ?? 0;
-  const totalOre = Math.max(0, subtotalOre - discountOre);
+
+  const { data: shippingRates = [] } = useQuery({
+    queryKey: ['shipping-rates', subtotalOre],
+    queryFn: () => fetchShippingRates(subtotalOre),
+    enabled: items.length > 0,
+  });
+
+  const selectedRate = shippingRates.find((r: ShippingRate) => r.id === selectedRateId) ?? shippingRates[0] ?? null;
+  const shippingOre = selectedRate?.effectivePriceOre ?? 0;
+  const totalOre = Math.max(0, subtotalOre - discountOre + shippingOre);
 
   if (items.length === 0) {
     return (
@@ -124,6 +136,36 @@ export default function CartPage() {
                 </div>
               ))}
             </div>
+
+            {/* Shipping selector */}
+            {shippingRates.length > 0 && (
+              <div className="mb-4">
+                <p className="text-sm font-medium text-stone-700 mb-2">Shipping</p>
+                <div className="space-y-2">
+                  {shippingRates.map((rate: ShippingRate) => (
+                    <label key={rate.id} className="flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors border-stone-200 hover:border-espresso-400">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="shipping"
+                          value={rate.id}
+                          checked={(selectedRateId ?? shippingRates[0]?.id) === rate.id}
+                          onChange={() => setSelectedRateId(rate.id)}
+                          className="accent-espresso-700"
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-stone-900">{rate.name}</p>
+                          {rate.estimatedDays && <p className="text-xs text-stone-500">{rate.estimatedDays}</p>}
+                        </div>
+                      </div>
+                      <span className="text-sm font-medium text-stone-900">
+                        {rate.isFree ? <span className="text-green-700">Free</span> : formatPrice(rate.priceOre)}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Discount code input */}
             <div className="mb-4">
@@ -174,7 +216,17 @@ export default function CartPage() {
                   {formatPrice(totalOre)}
                 </span>
               </div>
-              <p className="text-xs text-stone-500">Free shipping on orders over 400 kr</p>
+              {shippingOre > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-stone-600">Shipping ({selectedRate?.name})</span>
+                  <span className="text-stone-900">{formatPrice(shippingOre)}</span>
+                </div>
+              )}
+              {selectedRate?.freeThresholdOre && subtotalOre < selectedRate.freeThresholdOre && (
+                <p className="text-xs text-stone-500">
+                  Add {formatPrice(selectedRate.freeThresholdOre - subtotalOre)} more for free standard shipping
+                </p>
+              )}
             </div>
 
             <Button

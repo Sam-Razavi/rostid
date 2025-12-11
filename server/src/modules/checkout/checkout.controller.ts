@@ -6,8 +6,10 @@ export async function createSession(req: Request, res: Response): Promise<void> 
   const userId = req.user!.userId;
   const successUrl = `${env.CLIENT_URL}/checkout/success`;
   const cancelUrl = `${env.CLIENT_URL}/checkout/cancel`;
-  const discountCode = (req.body as { discountCode?: string })?.discountCode;
+  const body = req.body as { discountCode?: string; shippingRateId?: string };
+  const discountCode = body?.discountCode;
+  const shippingRateId = body?.shippingRateId;
 
-  const result = await createCheckoutSession(userId, successUrl, cancelUrl, discountCode);
+  const result = await createCheckoutSession(userId, successUrl, cancelUrl, discountCode, shippingRateId);
   res.json({ data: result, message: 'Checkout session created' });
 }
