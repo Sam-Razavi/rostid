@@ -43,6 +43,7 @@ model User {
   reviews            Review[]
   wishlistItems      WishlistItem[]
   shippingAddresses  ShippingAddress[]
+  subscriptions      Subscription[]
 
   @@map("users")
 }
@@ -143,6 +144,7 @@ model Product {
   reviews       Review[]
   wishlistItems WishlistItem[]
   variants      ProductVariant[]
+  subscriptions Subscription[]
 
   @@map("products")
 }
@@ -225,6 +227,22 @@ model ShippingAddress {
   orders Order[]
 
   @@map("shipping_addresses")
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  productId       String   @map("product_id")
+  variantId       String?  @map("variant_id")
+  intervalDays    Int      @map("interval_days")
+  status          String   @default("active")
+  nextBillingDate DateTime @map("next_billing_date")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("subscriptions")
 }
 
 model ShippingRate {
