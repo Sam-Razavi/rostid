@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { fetchProduct } from '../api/products.api';
 import { RoastBadge, Badge, StockBadge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -14,6 +15,7 @@ import { RelatedProducts } from '../components/products/RelatedProducts';
 import { ReviewList } from '../components/products/ReviewList';
 import { AddReviewForm } from '../components/products/AddReviewForm';
 import { fetchReviews } from '../api/reviews.api';
+import { createSubscription } from '../api/subscriptions.api';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -27,8 +29,23 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscribe'>('one-time');
+  const [intervalDays, setIntervalDays] = useState(30);
 
   const { user } = useAuthStore();
+
+  const subscribeMutation = useMutation({
+    mutationFn: createSubscription,
+    onSuccess: (result) => {
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      } else {
+        toast.success('Subscription created!');
+        navigate('/subscriptions');
+      }
+    },
+    onError: () => toast.error('Failed to create subscription'),
+  });
 
   const { data: product, isLoading, isError } = useQuery({
     queryKey: ['product', slug],
@@ -245,38 +262,92 @@ export default function ProductDetailPage() {
             )}
           </motion.div>
 
-          <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center border border-stone-300 rounded-lg overflow-hidden">
+          {/* Purchase mode toggle */}
+          <motion.div variants={fadeUp} className="mb-5">
+            <div className="flex rounded-lg border border-stone-200 overflow-hidden">
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                aria-label="Decrease quantity"
-                className="px-4 py-3 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold"
+                onClick={() => setPurchaseMode('one-time')}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors cursor-pointer ${purchaseMode === 'one-time' ? 'bg-espresso-800 text-white' : 'text-stone-600 hover:bg-stone-50'}`}
               >
-                −
+                One-time
               </button>
-              <span className="px-4 py-3 text-stone-900 font-medium min-w-[3rem] text-center tabular-nums">
-                {quantity}
-              </span>
               <button
-                onClick={() => setQuantity((q) => Math.min(displayStock, q + 1))}
-                disabled={quantity >= displayStock}
-                aria-label="Increase quantity"
-                className="px-4 py-3 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold disabled:opacity-40"
+                onClick={() => setPurchaseMode('subscribe')}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors cursor-pointer ${purchaseMode === 'subscribe' ? 'bg-espresso-800 text-white' : 'text-stone-600 hover:bg-stone-50'}`}
               >
-                +
+                Subscribe & Save 10%
               </button>
             </div>
+            {purchaseMode === 'subscribe' && (
+              <div className="mt-3 flex items-center gap-3">
+                <span className="text-sm text-stone-600">Deliver every</span>
+                {[14, 30, 60].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setIntervalDays(d)}
+                    className={`px-3 py-1.5 rounded-lg border text-sm font-medium cursor-pointer transition-colors ${intervalDays === d ? 'border-espresso-800 bg-espresso-50 text-espresso-800' : 'border-stone-200 text-stone-600 hover:border-stone-400'}`}
+                  >
+                    {d} days
+                  </button>
+                ))}
+              </div>
+            )}
+            {purchaseMode === 'subscribe' && (
+              <p className="text-xs text-green-700 mt-2">
+                Subscribed price: <strong>{Math.round(displayPrice * 0.9 / 100)} kr</strong> — save {Math.round(displayPrice * 0.1 / 100)} kr per delivery
+              </p>
+            )}
+          </motion.div>
+
+          <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4">
+            {purchaseMode === 'one-time' && (
+              <div className="flex items-center border border-stone-300 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  aria-label="Decrease quantity"
+                  className="px-4 py-3 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold"
+                >
+                  −
+                </button>
+                <span className="px-4 py-3 text-stone-900 font-medium min-w-[3rem] text-center tabular-nums">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity((q) => Math.min(displayStock, q + 1))}
+                  disabled={quantity >= displayStock}
+                  aria-label="Increase quantity"
+                  className="px-4 py-3 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold disabled:opacity-40"
+                >
+                  +
+                </button>
+              </div>
+            )}
 
             <motion.div className="flex-1" whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleAddToCart}
-                loading={addToCart.isPending}
-                disabled={displayStock === 0 || (hasVariants && !selectedVariantId)}
-                size="lg"
-                className="w-full"
-              >
-                {added ? 'Added to cart' : displayStock === 0 ? 'Out of stock' : hasVariants && !selectedVariantId ? 'Select a size' : 'Add to cart'}
-              </Button>
+              {purchaseMode === 'one-time' ? (
+                <Button
+                  onClick={handleAddToCart}
+                  loading={addToCart.isPending}
+                  disabled={displayStock === 0 || (hasVariants && !selectedVariantId)}
+                  size="lg"
+                  className="w-full"
+                >
+                  {added ? 'Added to cart' : displayStock === 0 ? 'Out of stock' : hasVariants && !selectedVariantId ? 'Select a size' : 'Add to cart'}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    if (!isAuthenticated) { navigate('/login', { state: { from: `/products/${slug}` } }); return; }
+                    subscribeMutation.mutate({ productId: product!.id, intervalDays, variantId: selectedVariantId });
+                  }}
+                  loading={subscribeMutation.isPending}
+                  disabled={displayStock === 0 || (hasVariants && !selectedVariantId)}
+                  size="lg"
+                  className="w-full"
+                >
+                  {displayStock === 0 ? 'Out of stock' : 'Subscribe now'}
+                </Button>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
