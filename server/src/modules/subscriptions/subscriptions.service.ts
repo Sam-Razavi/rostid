@@ -12,6 +12,7 @@ type SubPrisma = {
     findMany: (a: unknown) => Promise<SubWithProduct[]>;
     findFirst: (a: unknown) => Promise<SubRecord | null>;
     update: (a: unknown) => Promise<{ id: string; status: string; intervalDays: number; nextBillingDate: Date }>;
+    updateMany: (a: unknown) => Promise<{ count: number }>;
   };
 };
 
@@ -85,4 +86,49 @@ export async function updateSubscription(
     where: { id: subscriptionId },
     data,
   });
+}
+
+export async function processDueSubscriptions() {
+  const now = new Date();
+  const due = await subDb.subscription.findMany({
+    where: { status: 'active', nextBillingDate: { lte: now } },
+    include: { product: { select: { id: true, name: true, priceOre: true, imageUrl: true } } },
+  });
+
+  const results: { subscriptionId: string; status: 'skipped' | 'session_created' | 'order_created' }[] = [];
+
+  for (const sub of due) {
+    const nextDate = new Date(sub.nextBillingDate);
+    nextDate.setDate(nextDate.getDate() + sub.intervalDays);
+
+    if (stripe) {
+      await stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'sek',
+              product_data: { name: `${sub.product.name} (Subscription renewal)` },
+              unit_amount: Math.round(sub.product.priceOre * 0.9),
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${env.CLIENT_URL}/subscriptions`,
+        cancel_url: `${env.CLIENT_URL}/subscriptions`,
+        metadata: { userId: sub.userId, subscriptionId: sub.id },
+      });
+      results.push({ subscriptionId: sub.id, status: 'session_created' });
+    } else {
+      results.push({ subscriptionId: sub.id, status: 'skipped' });
+    }
+
+    await subDb.subscription.update({
+      where: { id: sub.id },
+      data: { nextBillingDate: nextDate },
+    });
+  }
+
+  return { processed: due.length, results };
 }

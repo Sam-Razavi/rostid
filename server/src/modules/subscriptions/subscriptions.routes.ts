@@ -5,9 +5,13 @@ import {
   createSubscriptionHandler,
   listSubscriptionsHandler,
   updateSubscriptionHandler,
+  processDueHandler,
 } from './subscriptions.controller';
 
 const router = Router();
+
+// Cron-callable renewal endpoint (no auth required — secured by obscurity/cron secret in prod)
+router.get('/process-due', asyncHandler(processDueHandler));
 
 router.use(authenticate);
 
