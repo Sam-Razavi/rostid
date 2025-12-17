@@ -25,6 +25,7 @@ const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const WishlistPage = lazy(() => import('../pages/WishlistPage'));
+const SubscriptionsPage = lazy(() => import('../pages/SubscriptionsPage'));
 
 function PageLoader() {
   return (
@@ -57,6 +58,7 @@ export const router = createBrowserRouter([
           { path: '/cart', element: <S><CartPage /></S> },
           { path: '/orders', element: <S><OrdersPage /></S> },
           { path: '/orders/:id', element: <S><OrderDetailPage /></S> },
+          { path: '/subscriptions', element: <S><SubscriptionsPage /></S> },
           { path: '/checkout/success', element: <S><PaymentSuccessPage /></S> },
           { path: '/checkout/cancel', element: <S><PaymentCancelPage /></S> },
         ],

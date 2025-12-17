@@ -56,12 +56,14 @@ export function Navbar() {
               >
                 Equipment
               </NavLink>
-              <NavLink
-                to="/products?category=subscriptions"
-                className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
-              >
-                Subscriptions
-              </NavLink>
+              {isAuthenticated && (
+                <NavLink
+                  to="/subscriptions"
+                  className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                >
+                  Subscriptions
+                </NavLink>
+              )}
             </nav>
 
             <div className="flex items-center gap-2">
