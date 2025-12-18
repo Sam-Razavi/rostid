@@ -38,11 +38,14 @@ export default function AdminDashboard() {
 
   const lowStockProducts = (allProducts ?? []).filter((p) => p.isActive && p.stock > 0 && p.stock <= 5);
 
+  const statsAny = stats as Record<string, unknown> | undefined;
   const statCards = [
     { label: 'Total orders', value: stats?.totalOrders ?? 0, format: (v: number) => v.toString() },
     { label: 'Revenue', value: stats?.totalRevenueOre ?? 0, format: formatPrice },
     { label: 'Products', value: stats?.totalProducts ?? 0, format: (v: number) => v.toString() },
     { label: 'Customers', value: stats?.totalCustomers ?? 0, format: (v: number) => v.toString() },
+    { label: 'MRR', value: (statsAny?.mrrOre as number) ?? 0, format: formatPrice },
+    { label: 'Active subs', value: (statsAny?.activeSubscriptions as number) ?? 0, format: (v: number) => v.toString() },
   ];
 
   const pieData = (stats?.ordersByStatus ?? []).map((s) => ({

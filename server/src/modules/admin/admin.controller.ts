@@ -17,6 +17,7 @@ import {
   adminCreateVariant,
   adminUpdateVariant,
   adminDeleteVariant,
+  adminListSubscriptions,
 } from './admin.service';
 import { createVariantSchema, updateVariantSchema } from './admin.schema';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
@@ -108,6 +109,11 @@ export async function updateVariantHandler(req: Request, res: Response): Promise
 export async function deleteVariantHandler(req: Request, res: Response): Promise<void> {
   await adminDeleteVariant(req.params.productId, req.params.variantId);
   res.json({ data: null, message: 'Variant deleted' });
+}
+
+export async function listAdminSubscriptionsHandler(_req: Request, res: Response): Promise<void> {
+  const subscriptions = await adminListSubscriptions();
+  res.json({ data: subscriptions, message: 'Subscriptions retrieved' });
 }
 
 export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {

@@ -22,6 +22,7 @@ export default function AdminLayout() {
     { to: '/admin/orders', label: 'Orders', end: false },
     { to: '/admin/customers', label: 'Customers', end: false },
     { to: '/admin/discounts', label: 'Discounts', end: false },
+    { to: '/admin/subscriptions', label: 'Subscriptions', end: false },
   ];
 
   return (

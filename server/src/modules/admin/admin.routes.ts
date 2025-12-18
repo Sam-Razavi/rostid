@@ -19,6 +19,7 @@ import {
   createVariantHandler,
   updateVariantHandler,
   deleteVariantHandler,
+  listAdminSubscriptionsHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -41,6 +42,8 @@ router.patch('/orders/:id/status', asyncHandler(updateOrderStatus));
 
 router.get('/stats', asyncHandler(getStats));
 router.get('/customers', asyncHandler(listCustomersHandler));
+
+router.get('/subscriptions', asyncHandler(listAdminSubscriptionsHandler));
 
 router.get('/discounts', asyncHandler(listDiscountsHandler));
 router.post('/discounts', asyncHandler(createDiscountHandler));

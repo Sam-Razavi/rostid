@@ -15,6 +15,15 @@ type VariantPrisma = {
 };
 const variantDb = prisma as unknown as VariantPrisma;
 
+type AdminSubRecord = { id: string; userId: string; productId: string; intervalDays: number; status: string; nextBillingDate: Date; createdAt: Date; user: { name: string; email: string }; product: { name: string; priceOre: number } };
+type AdminSubPrisma = {
+  subscription: {
+    findMany: (a: unknown) => Promise<AdminSubRecord[]>;
+    count: (a: unknown) => Promise<number>;
+  };
+};
+const adminSubDb = prisma as unknown as AdminSubPrisma;
+
 const LOW_STOCK_THRESHOLD = 5;
 
 export async function adminListVariants(productId: string) {
@@ -160,6 +169,16 @@ export async function adminListCustomers() {
   }));
 }
 
+export async function adminListSubscriptions() {
+  return adminSubDb.subscription.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: { select: { name: true, email: true } },
+      product: { select: { name: true, priceOre: true } },
+    },
+  });
+}
+
 export async function adminGetStats() {
   const [
     totalOrders,
@@ -169,6 +188,8 @@ export async function adminGetStats() {
     recentOrders,
     ordersByStatus,
     topProductItems,
+    activeSubCount,
+    activeSubs,
   ] = await Promise.all([
     prisma.order.count(),
     prisma.order.aggregate({ _sum: { totalOre: true } }),
@@ -191,6 +212,11 @@ export async function adminGetStats() {
       orderBy: { _sum: { unitPriceOre: 'desc' } },
       take: 6,
     }),
+    adminSubDb.subscription.count({ where: { status: 'active' } }),
+    adminSubDb.subscription.findMany({
+      where: { status: 'active' },
+      include: { product: { select: { priceOre: true } } },
+    }),
   ]);
 
   const productIds = topProductItems.map((item) => item.productId);
@@ -205,6 +231,12 @@ export async function adminGetStats() {
     revenueOre: item._sum.unitPriceOre ?? 0,
   }));
 
+  // MRR = sum of monthly equivalent of each active subscription (30 days = 1 month)
+  const mrrOre = activeSubs.reduce((sum: number, sub: AdminSubRecord) => {
+    const monthlyMultiplier = 30 / sub.intervalDays;
+    return sum + Math.round(sub.product.priceOre * 0.9 * monthlyMultiplier);
+  }, 0);
+
   return {
     totalOrders,
     totalRevenueOre: totalRevenue._sum.totalOre ?? 0,
@@ -213,5 +245,7 @@ export async function adminGetStats() {
     recentOrders,
     ordersByStatus,
     revenueByProduct,
+    activeSubscriptions: activeSubCount,
+    mrrOre,
   };
 }
