@@ -116,6 +116,19 @@ export async function listAdminSubscriptionsHandler(_req: Request, res: Response
   res.json({ data: subscriptions, message: 'Subscriptions retrieved' });
 }
 
+export async function listAdminReturnsHandler(_req: Request, res: Response): Promise<void> {
+  const { adminListReturns } = await import('../returns/returns.service');
+  const returns = await adminListReturns();
+  res.json({ data: returns, message: 'Returns retrieved' });
+}
+
+export async function updateAdminReturnHandler(req: Request, res: Response): Promise<void> {
+  const { adminUpdateReturn } = await import('../returns/returns.service');
+  const { status, refundOre } = req.body as { status: string; refundOre?: number };
+  const result = await adminUpdateReturn(req.params.id, { status, refundOre });
+  res.json({ data: result, message: 'Return updated' });
+}
+
 export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {
   const codes = await listDiscounts();
   res.json({ data: codes, message: 'Discount codes retrieved' });

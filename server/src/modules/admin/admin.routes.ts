@@ -20,6 +20,8 @@ import {
   updateVariantHandler,
   deleteVariantHandler,
   listAdminSubscriptionsHandler,
+  listAdminReturnsHandler,
+  updateAdminReturnHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -44,6 +46,9 @@ router.get('/stats', asyncHandler(getStats));
 router.get('/customers', asyncHandler(listCustomersHandler));
 
 router.get('/subscriptions', asyncHandler(listAdminSubscriptionsHandler));
+
+router.get('/returns', asyncHandler(listAdminReturnsHandler));
+router.patch('/returns/:id', asyncHandler(updateAdminReturnHandler));
 
 router.get('/discounts', asyncHandler(listDiscountsHandler));
 router.post('/discounts', asyncHandler(createDiscountHandler));
