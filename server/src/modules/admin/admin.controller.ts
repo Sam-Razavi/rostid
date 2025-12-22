@@ -123,9 +123,34 @@ export async function listAdminReturnsHandler(_req: Request, res: Response): Pro
 }
 
 export async function updateAdminReturnHandler(req: Request, res: Response): Promise<void> {
-  const { adminUpdateReturn } = await import('../returns/returns.service');
+  const { adminListReturns: _list, adminUpdateReturn } = await import('../returns/returns.service');
+  const { stripe } = await import('../../config/stripe');
+  const { prisma } = await import('../../config/prisma');
   const { status, refundOre } = req.body as { status: string; refundOre?: number };
-  const result = await adminUpdateReturn(req.params.id, { status, refundOre });
+
+  let stripeRefundId: string | undefined;
+
+  if (status === 'approved' && refundOre && stripe) {
+    // Find the order's Stripe session to get payment_intent
+    const returnRecord = await (prisma as unknown as { return: { findFirst: (a: unknown) => Promise<{ orderId: string } | null> } }).return.findFirst({ where: { id: req.params.id } });
+    if (returnRecord) {
+      const order = await prisma.order.findUnique({ where: { id: returnRecord.orderId } });
+      const orderAny = order as unknown as { stripeSessionId?: string } | null;
+      if (orderAny?.stripeSessionId) {
+        const session = await stripe.checkout.sessions.retrieve(orderAny.stripeSessionId);
+        if (session.payment_intent) {
+          const refund = await stripe.refunds.create({
+            payment_intent: session.payment_intent as string,
+            amount: refundOre,
+          });
+          stripeRefundId = refund.id;
+        }
+      }
+    }
+  }
+
+  const finalStatus = status === 'approved' && stripeRefundId ? 'refunded' : status;
+  const result = await adminUpdateReturn(req.params.id, { status: finalStatus, refundOre, stripeRefundId });
   res.json({ data: result, message: 'Return updated' });
 }
 
