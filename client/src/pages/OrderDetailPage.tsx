@@ -28,6 +28,9 @@ function formatDate(iso: string) {
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showReturn, setShowReturn] = useState(false);
+  const [returnReason, setReturnReason] = useState('');
+  const [selectedItems, setSelectedItems] = useState<Record<string, number>>({});
   const queryClient = useQueryClient();
 
   const { data: order, isLoading, isError, refetch } = useQuery({
@@ -51,7 +54,25 @@ export default function OrderDetailPage() {
     },
   });
 
+  const returnMutation = useMutation({
+    mutationFn: () => apiClient.post(`/orders/${id}/return`, {
+      reason: returnReason,
+      items: Object.entries(selectedItems)
+        .filter(([, qty]) => qty > 0)
+        .map(([orderItemId, quantity]) => ({ orderItemId, quantity })),
+    }),
+    onSuccess: () => {
+      toast.success('Return request submitted');
+      setShowReturn(false);
+    },
+    onError: (err: unknown) => {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to submit return';
+      toast.error(message);
+    },
+  });
+
   const canCancel = order && (order.status === 'pending' || order.status === 'confirmed');
+  const canReturn = order && order.status === 'delivered';
 
   if (isLoading) return <div className="container-page py-16"><OrderCardSkeleton /></div>;
   if (isError || !order) return <div className="container-page py-16"><ErrorMessage onRetry={refetch} /></div>;
@@ -140,7 +161,68 @@ export default function OrderDetailPage() {
             Cancel order
           </button>
         )}
+        {canReturn && (
+          <button
+            onClick={() => setShowReturn(true)}
+            className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors ml-auto cursor-pointer min-h-[44px] px-2"
+          >
+            Request a return
+          </button>
+        )}
       </div>
+
+      {/* Return request modal */}
+      {showReturn && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-warm">
+            <h3 className="text-lg font-semibold text-stone-900 mb-4">Request a return</h3>
+            <div className="space-y-3 mb-4">
+              {order!.items.map((item) => (
+                <div key={item.id} className="flex items-center justify-between text-sm">
+                  <span className="text-stone-700">{item.product.name} (qty {item.quantity})</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={item.quantity}
+                    value={selectedItems[item.id] ?? 0}
+                    onChange={(e) => setSelectedItems((prev) => ({ ...prev, [item.id]: Number(e.target.value) }))}
+                    className="w-16 px-2 py-1 border border-stone-300 rounded text-center"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-stone-700 mb-1">Reason</label>
+              <select
+                value={returnReason}
+                onChange={(e) => setReturnReason(e.target.value)}
+                className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+              >
+                <option value="">Select a reason</option>
+                <option value="wrong_product">Wrong product</option>
+                <option value="damaged">Damaged / defective</option>
+                <option value="not_as_described">Not as described</option>
+                <option value="changed_mind">Changed my mind</option>
+              </select>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowReturn(false)}
+                className="text-sm font-medium text-stone-600 hover:text-stone-900 cursor-pointer min-h-[44px] px-4"
+              >
+                Cancel
+              </button>
+              <Button
+                onClick={() => returnMutation.mutate()}
+                loading={returnMutation.isPending}
+                disabled={!returnReason || Object.values(selectedItems).every((q) => q === 0)}
+              >
+                Submit request
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirm cancel modal */}
       {showConfirm && (
