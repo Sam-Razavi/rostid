@@ -45,6 +45,7 @@ model User {
   shippingAddresses  ShippingAddress[]
   subscriptions      Subscription[]
   returns            Return[]          @relation("returns")
+  loyaltyAccount     LoyaltyAccount?
 
   @@map("users")
 }
@@ -271,6 +272,32 @@ model ReturnItem {
   return Return @relation(fields: [returnId], references: [id], onDelete: Cascade)
 
   @@map("return_items")
+}
+
+model LoyaltyAccount {
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  points         Int      @default(0)
+  lifetimeEarned Int      @default(0) @map("lifetime_earned")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions LoyaltyTransaction[]
+
+  @@map("loyalty_accounts")
+}
+
+model LoyaltyTransaction {
+  id        String   @id @default(cuid())
+  accountId String   @map("account_id")
+  orderId   String?  @map("order_id")
+  delta     Int
+  reason    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  account LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("loyalty_transactions")
 }
 
 model ShippingRate {
