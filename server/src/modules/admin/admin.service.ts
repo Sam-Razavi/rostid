@@ -142,6 +142,14 @@ export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatus
   sendOrderStatusUpdate(updated.user.email, updated.user.name, id, data.status)
     .catch((err) => console.error('[email] order status update failed:', err));
 
+  // Award loyalty points when order is delivered
+  if (data.status === 'delivered') {
+    import('../loyalty/loyalty.service').then(({ earnPoints }) => {
+      earnPoints(updated.user.id, id, updated.totalOre)
+        .catch((err) => console.error('[loyalty] earn points failed:', err));
+    });
+  }
+
   return updated;
 }
 
