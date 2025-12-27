@@ -14,7 +14,8 @@ export async function createCheckoutSession(
   successUrl: string,
   cancelUrl: string,
   discountCode?: string | null,
-  shippingRateId?: string | null
+  shippingRateId?: string | null,
+  loyaltyPoints?: number | null
 ) {
   if (!stripe) throw AppError.badRequest('Payments are not configured on this server');
 
@@ -65,6 +66,16 @@ export async function createCheckoutSession(
     }
   }
 
+  // Loyalty points redemption
+  let loyaltyDiscountOre = 0;
+  if (loyaltyPoints && loyaltyPoints >= 100) {
+    loyaltyDiscountOre = Math.floor(loyaltyPoints / 100) * 1000;
+    lineItems.push({
+      price_data: { currency: 'sek', product_data: { name: `Loyalty points (${loyaltyPoints} pts)` }, unit_amount: -loyaltyDiscountOre },
+      quantity: 1,
+    });
+  }
+
   let appliedCode: string | undefined;
   if (discountCode) {
     try {
@@ -93,6 +104,7 @@ export async function createCheckoutSession(
       userId, cartId: cart.id,
       ...(appliedCode ? { discountCode: appliedCode } : {}),
       ...(shippingRateId ? { shippingRateId } : {}),
+      ...(loyaltyPoints && loyaltyPoints > 0 ? { loyaltyPoints: String(loyaltyPoints) } : {}),
     },
   });
 
