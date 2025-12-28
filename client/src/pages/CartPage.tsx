@@ -9,6 +9,8 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { createCheckoutSession } from '../api/checkout.api';
 import { fetchShippingRates, type ShippingRate } from '../api/shipping.api';
+import { fetchLoyaltyBalance } from '../api/loyalty.api';
+import { useAuthStore } from '../store/authStore';
 import apiClient from '../api/client';
 import type { ApiResponse } from '../types';
 
@@ -31,6 +33,8 @@ export default function CartPage() {
   const [discountLoading, setDiscountLoading] = useState(false);
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountResult | null>(null);
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
+  const [redeemPoints, setRedeemPoints] = useState(0);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   async function handleApplyDiscount() {
     if (!discountCode.trim()) return;
@@ -54,7 +58,7 @@ export default function CartPage() {
   async function handleCheckout() {
     setCheckingOut(true);
     try {
-      const url = await createCheckoutSession(appliedDiscount?.code, selectedRate?.id);
+      const url = await createCheckoutSession(appliedDiscount?.code, selectedRate?.id, redeemPoints > 0 ? redeemPoints : undefined);
       window.location.href = url;
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Checkout failed';
@@ -89,9 +93,17 @@ export default function CartPage() {
     enabled: items.length > 0,
   });
 
+  const { data: loyaltyData } = useQuery({
+    queryKey: ['loyalty'],
+    queryFn: fetchLoyaltyBalance,
+    enabled: isAuthenticated && items.length > 0,
+  });
+
   const selectedRate = shippingRates.find((r: ShippingRate) => r.id === selectedRateId) ?? shippingRates[0] ?? null;
   const shippingOre = selectedRate?.effectivePriceOre ?? 0;
-  const totalOre = Math.max(0, subtotalOre - discountOre + shippingOre);
+  const loyaltyDiscountOre = redeemPoints >= 100 ? Math.floor(redeemPoints / 100) * 1000 : 0;
+  const totalOre = Math.max(0, subtotalOre - discountOre - loyaltyDiscountOre + shippingOre);
+  const pointsEarned = Math.floor(totalOre / 1000);
 
   if (items.length === 0) {
     return (
@@ -197,6 +209,30 @@ export default function CartPage() {
               )}
             </div>
 
+            {/* Loyalty points */}
+            {loyaltyData && loyaltyData.points >= 100 && (
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-medium text-stone-700">Loyalty points ({loyaltyData.points} pts)</p>
+                  {loyaltyDiscountOre > 0 && (
+                    <span className="text-xs text-green-700 font-medium">-{formatPrice(loyaltyDiscountOre)}</span>
+                  )}
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.min(loyaltyData.points, Math.floor(loyaltyData.points / 100) * 100)}
+                  step={100}
+                  value={redeemPoints}
+                  onChange={(e) => setRedeemPoints(Number(e.target.value))}
+                  className="w-full accent-espresso-700"
+                />
+                <p className="text-xs text-stone-500 mt-1">
+                  {redeemPoints > 0 ? `Redeeming ${redeemPoints} pts for -${formatPrice(loyaltyDiscountOre)}` : 'Slide to redeem points'}
+                </p>
+              </div>
+            )}
+
             <div className="border-t border-stone-200 pt-4 mb-6 space-y-2">
               {discountOre > 0 && (
                 <>
@@ -237,6 +273,12 @@ export default function CartPage() {
             >
               Proceed to checkout
             </Button>
+
+            {pointsEarned > 0 && (
+              <p className="text-xs text-stone-500 text-center mt-2">
+                You'll earn <strong>{pointsEarned} loyalty points</strong> with this order
+              </p>
+            )}
 
             <Link to="/products" className="block text-center text-sm text-stone-500 hover:text-stone-700 mt-4 transition-colors">
               Continue shopping
