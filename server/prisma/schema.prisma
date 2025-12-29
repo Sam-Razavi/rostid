@@ -287,6 +287,18 @@ model LoyaltyAccount {
   @@map("loyalty_accounts")
 }
 
+model GiftCard {
+  id         String    @id @default(cuid())
+  code       String    @unique
+  balanceOre Int       @map("balance_ore")
+  usedOre    Int       @default(0) @map("used_ore")
+  isActive   Boolean   @default(true) @map("is_active")
+  expiresAt  DateTime? @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@map("gift_cards")
+}
+
 model LoyaltyTransaction {
   id        String   @id @default(cuid())
   accountId String   @map("account_id")
