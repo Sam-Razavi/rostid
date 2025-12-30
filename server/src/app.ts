@@ -29,6 +29,7 @@ import newsletterRoutes from './modules/newsletter/newsletter.routes';
 import shippingRoutes from './modules/shipping/shipping.routes';
 import subscriptionsRoutes from './modules/subscriptions/subscriptions.routes';
 import loyaltyRoutes from './modules/loyalty/loyalty.routes';
+import giftcardsRoutes from './modules/giftcards/giftcards.routes';
 
 const app = express();
 
@@ -86,6 +87,7 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/subscriptions', subscriptionsRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
+app.use('/api/giftcards', giftcardsRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/webhooks', webhooksRoutes);
 

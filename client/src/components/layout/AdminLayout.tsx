@@ -23,6 +23,7 @@ export default function AdminLayout() {
     { to: '/admin/customers', label: 'Customers', end: false },
     { to: '/admin/discounts', label: 'Discounts', end: false },
     { to: '/admin/subscriptions', label: 'Subscriptions', end: false },
+    { to: '/admin/gift-cards', label: 'Gift Cards', end: false },
   ];
 
   return (

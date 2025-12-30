@@ -22,6 +22,8 @@ import {
   listAdminSubscriptionsHandler,
   listAdminReturnsHandler,
   updateAdminReturnHandler,
+  listAdminGiftCardsHandler,
+  createAdminGiftCardHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -49,6 +51,9 @@ router.get('/subscriptions', asyncHandler(listAdminSubscriptionsHandler));
 
 router.get('/returns', asyncHandler(listAdminReturnsHandler));
 router.patch('/returns/:id', asyncHandler(updateAdminReturnHandler));
+
+router.get('/gift-cards', asyncHandler(listAdminGiftCardsHandler));
+router.post('/gift-cards', asyncHandler(createAdminGiftCardHandler));
 
 router.get('/discounts', asyncHandler(listDiscountsHandler));
 router.post('/discounts', asyncHandler(createDiscountHandler));

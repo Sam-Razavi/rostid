@@ -19,6 +19,7 @@ const AdminOrders = lazy(() => import('../pages/admin/AdminOrders'));
 const AdminCustomers = lazy(() => import('../pages/admin/AdminCustomers'));
 const AdminDiscounts = lazy(() => import('../pages/admin/AdminDiscounts'));
 const AdminSubscriptions = lazy(() => import('../pages/admin/AdminSubscriptions'));
+const AdminGiftCards = lazy(() => import('../pages/admin/AdminGiftCards'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const PaymentSuccessPage = lazy(() => import('../pages/PaymentSuccessPage'));
 const PaymentCancelPage = lazy(() => import('../pages/PaymentCancelPage'));
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
           { path: '/admin/customers', element: <S><AdminCustomers /></S> },
           { path: '/admin/discounts', element: <S><AdminDiscounts /></S> },
           { path: '/admin/subscriptions', element: <S><AdminSubscriptions /></S> },
+          { path: '/admin/gift-cards', element: <S><AdminGiftCards /></S> },
         ],
       },
     ],

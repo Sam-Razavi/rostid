@@ -154,6 +154,19 @@ export async function updateAdminReturnHandler(req: Request, res: Response): Pro
   res.json({ data: result, message: 'Return updated' });
 }
 
+export async function listAdminGiftCardsHandler(_req: Request, res: Response): Promise<void> {
+  const { adminListGiftCards } = await import('../giftcards/giftcards.service');
+  const cards = await adminListGiftCards();
+  res.json({ data: cards, message: 'Gift cards retrieved' });
+}
+
+export async function createAdminGiftCardHandler(req: Request, res: Response): Promise<void> {
+  const { adminCreateGiftCard } = await import('../giftcards/giftcards.service');
+  const { balanceOre, expiresAt } = req.body as { balanceOre: number; expiresAt?: string };
+  const card = await adminCreateGiftCard(balanceOre, expiresAt ? new Date(expiresAt) : null);
+  res.status(201).json({ data: card, message: 'Gift card created' });
+}
+
 export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {
   const codes = await listDiscounts();
   res.json({ data: codes, message: 'Discount codes retrieved' });
