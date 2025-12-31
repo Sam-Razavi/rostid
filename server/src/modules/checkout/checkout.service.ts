@@ -15,7 +15,8 @@ export async function createCheckoutSession(
   cancelUrl: string,
   discountCode?: string | null,
   shippingRateId?: string | null,
-  loyaltyPoints?: number | null
+  loyaltyPoints?: number | null,
+  giftCardCode?: string | null
 ) {
   if (!stripe) throw AppError.badRequest('Payments are not configured on this server');
 
@@ -76,6 +77,25 @@ export async function createCheckoutSession(
     });
   }
 
+  // Gift card redemption
+  let appliedGiftCard: string | undefined;
+  if (giftCardCode) {
+    try {
+      const { validateGiftCard } = await import('../giftcards/giftcards.service');
+      const gc = await validateGiftCard(giftCardCode);
+      const deductOre = Math.min(gc.availableOre, subtotalOre + shippingOre - loyaltyDiscountOre);
+      if (deductOre > 0) {
+        lineItems.push({
+          price_data: { currency: 'sek', product_data: { name: `Gift card (${gc.code})` }, unit_amount: -deductOre },
+          quantity: 1,
+        });
+        appliedGiftCard = gc.code;
+      }
+    } catch {
+      // Invalid gift card — proceed without
+    }
+  }
+
   let appliedCode: string | undefined;
   if (discountCode) {
     try {
@@ -105,6 +125,7 @@ export async function createCheckoutSession(
       ...(appliedCode ? { discountCode: appliedCode } : {}),
       ...(shippingRateId ? { shippingRateId } : {}),
       ...(loyaltyPoints && loyaltyPoints > 0 ? { loyaltyPoints: String(loyaltyPoints) } : {}),
+      ...(appliedGiftCard ? { giftCardCode: appliedGiftCard } : {}),
     },
   });
 

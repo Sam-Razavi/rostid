@@ -10,6 +10,7 @@ import { Input } from '../components/ui/Input';
 import { createCheckoutSession } from '../api/checkout.api';
 import { fetchShippingRates, type ShippingRate } from '../api/shipping.api';
 import { fetchLoyaltyBalance } from '../api/loyalty.api';
+import { validateGiftCard } from '../api/giftcards.api';
 import { useAuthStore } from '../store/authStore';
 import apiClient from '../api/client';
 import type { ApiResponse } from '../types';
@@ -34,6 +35,9 @@ export default function CartPage() {
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountResult | null>(null);
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
   const [redeemPoints, setRedeemPoints] = useState(0);
+  const [giftCardCode, setGiftCardCode] = useState('');
+  const [giftCardLoading, setGiftCardLoading] = useState(false);
+  const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; availableOre: number } | null>(null);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   async function handleApplyDiscount() {
@@ -55,10 +59,26 @@ export default function CartPage() {
     }
   }
 
+  async function handleApplyGiftCard() {
+    if (!giftCardCode.trim()) return;
+    setGiftCardLoading(true);
+    try {
+      const result = await validateGiftCard(giftCardCode.trim().toUpperCase());
+      setAppliedGiftCard(result);
+      toast.success(`Gift card applied: up to ${formatPrice(result.availableOre)} off`);
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Invalid gift card';
+      toast.error(message);
+      setAppliedGiftCard(null);
+    } finally {
+      setGiftCardLoading(false);
+    }
+  }
+
   async function handleCheckout() {
     setCheckingOut(true);
     try {
-      const url = await createCheckoutSession(appliedDiscount?.code, selectedRate?.id, redeemPoints > 0 ? redeemPoints : undefined);
+      const url = await createCheckoutSession(appliedDiscount?.code, selectedRate?.id, redeemPoints > 0 ? redeemPoints : undefined, appliedGiftCard?.code);
       window.location.href = url;
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Checkout failed';
@@ -102,7 +122,8 @@ export default function CartPage() {
   const selectedRate = shippingRates.find((r: ShippingRate) => r.id === selectedRateId) ?? shippingRates[0] ?? null;
   const shippingOre = selectedRate?.effectivePriceOre ?? 0;
   const loyaltyDiscountOre = redeemPoints >= 100 ? Math.floor(redeemPoints / 100) * 1000 : 0;
-  const totalOre = Math.max(0, subtotalOre - discountOre - loyaltyDiscountOre + shippingOre);
+  const giftCardDiscountOre = appliedGiftCard ? Math.min(appliedGiftCard.availableOre, subtotalOre - discountOre - loyaltyDiscountOre + shippingOre) : 0;
+  const totalOre = Math.max(0, subtotalOre - discountOre - loyaltyDiscountOre - giftCardDiscountOre + shippingOre);
   const pointsEarned = Math.floor(totalOre / 1000);
 
   if (items.length === 0) {
@@ -205,6 +226,36 @@ export default function CartPage() {
               {appliedDiscount && (
                 <p className="text-xs text-green-700 mt-1.5">
                   Code <strong>{appliedDiscount.code}</strong> applied — saving {formatPrice(appliedDiscount.discountOre)}
+                </p>
+              )}
+            </div>
+
+            {/* Gift card input */}
+            <div className="mb-4">
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={giftCardCode}
+                  onChange={(e) => {
+                    setGiftCardCode(e.target.value.toUpperCase());
+                    if (appliedGiftCard) setAppliedGiftCard(null);
+                  }}
+                  placeholder="Gift card code"
+                  className="text-sm"
+                />
+                <Button
+                  onClick={handleApplyGiftCard}
+                  loading={giftCardLoading}
+                  size="sm"
+                  variant="secondary"
+                  className="flex-shrink-0"
+                >
+                  Apply
+                </Button>
+              </div>
+              {appliedGiftCard && (
+                <p className="text-xs text-green-700 mt-1.5">
+                  Gift card <strong>{appliedGiftCard.code}</strong> applied — up to {formatPrice(appliedGiftCard.availableOre)} off
                 </p>
               )}
             </div>
