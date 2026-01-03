@@ -1,7 +1,9 @@
+import './config/env';
 import app from './app';
+import { env } from './config/env';
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
+const PORT = env.PORT;
 
 app.listen(PORT, () => {
-  console.log(`[server] Rostid API running on port ${PORT}`);
+  console.log(`[server] Rostid API running on port ${PORT} (${env.NODE_ENV})`);
 });
