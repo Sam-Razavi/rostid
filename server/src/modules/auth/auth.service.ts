@@ -76,6 +76,63 @@ export async function loginUser(data: LoginInput) {
   };
 }
 
+export async function refreshTokens(rawCookieToken: string) {
+  const { verifyRefreshToken } = await import('../../utils/jwt');
+
+  let payload: { userId: string; tokenId: string };
+  try {
+    payload = verifyRefreshToken(rawCookieToken);
+  } catch {
+    throw AppError.unauthorized('Invalid refresh token');
+  }
+
+  const storedToken = await prisma.refreshToken.findUnique({
+    where: { token: payload.tokenId },
+  });
+
+  if (!storedToken || storedToken.expiresAt < new Date()) {
+    throw AppError.unauthorized('Refresh token expired or revoked');
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { id: true, email: true, role: true },
+  });
+
+  if (!user) {
+    throw AppError.unauthorized('User not found');
+  }
+
+  await prisma.refreshToken.delete({ where: { id: storedToken.id } });
+
+  const accessToken = signAccessToken({ userId: user.id, email: user.email, role: user.role });
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  const newToken = await prisma.refreshToken.create({
+    data: {
+      token: crypto.randomUUID(),
+      userId: user.id,
+      expiresAt,
+    },
+  });
+
+  const newRefreshToken = signRefreshToken({ userId: user.id, tokenId: newToken.token });
+
+  return { accessToken, refreshToken: newRefreshToken };
+}
+
+export async function logoutUser(rawCookieToken: string) {
+  try {
+    const { verifyRefreshToken } = await import('../../utils/jwt');
+    const payload = verifyRefreshToken(rawCookieToken);
+    await prisma.refreshToken.deleteMany({ where: { token: payload.tokenId } });
+  } catch {
+    // Token already invalid — no action needed
+  }
+}
+
 export const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
