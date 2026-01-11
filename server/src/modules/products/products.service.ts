@@ -4,12 +4,20 @@ import { AppError } from '../../utils/AppError';
 import type { ListProductsQuery } from './products.schema';
 
 export async function listProducts(query: ListProductsQuery) {
-  const { category, roast, minPrice, maxPrice, page, limit, sort } = query;
+  const { category, roast, search, minPrice, maxPrice, page, limit, sort } = query;
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
     ...(category && { category: { slug: category } }),
     ...(roast && { roastLevel: roast }),
+    ...(search && {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { origin: { contains: search, mode: 'insensitive' } },
+        { tastingNotes: { contains: search, mode: 'insensitive' } },
+      ],
+    }),
     ...((minPrice !== undefined || maxPrice !== undefined) && {
       priceOre: {
         ...(minPrice !== undefined && { gte: minPrice }),
