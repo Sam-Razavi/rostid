@@ -1,6 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
-import type { AddItemInput } from './cart.schema';
+import type { AddItemInput, UpdateItemInput } from './cart.schema';
 
 const cartInclude = {
   items: {
@@ -67,6 +67,44 @@ export async function addItem(userId: string, data: AddItemInput) {
       },
     });
   }
+
+  return getOrCreateCart(userId);
+}
+
+export async function updateItem(userId: string, itemId: string, data: UpdateItemInput) {
+  const cart = await prisma.cart.findUnique({ where: { userId } });
+  if (!cart) throw AppError.notFound('Cart not found');
+
+  const item = await prisma.cartItem.findFirst({
+    where: { id: itemId, cartId: cart.id },
+    include: { product: { select: { stock: true } } },
+  });
+
+  if (!item) throw AppError.notFound('Cart item not found');
+
+  if (data.quantity > item.product.stock) {
+    throw AppError.badRequest(`Only ${item.product.stock} in stock`);
+  }
+
+  await prisma.cartItem.update({
+    where: { id: itemId },
+    data: { quantity: data.quantity },
+  });
+
+  return getOrCreateCart(userId);
+}
+
+export async function removeItem(userId: string, itemId: string) {
+  const cart = await prisma.cart.findUnique({ where: { userId } });
+  if (!cart) throw AppError.notFound('Cart not found');
+
+  const item = await prisma.cartItem.findFirst({
+    where: { id: itemId, cartId: cart.id },
+  });
+
+  if (!item) throw AppError.notFound('Cart item not found');
+
+  await prisma.cartItem.delete({ where: { id: itemId } });
 
   return getOrCreateCart(userId);
 }

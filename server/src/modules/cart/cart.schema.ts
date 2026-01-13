@@ -8,3 +8,11 @@ export const addItemSchema = z.object({
 });
 
 export type AddItemInput = z.infer<typeof addItemSchema>['body'];
+
+export const updateItemSchema = z.object({
+  body: z.object({
+    quantity: z.number().int().min(1).max(99),
+  }),
+});
+
+export type UpdateItemInput = z.infer<typeof updateItemSchema>['body'];
