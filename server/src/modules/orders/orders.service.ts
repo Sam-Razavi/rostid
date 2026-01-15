@@ -69,3 +69,22 @@ export async function placeOrder(userId: string) {
 
   return order;
 }
+
+export async function listOrders(userId: string) {
+  return prisma.order.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    include: orderInclude,
+  });
+}
+
+export async function getOrder(userId: string, orderId: string) {
+  const order = await prisma.order.findFirst({
+    where: { id: orderId, userId },
+    include: orderInclude,
+  });
+
+  if (!order) throw AppError.notFound('Order not found');
+
+  return order;
+}
