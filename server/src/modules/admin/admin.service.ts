@@ -44,3 +44,71 @@ export async function adminDeleteProduct(id: string) {
     data: { isActive: false },
   });
 }
+
+export async function adminListOrders() {
+  return prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: { select: { id: true, email: true, name: true } },
+      items: {
+        include: {
+          product: { select: { id: true, name: true, slug: true, imageUrl: true } },
+        },
+      },
+    },
+  });
+}
+
+export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatusInput) {
+  const order = await prisma.order.findUnique({ where: { id } });
+  if (!order) throw AppError.notFound('Order not found');
+
+  return prisma.order.update({
+    where: { id },
+    data: { status: data.status },
+    include: {
+      user: { select: { id: true, email: true, name: true } },
+      items: {
+        include: {
+          product: { select: { id: true, name: true, imageUrl: true } },
+        },
+      },
+    },
+  });
+}
+
+export async function adminGetStats() {
+  const [
+    totalOrders,
+    totalRevenue,
+    totalProducts,
+    totalUsers,
+    recentOrders,
+    ordersByStatus,
+  ] = await Promise.all([
+    prisma.order.count(),
+    prisma.order.aggregate({ _sum: { totalOre: true } }),
+    prisma.product.count({ where: { isActive: true } }),
+    prisma.user.count({ where: { role: 'customer' } }),
+    prisma.order.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { name: true, email: true } },
+      },
+    }),
+    prisma.order.groupBy({
+      by: ['status'],
+      _count: { id: true },
+    }),
+  ]);
+
+  return {
+    totalOrders,
+    totalRevenueOre: totalRevenue._sum.totalOre ?? 0,
+    totalProducts,
+    totalCustomers: totalUsers,
+    recentOrders,
+    ordersByStatus,
+  };
+}
