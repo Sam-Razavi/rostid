@@ -35,16 +35,16 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-brand-950 text-white">
+      <section className="bg-espresso-950 text-white">
         <div className="container-page py-24 md:py-32">
           <div className="max-w-2xl">
-            <p className="text-brand-400 text-sm font-medium uppercase tracking-widest mb-4">
+            <p className="text-espresso-400 text-sm font-medium uppercase tracking-widest mb-4">
               Stockholm, Sweden
             </p>
             <h1 className="font-serif text-5xl md:text-6xl font-semibold leading-tight mb-6">
               Time for the
               <br />
-              <em className="not-italic text-brand-400">perfect roast.</em>
+              <em className="not-italic text-espresso-400">perfect roast.</em>
             </h1>
             <p className="text-stone-300 text-lg leading-relaxed mb-8 max-w-lg">
               Specialty coffees sourced from the world's finest farms. Roasted in small batches in
@@ -66,7 +66,7 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="bg-brand-50 border-y border-brand-100">
+      <section className="bg-espresso-50 border-y border-espresso-100">
         <div className="container-page py-12">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
@@ -93,7 +93,7 @@ export default function HomePage() {
             <h2 className="font-serif text-3xl font-semibold text-stone-900">New arrivals</h2>
             <p className="text-stone-500 mt-1">Fresh off the roaster</p>
           </div>
-          <Link to="/products" className="text-sm font-medium text-brand-700 hover:text-brand-900 transition-colors">
+          <Link to="/products" className="text-sm font-medium text-espresso-700 hover:text-espresso-900 transition-colors">
             View all →
           </Link>
         </div>

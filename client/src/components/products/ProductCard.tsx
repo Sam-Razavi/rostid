@@ -25,8 +25,8 @@ export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-brand-50">
-              <span className="font-serif text-4xl text-brand-200">R</span>
+            <div className="w-full h-full flex items-center justify-center bg-espresso-50">
+              <span className="font-serif text-4xl text-espresso-200">R</span>
             </div>
           )}
         </div>
@@ -35,7 +35,7 @@ export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps
       <div className="p-4 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <Link to={`/products/${product.slug}`}>
-            <h3 className="font-semibold text-stone-900 hover:text-brand-800 transition-colors leading-snug">
+            <h3 className="font-semibold text-stone-900 hover:text-espresso-800 transition-colors leading-snug">
               {product.name}
             </h3>
           </Link>
@@ -53,7 +53,7 @@ export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps
         )}
 
         <div className="flex items-center justify-between pt-2">
-          <p className="font-serif text-lg font-semibold text-brand-800">
+          <p className="font-serif text-lg font-semibold text-espresso-800">
             {formatPrice(product.priceOre)}
           </p>
 

@@ -75,12 +75,12 @@ export default function ProductDetailPage() {
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-        <div className="aspect-square rounded-xl overflow-hidden bg-brand-50">
+        <div className="aspect-square rounded-xl overflow-hidden bg-espresso-50">
           {product.imageUrl ? (
             <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="font-serif text-8xl text-brand-200">R</span>
+              <span className="font-serif text-8xl text-espresso-200">R</span>
             </div>
           )}
         </div>
@@ -127,7 +127,7 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="flex items-center gap-6 mb-6">
-            <p className="font-serif text-3xl font-semibold text-brand-800">
+            <p className="font-serif text-3xl font-semibold text-espresso-800">
               {formatPrice(product.priceOre)}
             </p>
           </div>

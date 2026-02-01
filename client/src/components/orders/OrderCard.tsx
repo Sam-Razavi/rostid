@@ -24,7 +24,7 @@ export function OrderCard({ order }: { order: Order }) {
         </div>
         <div className="text-right">
           <OrderStatusBadge status={order.status} />
-          <p className="font-serif text-lg font-semibold text-brand-800 mt-1">
+          <p className="font-serif text-lg font-semibold text-espresso-800 mt-1">
             {formatPrice(order.totalOre)}
           </p>
         </div>
@@ -33,12 +33,12 @@ export function OrderCard({ order }: { order: Order }) {
       <div className="space-y-2 border-t border-stone-100 pt-4">
         {order.items.map((item) => (
           <div key={item.id} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg overflow-hidden bg-brand-50 shrink-0">
+            <div className="w-10 h-10 rounded-lg overflow-hidden bg-espresso-50 shrink-0">
               {item.product.imageUrl ? (
                 <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="font-serif text-sm text-brand-200">R</span>
+                  <span className="font-serif text-sm text-espresso-200">R</span>
                 </div>
               )}
             </div>

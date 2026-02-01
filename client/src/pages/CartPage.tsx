@@ -89,7 +89,7 @@ export default function CartPage() {
             <div className="border-t border-stone-200 pt-4 mb-6">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-stone-900">Total</span>
-                <span className="font-serif text-xl font-semibold text-brand-800">
+                <span className="font-serif text-xl font-semibold text-espresso-800">
                   {formatPrice(totalOre)}
                 </span>
               </div>

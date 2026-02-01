@@ -36,7 +36,7 @@ export default function LoginPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="font-serif text-3xl font-semibold text-brand-950">Rostid</Link>
+          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">Rostid</Link>
           <h1 className="text-xl font-semibold text-stone-900 mt-4">Welcome back</h1>
           <p className="text-stone-500 mt-1 text-sm">Sign in to your account</p>
         </div>
@@ -74,7 +74,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-stone-500 mt-6">
           Don't have an account?{' '}
-          <Link to="/register" className="text-brand-700 hover:text-brand-900 font-medium transition-colors">
+          <Link to="/register" className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors">
             Create one
           </Link>
         </p>

@@ -74,12 +74,12 @@ export default function AdminProducts() {
                   <tr key={product.id} className="hover:bg-stone-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-brand-50 overflow-hidden shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-espresso-50 overflow-hidden shrink-0">
                           {product.imageUrl ? (
                             <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <span className="font-serif text-sm text-brand-200">R</span>
+                              <span className="font-serif text-sm text-espresso-200">R</span>
                             </div>
                           )}
                         </div>

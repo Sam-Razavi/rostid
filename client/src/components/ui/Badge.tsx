@@ -8,7 +8,7 @@ interface BadgeProps {
 
 const variantClasses = {
   default: 'bg-stone-100 text-stone-700',
-  brand: 'bg-brand-100 text-brand-700',
+  brand: 'bg-espresso-100 text-espresso-700',
   success: 'bg-green-100 text-green-800',
   warning: 'bg-amber-100 text-amber-800',
   error: 'bg-red-100 text-red-800',

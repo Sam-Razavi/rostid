@@ -24,7 +24,7 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-stone-100">
-      <aside className="w-64 bg-brand-950 text-stone-300 flex flex-col">
+      <aside className="w-64 bg-espresso-950 text-stone-300 flex flex-col">
         <div className="px-6 py-5 border-b border-stone-800">
           <Link to="/" className="font-serif text-xl font-semibold text-white">
             Rostid
@@ -41,7 +41,7 @@ export default function AdminLayout() {
               className={({ isActive }) =>
                 `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-brand-800 text-white'
+                    ? 'bg-espresso-800 text-white'
                     : 'text-stone-400 hover:bg-stone-800 hover:text-white'
                 }`
               }

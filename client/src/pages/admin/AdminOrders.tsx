@@ -83,7 +83,7 @@ export default function AdminOrders() {
                               <button
                                 onClick={() => statusUpdate.mutate({ id: order.id, status: nextStatus })}
                                 disabled={statusUpdate.isPending}
-                                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-brand-800 text-white hover:bg-brand-700 cursor-pointer transition-colors disabled:opacity-50 capitalize"
+                                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-espresso-800 text-white hover:bg-espresso-700 cursor-pointer transition-colors disabled:opacity-50 capitalize"
                               >
                                 Mark {nextStatus}
                               </button>

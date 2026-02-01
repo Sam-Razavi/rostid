@@ -15,12 +15,12 @@ export function CartItem({ item }: { item: CartItemType }) {
   return (
     <div className="flex gap-4 py-5 border-b border-stone-100 last:border-0">
       <Link to={`/products/${item.product.slug}`} className="shrink-0">
-        <div className="w-20 h-20 rounded-lg overflow-hidden bg-brand-50">
+        <div className="w-20 h-20 rounded-lg overflow-hidden bg-espresso-50">
           {item.product.imageUrl ? (
             <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="font-serif text-xl text-brand-200">R</span>
+              <span className="font-serif text-xl text-espresso-200">R</span>
             </div>
           )}
         </div>
@@ -28,7 +28,7 @@ export function CartItem({ item }: { item: CartItemType }) {
 
       <div className="flex-1 min-w-0">
         <Link to={`/products/${item.product.slug}`}>
-          <h3 className="font-medium text-stone-900 hover:text-brand-800 transition-colors truncate">
+          <h3 className="font-medium text-stone-900 hover:text-espresso-800 transition-colors truncate">
             {item.product.name}
           </h3>
         </Link>

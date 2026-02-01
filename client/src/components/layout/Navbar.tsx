@@ -23,7 +23,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-stone-200">
       <div className="container-page">
         <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="font-serif text-2xl font-semibold text-brand-950 tracking-tight">
+          <Link to="/" className="font-serif text-2xl font-semibold text-espresso-950 tracking-tight">
             Rostid
           </Link>
 
@@ -31,7 +31,7 @@ export function Navbar() {
             <NavLink
               to="/products"
               className={({ isActive }) =>
-                `text-sm font-medium transition-colors ${isActive ? 'text-brand-800' : 'text-stone-600 hover:text-stone-900'}`
+                `text-sm font-medium transition-colors ${isActive ? 'text-espresso-800' : 'text-stone-600 hover:text-stone-900'}`
               }
             >
               Coffee
@@ -58,7 +58,7 @@ export function Navbar() {
                     d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-brand-800 text-white text-[10px] font-bold rounded-full px-1">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-espresso-800 text-white text-[10px] font-bold rounded-full px-1">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
@@ -68,7 +68,7 @@ export function Navbar() {
             {isAuthenticated ? (
               <div className="flex items-center gap-2">
                 {user?.role === 'admin' && (
-                  <Link to="/admin" className="text-sm font-medium text-brand-700 hover:text-brand-900 transition-colors">
+                  <Link to="/admin" className="text-sm font-medium text-espresso-700 hover:text-espresso-900 transition-colors">
                     Admin
                   </Link>
                 )}

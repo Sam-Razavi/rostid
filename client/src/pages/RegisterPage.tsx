@@ -39,7 +39,7 @@ export default function RegisterPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="font-serif text-3xl font-semibold text-brand-950">Rostid</Link>
+          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">Rostid</Link>
           <h1 className="text-xl font-semibold text-stone-900 mt-4">Create your account</h1>
           <p className="text-stone-500 mt-1 text-sm">Start your coffee journey</p>
         </div>
@@ -86,7 +86,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-stone-500 mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-brand-700 hover:text-brand-900 font-medium transition-colors">
+          <Link to="/login" className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors">
             Sign in
           </Link>
         </p>
