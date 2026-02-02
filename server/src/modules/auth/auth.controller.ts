@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { registerSchema, loginSchema } from './auth.schema';
 import { registerUser, loginUser, refreshTokens, logoutUser, REFRESH_COOKIE_OPTIONS } from './auth.service';
+import { prisma } from '../../config/prisma';
 
 export async function register(req: Request, res: Response): Promise<void> {
   const { body } = registerSchema.parse({ body: req.body });
@@ -41,6 +42,15 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     data: { accessToken: result.accessToken },
     message: 'Token refreshed',
   });
+}
+
+export async function me(req: Request, res: Response): Promise<void> {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: req.user.id },
+    select: { id: true, email: true, name: true, role: true, createdAt: true },
+  });
+
+  res.json({ data: { user }, message: 'OK' });
 }
 
 export async function logout(req: Request, res: Response): Promise<void> {
