@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../components/cart/CartItem';
@@ -14,17 +14,17 @@ export default function CartPage() {
   const { data: cart, isLoading } = useCart();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [orderError, setOrderError] = useState('');
 
   const checkout = useMutation({
     mutationFn: placeOrder,
-    onSuccess: (order) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['cart'] });
-      navigate(`/orders`);
+      toast.success('Order placed! Thank you.');
+      navigate('/orders');
     },
     onError: (err: unknown) => {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Something went wrong';
-      setOrderError(message);
+      toast.error(message);
     },
   });
 
@@ -95,10 +95,6 @@ export default function CartPage() {
               </div>
               <p className="text-xs text-stone-500 mt-1">Free shipping on orders over 400 kr</p>
             </div>
-
-            {orderError && (
-              <p className="text-sm text-red-600 mb-4 bg-red-50 px-3 py-2 rounded-lg">{orderError}</p>
-            )}
 
             <Button
               onClick={() => checkout.mutate()}

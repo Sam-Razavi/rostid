@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { register } from '../api/auth.api';
 import { Input } from '../components/ui/Input';
@@ -26,10 +27,12 @@ export default function RegisterPage() {
     try {
       const result = await register(name, email, password);
       setAuth(result.user, result.accessToken);
+      toast.success('Account created! Welcome to Rostid.');
       navigate('/');
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Registration failed';
       setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }

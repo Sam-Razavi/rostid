@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import apiClient from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import type { ApiResponse, Cart } from '../types';
@@ -25,6 +26,10 @@ export function useAddToCart() {
     },
     onSuccess: (cart) => {
       qc.setQueryData(['cart'], cart);
+      toast.success('Added to cart');
+    },
+    onError: () => {
+      toast.error('Could not add to cart');
     },
   });
 }
@@ -51,6 +56,10 @@ export function useRemoveCartItem() {
     },
     onSuccess: (cart) => {
       qc.setQueryData(['cart'], cart);
+      toast.success('Item removed');
+    },
+    onError: () => {
+      toast.error('Could not remove item');
     },
   });
 }

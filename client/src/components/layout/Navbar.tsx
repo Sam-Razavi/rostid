@@ -1,4 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { useCart } from '../../hooks/useCart';
 import apiClient from '../../api/client';
@@ -15,6 +16,7 @@ export function Navbar() {
       await apiClient.post('/auth/logout');
     } finally {
       clearAuth();
+      toast.success('Signed out');
       navigate('/');
     }
   }
