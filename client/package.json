@@ -13,6 +13,7 @@
     "@tanstack/react-query": "^5.17.15",
     "@tanstack/react-query-devtools": "^5.17.15",
     "axios": "^1.6.5",
+    "framer-motion": "^12.40.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.6.0",
