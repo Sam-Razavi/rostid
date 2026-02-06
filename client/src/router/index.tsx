@@ -7,6 +7,7 @@ import ProductsPage from '../pages/ProductsPage';
 import ProductDetailPage from '../pages/ProductDetailPage';
 import CartPage from '../pages/CartPage';
 import OrdersPage from '../pages/OrdersPage';
+import OrderDetailPage from '../pages/OrderDetailPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import AdminDashboard from '../pages/admin/AdminDashboard';
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/cart', element: <CartPage /> },
           { path: '/orders', element: <OrdersPage /> },
+          { path: '/orders/:id', element: <OrderDetailPage /> },
         ],
       },
     ],

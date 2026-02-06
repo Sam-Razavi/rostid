@@ -29,6 +29,12 @@ export function OrderCard({ order }: { order: Order }) {
           </p>
         </div>
       </div>
+      <Link
+        to={`/orders/${order.id}`}
+        className="text-xs text-espresso-700 hover:text-espresso-900 font-medium transition-colors"
+      >
+        View details →
+      </Link>
 
       <div className="space-y-2 border-t border-stone-100 pt-4">
         {order.items.map((item) => (
