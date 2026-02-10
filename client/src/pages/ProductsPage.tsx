@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { fetchProducts } from '../api/products.api';
 import { ProductCard } from '../components/products/ProductCard';
 import { ProductFilters } from '../components/products/ProductFilters';
 import { ProductGridSkeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
+import { staggerContainer } from '../animations/variants';
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -77,7 +79,13 @@ export default function ProductsPage() {
         </div>
       ) : (
         <>
-          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
+          <motion.div
+            key={`${category}-${roast}-${search}-${page}`}
+            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {data?.products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -86,7 +94,7 @@ export default function ProductsPage() {
                 addingId={addingId}
               />
             ))}
-          </div>
+          </motion.div>
 
           {data && data.pagination.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-12">

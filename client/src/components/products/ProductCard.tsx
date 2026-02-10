@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { RoastBadge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import type { Product } from '../../types';
+import { fadeUp } from '../../animations/variants';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -15,14 +17,25 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps) {
   return (
-    <div className="card overflow-hidden group hover:shadow-card transition-shadow duration-200">
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -4, transition: { duration: 0.2, ease: 'easeOut' } }}
+      className="card overflow-hidden group hover:shadow-card transition-shadow duration-200"
+    >
       <Link to={`/products/${product.slug}`} className="block">
-        <div className="aspect-[4/3] bg-stone-100 overflow-hidden">
+        <div className="aspect-[4/3] bg-stone-100 overflow-hidden relative">
+          {product.stock === 0 && (
+            <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center">
+              <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider bg-white px-3 py-1 rounded-full border border-stone-200">
+                Out of stock
+              </span>
+            </div>
+          )}
           {product.imageUrl ? (
             <img
               src={product.imageUrl}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-espresso-50">
@@ -58,17 +71,19 @@ export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps
           </p>
 
           {onAddToCart && (
-            <Button
-              size="sm"
-              onClick={() => onAddToCart(product)}
-              disabled={product.stock === 0}
-              loading={addingId === product.id}
-            >
-              {product.stock === 0 ? 'Out of stock' : 'Add to cart'}
-            </Button>
+            <motion.div whileTap={{ scale: 0.95 }}>
+              <Button
+                size="sm"
+                onClick={() => onAddToCart(product)}
+                disabled={product.stock === 0}
+                loading={addingId === product.id}
+              >
+                {product.stock === 0 ? 'Unavailable' : 'Add to cart'}
+              </Button>
+            </motion.div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
