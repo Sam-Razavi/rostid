@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useUpdateCartItem, useRemoveCartItem } from '../../hooks/useCart';
 import type { CartItem as CartItemType } from '../../types';
 
@@ -13,7 +14,14 @@ export function CartItem({ item }: { item: CartItemType }) {
   const lineTotal = item.product.priceOre * item.quantity;
 
   return (
-    <div className="flex gap-4 py-5 border-b border-stone-100 last:border-0">
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 40, height: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      className="flex gap-4 py-5 border-b border-stone-100 last:border-0 overflow-hidden"
+    >
       <Link to={`/products/${item.product.slug}`} className="shrink-0">
         <div className="w-20 h-20 rounded-lg overflow-hidden bg-espresso-50">
           {item.product.imageUrl ? (
@@ -44,17 +52,28 @@ export function CartItem({ item }: { item: CartItemType }) {
                 else updateItem.mutate({ id: item.id, quantity: item.quantity - 1 });
               }}
               disabled={updateItem.isPending || removeItem.isPending}
-              className="px-3 py-1.5 text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors disabled:opacity-40"
+              aria-label="Decrease quantity"
+              className="px-3 py-1.5 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors disabled:opacity-40"
             >
               −
             </button>
-            <span className="px-3 py-1.5 font-medium text-stone-900 min-w-[2rem] text-center">
-              {item.quantity}
-            </span>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={item.quantity}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.15 }}
+                className="px-3 py-1.5 font-medium text-stone-900 min-w-[2rem] text-center tabular-nums"
+              >
+                {item.quantity}
+              </motion.span>
+            </AnimatePresence>
             <button
               onClick={() => updateItem.mutate({ id: item.id, quantity: item.quantity + 1 })}
               disabled={item.quantity >= item.product.stock || updateItem.isPending}
-              className="px-3 py-1.5 text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors disabled:opacity-40"
+              aria-label="Increase quantity"
+              className="px-3 py-1.5 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors disabled:opacity-40"
             >
               +
             </button>
@@ -71,8 +90,19 @@ export function CartItem({ item }: { item: CartItemType }) {
       </div>
 
       <div className="text-right shrink-0">
-        <p className="font-semibold text-stone-900">{formatPrice(lineTotal)}</p>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.p
+            key={lineTotal}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.15 }}
+            className="font-semibold text-stone-900 tabular-nums"
+          >
+            {formatPrice(lineTotal)}
+          </motion.p>
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 }

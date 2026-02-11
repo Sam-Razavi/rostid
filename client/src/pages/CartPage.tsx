@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence } from 'framer-motion';
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../components/cart/CartItem';
 import { Button } from '../components/ui/Button';
@@ -63,9 +64,11 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2">
           <div className="card p-6">
-            {items.map((item) => (
-              <CartItem key={item.id} item={item} />
-            ))}
+            <AnimatePresence initial={false}>
+              {items.map((item) => (
+                <CartItem key={item.id} item={item} />
+              ))}
+            </AnimatePresence>
           </div>
         </div>
 
