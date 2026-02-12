@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { fetchProduct } from '../api/products.api';
 import { RoastBadge, Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
+import { fadeIn, fadeUp, staggerContainer } from '../animations/variants';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -75,7 +77,13 @@ export default function ProductDetailPage() {
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-        <div className="aspect-square rounded-xl overflow-hidden bg-espresso-50">
+        {/* Product image */}
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="aspect-square rounded-xl overflow-hidden bg-espresso-50"
+        >
           {product.imageUrl ? (
             <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
           ) : (
@@ -83,31 +91,41 @@ export default function ProductDetailPage() {
               <span className="font-serif text-8xl text-espresso-200">R</span>
             </div>
           )}
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col">
-          <div className="flex items-start gap-3 mb-3">
+        {/* Product info */}
+        <motion.div
+          className="flex flex-col"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={fadeUp} className="flex items-start gap-3 mb-3">
             <Badge variant="brand">{product.category.name}</Badge>
             {product.roastLevel && <RoastBadge level={product.roastLevel} />}
-          </div>
+          </motion.div>
 
-          <h1 className="font-serif text-4xl font-semibold text-stone-900 mb-2">
+          <motion.h1 variants={fadeUp} className="font-serif text-4xl font-semibold text-stone-900 mb-2">
             {product.name}
-          </h1>
+          </motion.h1>
 
           {product.origin && (
-            <p className="text-sm text-stone-500 font-medium uppercase tracking-wide mb-4">
+            <motion.p variants={fadeUp} className="text-sm text-stone-500 font-medium uppercase tracking-wide mb-4">
               {product.origin}
-            </p>
+            </motion.p>
           )}
 
           {product.tastingNotes && (
-            <p className="text-stone-600 italic mb-6 text-lg">"{product.tastingNotes}"</p>
+            <motion.p variants={fadeUp} className="text-stone-600 italic mb-6 text-lg">
+              "{product.tastingNotes}"
+            </motion.p>
           )}
 
-          <p className="text-stone-600 leading-relaxed mb-8">{product.description}</p>
+          <motion.p variants={fadeUp} className="text-stone-600 leading-relaxed mb-8">
+            {product.description}
+          </motion.p>
 
-          <div className="flex flex-wrap gap-4 mb-8 text-sm">
+          <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mb-8 text-sm">
             {product.weightGrams && (
               <div className="bg-stone-50 rounded-lg px-4 py-3">
                 <p className="text-stone-500 text-xs uppercase tracking-wide">Weight</p>
@@ -120,49 +138,55 @@ export default function ProductDetailPage() {
             )}
             <div className="bg-stone-50 rounded-lg px-4 py-3">
               <p className="text-stone-500 text-xs uppercase tracking-wide">Availability</p>
-              <p className={`font-semibold mt-0.5 ${product.stock > 0 ? 'text-green-700' : 'text-red-600'}`}>
-                {product.stock > 10 ? 'In stock' : product.stock > 0 ? `${product.stock} left` : 'Out of stock'}
+              <p className={`font-semibold mt-0.5 ${
+                product.stock > 5 ? 'text-green-700' : product.stock > 0 ? 'text-amber-600' : 'text-red-600'
+              }`}>
+                {product.stock > 10 ? 'In stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of stock'}
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="flex items-center gap-6 mb-6">
+          <motion.div variants={fadeUp} className="flex items-center gap-6 mb-6">
             <p className="font-serif text-3xl font-semibold text-espresso-800">
               {formatPrice(product.priceOre)}
             </p>
-          </div>
+          </motion.div>
 
-          <div className="flex items-center gap-4">
+          <motion.div variants={fadeUp} className="flex items-center gap-4">
             <div className="flex items-center border border-stone-300 rounded-lg overflow-hidden">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="px-4 py-3 text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold"
+                aria-label="Decrease quantity"
+                className="px-4 py-3 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold"
               >
                 −
               </button>
-              <span className="px-4 py-3 text-stone-900 font-medium min-w-[3rem] text-center">
+              <span className="px-4 py-3 text-stone-900 font-medium min-w-[3rem] text-center tabular-nums">
                 {quantity}
               </span>
               <button
                 onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
                 disabled={quantity >= product.stock}
-                className="px-4 py-3 text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold disabled:opacity-40"
+                aria-label="Increase quantity"
+                className="px-4 py-3 min-h-[44px] text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors font-semibold disabled:opacity-40"
               >
                 +
               </button>
             </div>
 
-            <Button
-              onClick={handleAddToCart}
-              loading={addToCart.isPending}
-              disabled={product.stock === 0}
-              size="lg"
-              className="flex-1"
-            >
-              {added ? '✓ Added to cart' : product.stock === 0 ? 'Out of stock' : 'Add to cart'}
-            </Button>
-          </div>
-        </div>
+            <motion.div className="flex-1" whileTap={{ scale: 0.97 }}>
+              <Button
+                onClick={handleAddToCart}
+                loading={addToCart.isPending}
+                disabled={product.stock === 0}
+                size="lg"
+                className="w-full"
+              >
+                {added ? 'Added to cart' : product.stock === 0 ? 'Out of stock' : 'Add to cart'}
+              </Button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
