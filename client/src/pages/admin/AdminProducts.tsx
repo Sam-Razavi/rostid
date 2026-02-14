@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { fetchAdminProducts, deleteProduct, createProduct } from '../../api/admin.api';
+import { fetchAdminProducts, deleteProduct, createProduct, updateProduct } from '../../api/admin.api';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Modal } from '../../components/ui/Modal';
 import { ProductForm } from '../../components/products/ProductForm';
+import type { Product } from '../../types';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -16,6 +17,7 @@ export default function AdminProducts() {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['admin', 'products'],
@@ -39,6 +41,16 @@ export default function AdminProducts() {
       toast.success('Product created');
     },
     onError: () => toast.error('Failed to create product'),
+  });
+
+  const edit = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) => updateProduct(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'products'] });
+      setEditingProduct(null);
+      toast.success('Product updated');
+    },
+    onError: () => toast.error('Failed to update product'),
   });
 
   const filtered = products?.filter((p) =>
@@ -131,17 +143,26 @@ export default function AdminProducts() {
                         </Badge>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        {product.isActive && (
+                        <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deactivate.mutate(product.id)}
-                            loading={deactivate.isPending && deactivate.variables === product.id}
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => setEditingProduct(product)}
                           >
-                            Deactivate
+                            Edit
                           </Button>
-                        )}
+                          {product.isActive && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deactivate.mutate(product.id)}
+                              loading={deactivate.isPending && deactivate.variables === product.id}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            >
+                              Deactivate
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -156,6 +177,22 @@ export default function AdminProducts() {
           submitLabel="Create product"
           isLoading={create.isPending}
         />
+      </Modal>
+
+      <Modal
+        isOpen={!!editingProduct}
+        onClose={() => setEditingProduct(null)}
+        title={`Edit: ${editingProduct?.name ?? ''}`}
+        size="lg"
+      >
+        {editingProduct && (
+          <ProductForm
+            initialData={editingProduct}
+            onSubmit={(data) => edit.mutateAsync({ id: editingProduct.id, data: data as Partial<Product> })}
+            submitLabel="Save changes"
+            isLoading={edit.isPending}
+          />
+        )}
       </Modal>
     </div>
   );
