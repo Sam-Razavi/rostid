@@ -10,6 +10,7 @@ export interface ProductsQuery {
   page?: number;
   limit?: number;
   sort?: string;
+  exclude?: string;
 }
 
 export async function fetchProducts(query: ProductsQuery = {}): Promise<ProductsResponse> {

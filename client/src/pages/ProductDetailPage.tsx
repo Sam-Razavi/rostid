@@ -9,6 +9,7 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
 import { fadeIn, fadeUp, staggerContainer } from '../animations/variants';
+import { RelatedProducts } from '../components/products/RelatedProducts';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -187,6 +188,15 @@ export default function ProductDetailPage() {
             </motion.div>
           </motion.div>
         </motion.div>
+      </div>
+
+      <div className="mt-20 border-t border-stone-100">
+        <RelatedProducts
+          categorySlug={product.category.slug}
+          excludeId={product.id}
+          onAddToCart={handleAddToCart}
+          addingId={addToCart.isPending ? product.id : null}
+        />
       </div>
     </div>
   );
