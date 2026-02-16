@@ -41,8 +41,30 @@ export function useUpdateCartItem() {
       const { data } = await apiClient.patch<ApiResponse<Cart>>(`/cart/items/${id}`, { quantity });
       return data.data;
     },
-    onSuccess: (cart) => {
-      qc.setQueryData(['cart'], cart);
+    onMutate: async ({ id, quantity }) => {
+      await qc.cancelQueries({ queryKey: ['cart'] });
+      const snapshot = qc.getQueryData<Cart>(['cart']);
+
+      qc.setQueryData<Cart>(['cart'], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.map((item) =>
+            item.id === id ? { ...item, quantity } : item
+          ),
+        };
+      });
+
+      return { snapshot };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        qc.setQueryData(['cart'], context.snapshot);
+      }
+      toast.error('Could not update quantity');
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['cart'] });
     },
   });
 }
@@ -54,12 +76,31 @@ export function useRemoveCartItem() {
       const { data } = await apiClient.delete<ApiResponse<Cart>>(`/cart/items/${id}`);
       return data.data;
     },
-    onSuccess: (cart) => {
-      qc.setQueryData(['cart'], cart);
-      toast.success('Item removed');
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: ['cart'] });
+      const snapshot = qc.getQueryData<Cart>(['cart']);
+
+      qc.setQueryData<Cart>(['cart'], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.filter((item) => item.id !== id),
+        };
+      });
+
+      return { snapshot };
     },
-    onError: () => {
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        qc.setQueryData(['cart'], context.snapshot);
+      }
       toast.error('Could not remove item');
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['cart'] });
+    },
+    onSuccess: () => {
+      toast.success('Item removed');
     },
   });
 }
