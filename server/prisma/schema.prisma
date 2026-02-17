@@ -39,6 +39,7 @@ model User {
   cart          Cart?
   orders        Order[]
   refreshTokens RefreshToken[]
+  reviews       Review[]
 
   @@map("users")
 }
@@ -88,8 +89,24 @@ model Product {
   category   Category    @relation(fields: [categoryId], references: [id])
   cartItems  CartItem[]
   orderItems OrderItem[]
+  reviews    Review[]
 
   @@map("products")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  rating    Int
+  body      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("reviews")
 }
 
 model Cart {
