@@ -88,3 +88,19 @@ export interface ApiError {
   error: string;
   message: string;
 }
+
+export interface Review {
+  id: string;
+  userId: string;
+  productId: string;
+  rating: number;
+  body: string | null;
+  createdAt: string;
+  user: { id: string; name: string };
+}
+
+export interface ReviewsData {
+  reviews: Review[];
+  avgRating: number | null;
+  count: number;
+}

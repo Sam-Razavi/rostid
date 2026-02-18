@@ -8,8 +8,12 @@ import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
+import { useQuery } from '@tanstack/react-query';
 import { fadeIn, fadeUp, staggerContainer } from '../animations/variants';
 import { RelatedProducts } from '../components/products/RelatedProducts';
+import { ReviewList } from '../components/products/ReviewList';
+import { AddReviewForm } from '../components/products/AddReviewForm';
+import { fetchReviews } from '../api/reviews.api';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -23,11 +27,21 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
+  const { user } = useAuthStore();
+
   const { data: product, isLoading, isError } = useQuery({
     queryKey: ['product', slug],
     queryFn: () => fetchProduct(slug!),
     enabled: !!slug,
   });
+
+  const { data: reviewsData } = useQuery({
+    queryKey: ['reviews', slug],
+    queryFn: () => fetchReviews(slug!),
+    enabled: !!slug,
+  });
+
+  const hasReviewed = !!reviewsData?.reviews.some((r) => r.userId === user?.id);
 
   async function handleAddToCart() {
     if (!isAuthenticated) {
@@ -188,6 +202,21 @@ export default function ProductDetailPage() {
             </motion.div>
           </motion.div>
         </motion.div>
+      </div>
+
+      {/* Reviews */}
+      <div className="mt-16 border-t border-stone-100 pt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-4xl">
+          <ReviewList
+            reviews={reviewsData?.reviews ?? []}
+            avgRating={reviewsData?.avgRating ?? null}
+            count={reviewsData?.count ?? 0}
+          />
+          <div>
+            <h3 className="font-serif text-xl font-semibold text-stone-900 mb-6">Write a review</h3>
+            <AddReviewForm slug={slug!} hasReviewed={hasReviewed} />
+          </div>
+        </div>
       </div>
 
       <div className="mt-20 border-t border-stone-100">
