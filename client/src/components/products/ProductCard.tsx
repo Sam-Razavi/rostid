@@ -31,6 +31,13 @@ export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps
               </span>
             </div>
           )}
+          {product.stock > 0 && product.stock <= 5 && (
+            <div className="absolute top-2 left-2 z-10">
+              <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                Only {product.stock} left
+              </span>
+            </div>
+          )}
           {product.imageUrl ? (
             <img
               src={product.imageUrl}

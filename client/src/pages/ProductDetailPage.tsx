@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { fetchProduct } from '../api/products.api';
-import { RoastBadge, Badge } from '../components/ui/Badge';
+import { RoastBadge, Badge, StockBadge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
@@ -152,12 +152,8 @@ export default function ProductDetailPage() {
               </div>
             )}
             <div className="bg-stone-50 rounded-lg px-4 py-3">
-              <p className="text-stone-500 text-xs uppercase tracking-wide">Availability</p>
-              <p className={`font-semibold mt-0.5 ${
-                product.stock > 5 ? 'text-green-700' : product.stock > 0 ? 'text-amber-600' : 'text-red-600'
-              }`}>
-                {product.stock > 10 ? 'In stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of stock'}
-              </p>
+              <p className="text-stone-500 text-xs uppercase tracking-wide mb-1">Availability</p>
+              <StockBadge stock={product.stock} />
             </div>
           </motion.div>
 

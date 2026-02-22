@@ -61,3 +61,9 @@ export function RoastBadge({ level }: { level: 'light' | 'medium' | 'dark' }) {
     </span>
   );
 }
+
+export function StockBadge({ stock }: { stock: number }) {
+  if (stock === 0) return <Badge variant="error">Out of stock</Badge>;
+  if (stock <= 5) return <Badge variant="warning">Only {stock} left</Badge>;
+  return <Badge variant="success">In stock</Badge>;
+}
