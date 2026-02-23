@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ import { ProductGridSkeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
 import { staggerContainer } from '../animations/variants';
+import { useDebounce } from '../hooks/useDebounce';
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,8 +21,21 @@ export default function ProductsPage() {
 
   const category = searchParams.get('category') ?? '';
   const roast = searchParams.get('roast') ?? '';
-  const search = searchParams.get('search') ?? '';
   const sort = searchParams.get('sort') ?? 'newest';
+  const searchParam = searchParams.get('search') ?? '';
+
+  const [searchInput, setSearchInput] = useState(searchParam);
+  const debouncedSearch = useDebounce(searchInput, 300);
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (debouncedSearch) next.set('search', debouncedSearch);
+    else next.delete('search');
+    next.delete('page');
+    setSearchParams(next, { replace: true });
+    setPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams);
@@ -33,8 +47,8 @@ export default function ProductsPage() {
   }
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['products', { category, roast, search, sort, page }],
-    queryFn: () => fetchProducts({ category, roast, search, sort, page, limit: 12 }),
+    queryKey: ['products', { category, roast, search: debouncedSearch, sort, page }],
+    queryFn: () => fetchProducts({ category, roast, search: debouncedSearch, sort, page, limit: 12 }),
     placeholderData: (prev) => prev,
   });
 
@@ -61,11 +75,11 @@ export default function ProductsPage() {
         <ProductFilters
           selectedCategory={category}
           selectedRoast={roast}
-          search={search}
+          search={searchInput}
           sort={sort}
           onCategoryChange={(v) => updateParam('category', v)}
           onRoastChange={(v) => updateParam('roast', v)}
-          onSearchChange={(v) => updateParam('search', v)}
+          onSearchChange={setSearchInput}
           onSortChange={(v) => updateParam('sort', v)}
         />
       </div>
@@ -80,7 +94,7 @@ export default function ProductsPage() {
       ) : (
         <>
           <motion.div
-            key={`${category}-${roast}-${search}-${page}`}
+            key={`${category}-${roast}-${debouncedSearch}-${page}`}
             className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}
             variants={staggerContainer}
             initial="hidden"
