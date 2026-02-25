@@ -1,8 +1,36 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { fetchAdminOrders, updateOrderStatus } from '../../api/admin.api';
 import { OrderStatusBadge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { Skeleton } from '../../components/ui/Skeleton';
 import type { OrderStatus } from '../../types';
+import type { AdminOrder } from '../../api/admin.api';
+
+function exportCSV(orders: AdminOrder[]) {
+  const headers = ['Order ID', 'Customer', 'Email', 'Status', 'Total (kr)', 'Date'];
+  const rows = orders.map((o) => [
+    o.id,
+    o.user?.name ?? '',
+    o.user?.email ?? '',
+    o.status,
+    (Math.round(o.totalOre / 100)).toString(),
+    new Date(o.createdAt).toISOString().slice(0, 10),
+  ]);
+
+  const csv = [headers, ...rows]
+    .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rostid-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success('CSV downloaded');
+}
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -29,7 +57,14 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-stone-900 mb-8">Orders</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-semibold text-stone-900">Orders</h1>
+        {orders && orders.length > 0 && (
+          <Button variant="secondary" size="sm" onClick={() => exportCSV(orders)}>
+            Export CSV
+          </Button>
+        )}
+      </div>
 
       <div className="bg-white rounded-xl shadow-soft border border-stone-100 overflow-hidden">
         <table className="w-full text-sm">
