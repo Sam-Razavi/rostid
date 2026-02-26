@@ -67,6 +67,7 @@ export default function AdminOrders() {
       </div>
 
       <div className="bg-white rounded-xl shadow-soft border border-stone-100 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-stone-100 text-xs text-stone-500 uppercase tracking-wide">
@@ -138,6 +139,7 @@ export default function AdminOrders() {
                 })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

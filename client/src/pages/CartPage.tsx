@@ -59,9 +59,9 @@ export default function CartPage() {
 
   return (
     <div className="container-page py-12">
-      <h1 className="font-serif text-4xl font-semibold text-stone-900 mb-10">Your cart</h1>
+      <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-stone-900 mb-8 sm:mb-10">Your cart</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
         <div className="lg:col-span-2">
           <div className="card p-6">
             <AnimatePresence initial={false}>

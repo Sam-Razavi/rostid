@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
             </p>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="flex items-center gap-4">
+          <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4">
             <div className="flex items-center border border-stone-300 rounded-lg overflow-hidden">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}

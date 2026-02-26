@@ -68,7 +68,7 @@ export default function HomePage() {
     <div>
       {/* Hero */}
       <section className="bg-espresso-950 text-white overflow-hidden">
-        <div className="container-page py-24 md:py-32">
+        <div className="container-page py-16 sm:py-24 md:py-32">
           <motion.div
             className="max-w-2xl"
             variants={staggerContainer}
@@ -78,7 +78,7 @@ export default function HomePage() {
             <motion.p variants={fadeUp} className="text-espresso-400 text-sm font-medium uppercase tracking-widest mb-4">
               Stockholm, Sweden
             </motion.p>
-            <motion.h1 variants={fadeUp} className="font-serif text-5xl md:text-6xl font-semibold leading-tight mb-6">
+            <motion.h1 variants={fadeUp} className="font-serif text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight mb-6">
               Time for the
               <br />
               <em className="not-italic text-espresso-400">perfect roast.</em>
