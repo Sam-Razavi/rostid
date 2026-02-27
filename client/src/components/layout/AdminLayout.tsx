@@ -24,7 +24,7 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-stone-100">
-      <aside className="w-64 bg-espresso-950 text-stone-300 flex flex-col">
+      <aside className="w-64 bg-espresso-950 text-stone-300 flex flex-col" aria-label="Admin navigation">
         <div className="px-6 py-5 border-b border-stone-800">
           <Link to="/" className="font-serif text-xl font-semibold text-white">
             Rostid
@@ -32,7 +32,7 @@ export default function AdminLayout() {
           <p className="text-xs text-stone-500 mt-0.5">Admin Panel</p>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1" aria-label="Admin menu">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -68,7 +68,7 @@ export default function AdminLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-8">
+        <main id="admin-main" className="flex-1 overflow-y-auto p-8" tabIndex={-1}>
           <Outlet />
         </main>
       </div>
