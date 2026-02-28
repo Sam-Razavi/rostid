@@ -8,7 +8,6 @@ import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
-import { useQuery } from '@tanstack/react-query';
 import { fadeIn, fadeUp, staggerContainer } from '../animations/variants';
 import { RelatedProducts } from '../components/products/RelatedProducts';
 import { ReviewList } from '../components/products/ReviewList';

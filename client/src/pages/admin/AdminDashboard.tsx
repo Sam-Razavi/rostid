@@ -88,7 +88,7 @@ export default function AdminDashboard() {
                 <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#78716c' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#78716c' }} />
                 <Tooltip
-                  formatter={(value: number) => [`${value} kr`, 'Revenue']}
+                  formatter={(value) => [`${value} kr`, 'Revenue']}
                   contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }}
                 />
                 <Bar dataKey="revenue" fill="#5E3516" radius={[4, 4, 0, 0]} />
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number, name: string) => [value, name]}
+                  formatter={(value, name) => [value, name]}
                   contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }}
                 />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />

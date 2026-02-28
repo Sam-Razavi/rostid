@@ -173,7 +173,7 @@ export default function AdminProducts() {
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="New product" size="lg">
         <ProductForm
-          onSubmit={(data) => create.mutateAsync(data as Parameters<typeof createProduct>[0])}
+          onSubmit={(data) => create.mutateAsync(data as Parameters<typeof createProduct>[0]).then(() => undefined)}
           submitLabel="Create product"
           isLoading={create.isPending}
         />
@@ -188,7 +188,7 @@ export default function AdminProducts() {
         {editingProduct && (
           <ProductForm
             initialData={editingProduct}
-            onSubmit={(data) => edit.mutateAsync({ id: editingProduct.id, data: data as Partial<Product> })}
+            onSubmit={(data) => edit.mutateAsync({ id: editingProduct.id, data: data as Partial<Product> }).then(() => undefined)}
             submitLabel="Save changes"
             isLoading={edit.isPending}
           />
