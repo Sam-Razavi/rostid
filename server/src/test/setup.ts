@@ -1,0 +1,63 @@
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { beforeAll, afterAll, beforeEach } from 'vitest';
+
+export const prisma = new PrismaClient();
+
+export let testAdminId: string;
+export let testCustomerId: string;
+export let testCategoryId: string;
+export let testProductId: string;
+export let testProductSlug: string;
+
+beforeAll(async () => {
+  await prisma.$connect();
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
+beforeEach(async () => {
+  // Clean in dependency order
+  await prisma.review.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.cartItem.deleteMany();
+  await prisma.cart.deleteMany();
+  await prisma.refreshToken.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.category.deleteMany();
+
+  // Seed minimal test data
+  const category = await prisma.category.create({
+    data: { name: 'Test Category', slug: 'test-category', description: 'Test' },
+  });
+  testCategoryId = category.id;
+
+  const product = await prisma.product.create({
+    data: {
+      name: 'Test Coffee',
+      slug: 'test-coffee',
+      description: 'A test coffee',
+      priceOre: 12900,
+      stock: 50,
+      categoryId: category.id,
+    },
+  });
+  testProductId = product.id;
+  testProductSlug = product.slug;
+
+  const hash = await bcrypt.hash('password123', 10);
+
+  const admin = await prisma.user.create({
+    data: { email: 'admin@test.com', name: 'Admin', passwordHash: hash, role: 'ADMIN' },
+  });
+  testAdminId = admin.id;
+
+  const customer = await prisma.user.create({
+    data: { email: 'customer@test.com', name: 'Customer', passwordHash: hash, role: 'CUSTOMER' },
+  });
+  testCustomerId = customer.id;
+});
