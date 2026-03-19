@@ -46,8 +46,8 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rostid_test
 
-      - name: Run tests
-        run: cd server && npm test
+      - name: Run tests with coverage
+        run: cd server && npm run test:coverage
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rostid_test
           JWT_ACCESS_SECRET: test-access-secret-min-32-chars-long
@@ -79,7 +79,7 @@ jobs:
         env:
           VITE_API_URL: http://localhost:4000
 
-      - name: Run tests
-        run: cd client && npm test
+      - name: Run tests with coverage
+        run: cd client && npm run test:coverage
         env:
           VITE_API_URL: http://localhost:4000
