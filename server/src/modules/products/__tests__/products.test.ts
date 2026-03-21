@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../../../app';
-import { testProductSlug, testCategoryId, prisma } from '../../../test/setup';
+import { testProductSlug, testCategoryId } from '../../../test/setup';
 
 describe('Products API', () => {
   describe('GET /api/products', () => {

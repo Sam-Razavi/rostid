@@ -9,6 +9,6 @@ export async function getReviews(req: Request, res: Response): Promise<void> {
 
 export async function postReview(req: Request, res: Response): Promise<void> {
   const { body } = createReviewSchema.parse({ body: req.body });
-  const review = await createReview(req.params.slug, req.user.id, body);
+  const review = await createReview(req.params.slug, req.user!.userId, body);
   res.status(201).json({ data: review, message: 'Review submitted' });
 }

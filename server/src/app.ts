@@ -12,6 +12,7 @@ import cartRoutes from './modules/cart/cart.routes';
 import ordersRoutes from './modules/orders/orders.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import reviewsRoutes from './modules/reviews/reviews.routes';
+import checkoutRoutes from './modules/checkout/checkout.routes';
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/products/:slug/reviews', reviewLimiter, reviewsRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 app.use(errorHandler);
 

@@ -52,12 +52,12 @@ beforeEach(async () => {
   const hash = await bcrypt.hash('password123', 10);
 
   const admin = await prisma.user.create({
-    data: { email: 'admin@test.com', name: 'Admin', passwordHash: hash, role: 'ADMIN' },
+    data: { email: 'admin@test.com', name: 'Admin', passwordHash: hash, role: 'admin' as const },
   });
   testAdminId = admin.id;
 
   const customer = await prisma.user.create({
-    data: { email: 'customer@test.com', name: 'Customer', passwordHash: hash, role: 'CUSTOMER' },
+    data: { email: 'customer@test.com', name: 'Customer', passwordHash: hash, role: 'customer' as const },
   });
   testCustomerId = customer.id;
 });
