@@ -26,6 +26,8 @@ async function fulfillOrder(session: any) {
         userId,
         totalOre,
         status: 'processing',
+        // stripeSessionId added in migration 20260323000000 — will be populated after prisma generate
+        ...(session.id ? { stripeSessionId: session.id } : {}),
         items: {
           create: cart.items.map((item) => ({
             productId: item.productId,
