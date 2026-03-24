@@ -5,7 +5,7 @@ const mockUser = {
   id: 'user-1',
   email: 'test@test.com',
   name: 'Test User',
-  role: 'CUSTOMER' as const,
+  role: 'customer' as const,
   createdAt: new Date().toISOString(),
 };
 

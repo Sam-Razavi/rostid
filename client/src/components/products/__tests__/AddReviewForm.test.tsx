@@ -37,7 +37,7 @@ describe('AddReviewForm', () => {
 
   it('shows already-reviewed notice when hasReviewed is true', () => {
     useAuthStore.setState({
-      user: { id: '1', email: 'a@b.com', name: 'A', role: 'CUSTOMER', createdAt: '' },
+      user: { id: '1', email: 'a@b.com', name: 'A', role: 'customer' },
       accessToken: 'tok',
       isAuthenticated: true,
     });
@@ -48,7 +48,7 @@ describe('AddReviewForm', () => {
 
   it('renders star picker and submit button when authenticated', () => {
     useAuthStore.setState({
-      user: { id: '1', email: 'a@b.com', name: 'A', role: 'CUSTOMER', createdAt: '' },
+      user: { id: '1', email: 'a@b.com', name: 'A', role: 'customer' },
       accessToken: 'tok',
       isAuthenticated: true,
     });
@@ -59,7 +59,7 @@ describe('AddReviewForm', () => {
 
   it('submit button is disabled until a star is selected', () => {
     useAuthStore.setState({
-      user: { id: '1', email: 'a@b.com', name: 'A', role: 'CUSTOMER', createdAt: '' },
+      user: { id: '1', email: 'a@b.com', name: 'A', role: 'customer' },
       accessToken: 'tok',
       isAuthenticated: true,
     });
@@ -69,7 +69,7 @@ describe('AddReviewForm', () => {
 
   it('enables submit after selecting a rating', () => {
     useAuthStore.setState({
-      user: { id: '1', email: 'a@b.com', name: 'A', role: 'CUSTOMER', createdAt: '' },
+      user: { id: '1', email: 'a@b.com', name: 'A', role: 'customer' },
       accessToken: 'tok',
       isAuthenticated: true,
     });

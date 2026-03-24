@@ -11,14 +11,16 @@ const baseProduct: Product = {
   description: 'A great coffee',
   priceOre: 12900,
   stock: 10,
+  categoryId: 'cat-1',
   category: { id: 'cat-1', name: 'Single Origin', slug: 'single-origin' },
-  roastLevel: 'MEDIUM',
+  roastLevel: 'medium',
   origin: 'Ethiopia',
   tastingNotes: 'Blueberry, chocolate',
   imageUrl: null,
   weightGrams: 250,
   isActive: true,
   createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
 };
 
 function renderCard(props: Partial<Parameters<typeof ProductCard>[0]> = {}) {

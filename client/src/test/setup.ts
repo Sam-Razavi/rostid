@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import React from 'react';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
@@ -11,11 +12,9 @@ vi.mock('framer-motion', () => ({
   motion: new Proxy(
     {},
     {
-      get: (_target, prop) => {
-        const Component = ({ children, ...props }: React.ComponentPropsWithRef<'div'>) => {
-          const React = require('react');
-          return React.createElement(prop as string, props, children);
-        };
+      get: (_target, prop: string) => {
+        const Component = ({ children, ...props }: React.ComponentPropsWithRef<'div'>) =>
+          React.createElement(prop, props, children);
         return Component;
       },
     }

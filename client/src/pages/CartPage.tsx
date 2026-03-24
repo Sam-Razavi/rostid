@@ -1,11 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../components/cart/CartItem';
 import { Button } from '../components/ui/Button';
-import { placeOrder } from '../api/orders.api';
+import { createCheckoutSession } from '../api/checkout.api';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -14,20 +14,22 @@ function formatPrice(ore: number) {
 export default function CartPage() {
   const { data: cart, isLoading } = useCart();
   const navigate = useNavigate();
-  const qc = useQueryClient();
+  const [checkingOut, setCheckingOut] = useState(false);
 
-  const checkout = useMutation({
-    mutationFn: placeOrder,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Order placed! Thank you.');
-      navigate('/orders');
-    },
-    onError: (err: unknown) => {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Something went wrong';
+  async function handleCheckout() {
+    setCheckingOut(true);
+    try {
+      const url = await createCheckoutSession();
+      window.location.href = url;
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Checkout failed';
       toast.error(message);
-    },
-  });
+      // Fall back to orders page if Stripe isn't configured (dev mode)
+      if (message.includes('not configured')) navigate('/orders');
+    } finally {
+      setCheckingOut(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -100,12 +102,12 @@ export default function CartPage() {
             </div>
 
             <Button
-              onClick={() => checkout.mutate()}
-              loading={checkout.isPending}
+              onClick={handleCheckout}
+              loading={checkingOut}
               size="lg"
               className="w-full"
             >
-              Place order
+              Proceed to checkout
             </Button>
 
             <Link to="/products" className="block text-center text-sm text-stone-500 hover:text-stone-700 mt-4 transition-colors">

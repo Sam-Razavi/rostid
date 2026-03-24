@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CartItem } from '../CartItem';
@@ -12,6 +12,8 @@ vi.mock('../../../hooks/useCart', () => ({
 
 const mockItem: CartItemType = {
   id: 'item-1',
+  cartId: 'cart-1',
+  productId: 'prod-1',
   quantity: 2,
   product: {
     id: 'prod-1',
@@ -20,6 +22,7 @@ const mockItem: CartItemType = {
     priceOre: 12900,
     stock: 10,
     imageUrl: null,
+    isActive: true,
   },
 };
 
