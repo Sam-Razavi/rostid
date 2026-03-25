@@ -17,6 +17,8 @@ const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
 const AdminProducts = lazy(() => import('../pages/admin/AdminProducts'));
 const AdminOrders = lazy(() => import('../pages/admin/AdminOrders'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
+const PaymentSuccessPage = lazy(() => import('../pages/PaymentSuccessPage'));
+const PaymentCancelPage = lazy(() => import('../pages/PaymentCancelPage'));
 
 function PageLoader() {
   return (
@@ -45,6 +47,8 @@ export const router = createBrowserRouter([
           { path: '/cart', element: <S><CartPage /></S> },
           { path: '/orders', element: <S><OrdersPage /></S> },
           { path: '/orders/:id', element: <S><OrderDetailPage /></S> },
+          { path: '/checkout/success', element: <S><PaymentSuccessPage /></S> },
+          { path: '/checkout/cancel', element: <S><PaymentCancelPage /></S> },
         ],
       },
     ],
