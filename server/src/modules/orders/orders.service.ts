@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
+import { sendOrderConfirmation } from '../../utils/emails/orderConfirmation';
 
 const orderInclude = {
   items: {
@@ -66,6 +67,22 @@ export async function placeOrder(userId: string) {
 
     return newOrder;
   });
+
+  // Fire-and-forget confirmation email
+  const userInfo = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } });
+  if (userInfo) {
+    sendOrderConfirmation({
+      to: userInfo.email,
+      customerName: userInfo.name,
+      orderId: order.id,
+      items: order.items.map((i) => ({
+        product: { name: i.product.name },
+        quantity: i.quantity,
+        unitPriceOre: i.unitPriceOre,
+      })),
+      totalOre: order.totalOre,
+    }).catch((err) => console.error('[email] order confirmation failed:', err));
+  }
 
   return order;
 }
