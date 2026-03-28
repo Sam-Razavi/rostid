@@ -3,6 +3,7 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
 import { signAccessToken, signRefreshToken } from '../../utils/jwt';
 import { env } from '../../config/env';
+import { sendWelcomeEmail } from '../../utils/emails/welcome';
 import type { RegisterInput, LoginInput } from './auth.schema';
 
 export async function registerUser(data: RegisterInput) {
@@ -36,6 +37,11 @@ export async function registerUser(data: RegisterInput) {
   });
 
   const signedRefresh = signRefreshToken({ userId: user.id, tokenId: refreshToken });
+
+  // Fire-and-forget welcome email
+  sendWelcomeEmail(user.email, user.name).catch((err) =>
+    console.error('[email] welcome failed:', err)
+  );
 
   return { user, accessToken, refreshToken: signedRefresh };
 }
