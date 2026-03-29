@@ -4,6 +4,7 @@ import { AppError } from '../../utils/AppError';
 import { signAccessToken, signRefreshToken } from '../../utils/jwt';
 import { env } from '../../config/env';
 import { sendWelcomeEmail } from '../../utils/emails/welcome';
+import { sendPasswordResetEmail } from '../../utils/emails/passwordReset';
 import type { RegisterInput, LoginInput } from './auth.schema';
 
 export async function registerUser(data: RegisterInput) {
@@ -137,6 +138,41 @@ export async function logoutUser(rawCookieToken: string) {
   } catch {
     // Token already invalid — no action needed
   }
+}
+
+export async function forgotPassword(email: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  // Always return success to avoid user enumeration
+  if (!user) return;
+
+  const rawToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  const tokenHash = await bcrypt.hash(rawToken, 10);
+
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  await (prisma as unknown as { passwordResetToken: { deleteMany: (a: unknown) => Promise<unknown>; create: (a: unknown) => Promise<unknown>; findFirst: (a: unknown) => Promise<{ tokenHash: string } | null> } }).passwordResetToken.deleteMany({ where: { userId: user.id } });
+  await (prisma as unknown as { passwordResetToken: { deleteMany: (a: unknown) => Promise<unknown>; create: (a: unknown) => Promise<unknown>; findFirst: (a: unknown) => Promise<{ tokenHash: string } | null> } }).passwordResetToken.create({ data: { tokenHash, userId: user.id, expiresAt } });
+
+  const resetUrl = `${process.env.CLIENT_URL ?? 'http://localhost:5173'}/reset-password?token=${rawToken}&uid=${user.id}`;
+  await sendPasswordResetEmail(email, resetUrl);
+}
+
+export async function resetPassword(userId: string, rawToken: string, newPassword: string) {
+  const record = await (prisma as unknown as { passwordResetToken: { deleteMany: (a: unknown) => Promise<unknown>; create: (a: unknown) => Promise<unknown>; findFirst: (a: unknown) => Promise<{ tokenHash: string } | null> } }).passwordResetToken.findFirst({
+    where: { userId, expiresAt: { gt: new Date() } },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (!record) throw AppError.badRequest('Invalid or expired reset link');
+
+  const valid = await bcrypt.compare(rawToken, record.tokenHash);
+  if (!valid) throw AppError.badRequest('Invalid or expired reset link');
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+  await (prisma as unknown as { passwordResetToken: { deleteMany: (a: unknown) => Promise<unknown>; create: (a: unknown) => Promise<unknown>; findFirst: (a: unknown) => Promise<{ tokenHash: string } | null> } }).passwordResetToken.deleteMany({ where: { userId } });
 }
 
 export const REFRESH_COOKIE_OPTIONS = {
