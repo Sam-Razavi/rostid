@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { registerSchema, loginSchema } from './auth.schema';
-import { registerUser, loginUser, refreshTokens, logoutUser, REFRESH_COOKIE_OPTIONS } from './auth.service';
+import { registerUser, loginUser, refreshTokens, logoutUser, forgotPassword, resetPassword, REFRESH_COOKIE_OPTIONS } from './auth.service';
 import { prisma } from '../../config/prisma';
 
 export async function register(req: Request, res: Response): Promise<void> {
@@ -63,4 +63,23 @@ export async function logout(req: Request, res: Response): Promise<void> {
   res.clearCookie('refreshToken', { path: '/api/auth' });
 
   res.json({ data: null, message: 'Logged out successfully' });
+}
+
+export async function forgotPasswordHandler(req: Request, res: Response): Promise<void> {
+  const { email } = req.body as { email?: string };
+  if (email && typeof email === 'string') {
+    await forgotPassword(email).catch(() => undefined);
+  }
+  // Always 200 to prevent user enumeration
+  res.json({ data: null, message: 'If that email exists, a reset link has been sent' });
+}
+
+export async function resetPasswordHandler(req: Request, res: Response): Promise<void> {
+  const { userId, token, password } = req.body as { userId?: string; token?: string; password?: string };
+  if (!userId || !token || !password) {
+    res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Missing required fields' });
+    return;
+  }
+  await resetPassword(userId, token, password);
+  res.json({ data: null, message: 'Password updated successfully' });
 }
