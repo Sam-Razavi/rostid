@@ -14,6 +14,7 @@ import adminRoutes from './modules/admin/admin.routes';
 import reviewsRoutes from './modules/reviews/reviews.routes';
 import checkoutRoutes from './modules/checkout/checkout.routes';
 import webhooksRoutes from './modules/webhooks/webhooks.routes';
+import usersRoutes from './modules/users/users.routes';
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/products/:slug/reviews', reviewLimiter, reviewsRoutes);
+app.use('/api/users', usersRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/webhooks', webhooksRoutes);
 
