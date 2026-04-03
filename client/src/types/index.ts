@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   role: 'customer' | 'admin';
+  createdAt?: string;
 }
 
 export interface Category {

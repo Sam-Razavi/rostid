@@ -87,6 +87,9 @@ export function Navbar() {
                     <Link to="/orders" className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">
                       Orders
                     </Link>
+                    <Link to="/profile" className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">
+                      Profile
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors cursor-pointer min-h-[44px] px-2"
@@ -194,6 +197,17 @@ export function Navbar() {
                       }
                     >
                       My Orders
+                    </NavLink>
+                    <NavLink
+                      to="/profile"
+                      onClick={() => setDrawerOpen(false)}
+                      className={({ isActive }) =>
+                        `px-3 py-3 rounded-lg text-base font-medium transition-colors ${
+                          isActive ? 'bg-espresso-50 text-espresso-800' : 'text-stone-700 hover:bg-stone-50'
+                        }`
+                      }
+                    >
+                      My Profile
                     </NavLink>
                     {user?.role === 'admin' && (
                       <NavLink

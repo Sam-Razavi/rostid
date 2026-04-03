@@ -21,6 +21,7 @@ const PaymentSuccessPage = lazy(() => import('../pages/PaymentSuccessPage'));
 const PaymentCancelPage = lazy(() => import('../pages/PaymentCancelPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 
 function PageLoader() {
   return (
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
+          { path: '/profile', element: <S><ProfilePage /></S> },
           { path: '/cart', element: <S><CartPage /></S> },
           { path: '/orders', element: <S><OrdersPage /></S> },
           { path: '/orders/:id', element: <S><OrderDetailPage /></S> },
