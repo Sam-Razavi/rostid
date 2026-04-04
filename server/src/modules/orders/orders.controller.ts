@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { placeOrder, listOrders, getOrder } from './orders.service';
+import { placeOrder, listOrders, getOrder, cancelOrder } from './orders.service';
 
 export async function placeOrderHandler(req: Request, res: Response): Promise<void> {
   const order = await placeOrder(req.user!.userId);
@@ -14,4 +14,9 @@ export async function listOrdersHandler(req: Request, res: Response): Promise<vo
 export async function getOrderHandler(req: Request, res: Response): Promise<void> {
   const order = await getOrder(req.user!.userId, req.params.id);
   res.json({ data: order, message: 'Order retrieved' });
+}
+
+export async function cancelOrderHandler(req: Request, res: Response): Promise<void> {
+  const order = await cancelOrder(req.user!.userId, req.params.id);
+  res.json({ data: order, message: 'Order cancelled' });
 }

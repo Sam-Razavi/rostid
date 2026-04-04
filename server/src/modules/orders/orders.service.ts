@@ -105,3 +105,30 @@ export async function getOrder(userId: string, orderId: string) {
 
   return order;
 }
+
+export async function cancelOrder(userId: string, orderId: string) {
+  const order = await prisma.order.findFirst({ where: { id: orderId, userId } });
+
+  if (!order) throw AppError.notFound('Order not found');
+
+  if (order.status !== 'pending' && order.status !== 'confirmed') {
+    throw AppError.badRequest('Only pending or confirmed orders can be cancelled');
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const items = await tx.orderItem.findMany({ where: { orderId } });
+
+    for (const item of items) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stock: { increment: item.quantity } },
+      });
+    }
+
+    return tx.order.update({
+      where: { id: orderId },
+      data: { status: 'cancelled' },
+      include: orderInclude,
+    });
+  });
+}
