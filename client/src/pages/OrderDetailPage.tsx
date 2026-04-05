@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { fetchOrder } from '../api/orders.api';
+import apiClient from '../api/client';
 import { OrderStatusBadge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { OrderCardSkeleton } from '../components/ui/Skeleton';
 import { OrderTimeline } from '../components/orders/OrderTimeline';
+import type { ApiResponse, Order } from '../types';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -22,12 +27,31 @@ function formatDate(iso: string) {
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: order, isLoading, isError, refetch } = useQuery({
     queryKey: ['order', id],
     queryFn: () => fetchOrder(id!),
     enabled: !!id,
   });
+
+  const cancelMutation = useMutation({
+    mutationFn: () => apiClient.patch<ApiResponse<Order>>(`/orders/${id}/cancel`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['order', id] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success('Order cancelled');
+      setShowConfirm(false);
+    },
+    onError: (err: unknown) => {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to cancel order';
+      toast.error(message);
+      setShowConfirm(false);
+    },
+  });
+
+  const canCancel = order && (order.status === 'pending' || order.status === 'confirmed');
 
   if (isLoading) return <div className="container-page py-16"><OrderCardSkeleton /></div>;
   if (isError || !order) return <div className="container-page py-16"><ErrorMessage onRetry={refetch} /></div>;
@@ -101,14 +125,47 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
         <Link to="/products" className="btn-secondary text-sm">
           Continue shopping
         </Link>
         <Link to="/orders" className="btn-ghost text-sm">
           All orders
         </Link>
+        {canCancel && (
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors ml-auto cursor-pointer min-h-[44px] px-2"
+          >
+            Cancel order
+          </button>
+        )}
       </div>
+
+      {/* Confirm cancel modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-warm">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Cancel this order?</h3>
+            <p className="text-stone-500 text-sm mb-6">Stock will be restored. This cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors cursor-pointer min-h-[44px] px-4"
+              >
+                Keep order
+              </button>
+              <Button
+                onClick={() => cancelMutation.mutate()}
+                loading={cancelMutation.isPending}
+                className="bg-red-600 hover:bg-red-700 text-sm"
+              >
+                Yes, cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
