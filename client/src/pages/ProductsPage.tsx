@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fetchProducts } from '../api/products.api';
+import { fetchWishlist } from '../api/wishlist.api';
 import { ProductCard } from '../components/products/ProductCard';
 import { ProductFilters } from '../components/products/ProductFilters';
 import { ProductGridSkeleton } from '../components/ui/Skeleton';
@@ -51,6 +52,14 @@ export default function ProductsPage() {
     queryFn: () => fetchProducts({ category, roast, search: debouncedSearch, sort, page, limit: 12 }),
     placeholderData: (prev) => prev,
   });
+
+  const { data: wishlistItems } = useQuery({
+    queryKey: ['wishlist'],
+    queryFn: fetchWishlist,
+    enabled: isAuthenticated,
+  });
+
+  const wishlistedIds = new Set(wishlistItems?.map((i) => i.productId) ?? []);
 
   async function handleAddToCart(product: { id: string }) {
     if (!isAuthenticated) { navigate('/login'); return; }
@@ -106,6 +115,7 @@ export default function ProductsPage() {
                 product={product}
                 onAddToCart={handleAddToCart}
                 addingId={addingId}
+                wishlisted={wishlistedIds.has(product.id)}
               />
             ))}
           </motion.div>

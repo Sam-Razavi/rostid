@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { RoastBadge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { addToWishlist, removeFromWishlist } from '../../api/wishlist.api';
+import { useAuthStore } from '../../store/authStore';
 import type { Product } from '../../types';
 import { fadeUp } from '../../animations/variants';
 
@@ -13,9 +16,20 @@ interface ProductCardProps {
   product: Product;
   onAddToCart?: (product: Product) => void;
   addingId?: string | null;
+  wishlisted?: boolean;
 }
 
-export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, addingId, wishlisted }: ProductCardProps) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const queryClient = useQueryClient();
+
+  const wishlistMutation = useMutation({
+    mutationFn: wishlisted
+      ? () => removeFromWishlist(product.id)
+      : () => addToWishlist(product.id).then(() => undefined),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] }),
+  });
+
   return (
     <motion.div
       variants={fadeUp}
@@ -37,6 +51,22 @@ export function ProductCard({ product, onAddToCart, addingId }: ProductCardProps
                 Only {product.stock} left
               </span>
             </div>
+          )}
+          {isAuthenticated && (
+            <button
+              onClick={(e) => { e.preventDefault(); wishlistMutation.mutate(); }}
+              aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+              className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+            >
+              <svg
+                className={`w-4 h-4 transition-colors ${wishlisted ? 'text-red-500 fill-current' : 'text-stone-400 hover:text-red-400'}`}
+                fill={wishlisted ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
           )}
           {product.imageUrl ? (
             <img
