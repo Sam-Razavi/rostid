@@ -13,6 +13,7 @@ import {
   adminUpdateOrderStatus,
   adminGetStats,
 } from './admin.service';
+import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
 
 export async function listProducts(_req: Request, res: Response): Promise<void> {
   const products = await adminListProducts();
@@ -50,4 +51,31 @@ export async function updateOrderStatus(req: Request, res: Response): Promise<vo
 export async function getStats(_req: Request, res: Response): Promise<void> {
   const stats = await adminGetStats();
   res.json({ data: stats, message: 'Stats retrieved' });
+}
+
+export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {
+  const codes = await listDiscounts();
+  res.json({ data: codes, message: 'Discount codes retrieved' });
+}
+
+export async function createDiscountHandler(req: Request, res: Response): Promise<void> {
+  const { code, type, value, minOrderOre, maxUses, expiresAt } = req.body as {
+    code?: string; type?: string; value?: number;
+    minOrderOre?: number; maxUses?: number; expiresAt?: string;
+  };
+  if (!code || !type || value === undefined) {
+    res.status(400).json({ error: 'VALIDATION_ERROR', message: 'code, type, and value are required' });
+    return;
+  }
+  if (type !== 'percentage' && type !== 'fixed') {
+    res.status(400).json({ error: 'VALIDATION_ERROR', message: 'type must be percentage or fixed' });
+    return;
+  }
+  const discount = await createDiscount({ code, type, value, minOrderOre, maxUses, expiresAt });
+  res.status(201).json({ data: discount, message: 'Discount code created' });
+}
+
+export async function deleteDiscountHandler(req: Request, res: Response): Promise<void> {
+  await deleteDiscount(req.params.id);
+  res.json({ data: null, message: 'Discount code deleted' });
 }

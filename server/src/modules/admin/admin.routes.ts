@@ -10,6 +10,9 @@ import {
   listOrders,
   updateOrderStatus,
   getStats,
+  listDiscountsHandler,
+  createDiscountHandler,
+  deleteDiscountHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -25,5 +28,9 @@ router.get('/orders', asyncHandler(listOrders));
 router.patch('/orders/:id/status', asyncHandler(updateOrderStatus));
 
 router.get('/stats', asyncHandler(getStats));
+
+router.get('/discounts', asyncHandler(listDiscountsHandler));
+router.post('/discounts', asyncHandler(createDiscountHandler));
+router.delete('/discounts/:id', asyncHandler(deleteDiscountHandler));
 
 export default router;
