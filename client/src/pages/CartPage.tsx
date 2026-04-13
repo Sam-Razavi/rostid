@@ -5,7 +5,17 @@ import { AnimatePresence } from 'framer-motion';
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../components/cart/CartItem';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 import { createCheckoutSession } from '../api/checkout.api';
+import apiClient from '../api/client';
+import type { ApiResponse } from '../types';
+
+interface DiscountResult {
+  code: string;
+  type: string;
+  value: number;
+  discountOre: number;
+}
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -15,11 +25,33 @@ export default function CartPage() {
   const { data: cart, isLoading } = useCart();
   const navigate = useNavigate();
   const [checkingOut, setCheckingOut] = useState(false);
+  const [discountCode, setDiscountCode] = useState('');
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [appliedDiscount, setAppliedDiscount] = useState<DiscountResult | null>(null);
+
+  async function handleApplyDiscount() {
+    if (!discountCode.trim()) return;
+    setDiscountLoading(true);
+    try {
+      const { data } = await apiClient.post<ApiResponse<DiscountResult>>('/discounts/validate', {
+        code: discountCode.trim(),
+        orderTotalOre: totalOre,
+      });
+      setAppliedDiscount(data.data);
+      toast.success(`Discount applied: -${formatPrice(data.data.discountOre)}`);
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Invalid discount code';
+      toast.error(message);
+      setAppliedDiscount(null);
+    } finally {
+      setDiscountLoading(false);
+    }
+  }
 
   async function handleCheckout() {
     setCheckingOut(true);
     try {
-      const url = await createCheckoutSession();
+      const url = await createCheckoutSession(appliedDiscount?.code);
       window.location.href = url;
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Checkout failed';
@@ -45,7 +77,9 @@ export default function CartPage() {
   }
 
   const items = cart?.items ?? [];
-  const totalOre = items.reduce((sum, item) => sum + item.product.priceOre * item.quantity, 0);
+  const subtotalOre = items.reduce((sum, item) => sum + item.product.priceOre * item.quantity, 0);
+  const discountOre = appliedDiscount?.discountOre ?? 0;
+  const totalOre = Math.max(0, subtotalOre - discountOre);
 
   if (items.length === 0) {
     return (
@@ -91,14 +125,56 @@ export default function CartPage() {
               ))}
             </div>
 
-            <div className="border-t border-stone-200 pt-4 mb-6">
+            {/* Discount code input */}
+            <div className="mb-4">
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={discountCode}
+                  onChange={(e) => {
+                    setDiscountCode(e.target.value.toUpperCase());
+                    if (appliedDiscount) setAppliedDiscount(null);
+                  }}
+                  placeholder="Discount code"
+                  className="text-sm"
+                />
+                <Button
+                  onClick={handleApplyDiscount}
+                  loading={discountLoading}
+                  size="sm"
+                  variant="secondary"
+                  className="flex-shrink-0"
+                >
+                  Apply
+                </Button>
+              </div>
+              {appliedDiscount && (
+                <p className="text-xs text-green-700 mt-1.5">
+                  Code <strong>{appliedDiscount.code}</strong> applied — saving {formatPrice(appliedDiscount.discountOre)}
+                </p>
+              )}
+            </div>
+
+            <div className="border-t border-stone-200 pt-4 mb-6 space-y-2">
+              {discountOre > 0 && (
+                <>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-stone-600">Subtotal</span>
+                    <span className="text-stone-900">{formatPrice(subtotalOre)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-green-700">
+                    <span>Discount ({appliedDiscount?.code})</span>
+                    <span>−{formatPrice(discountOre)}</span>
+                  </div>
+                </>
+              )}
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-stone-900">Total</span>
                 <span className="font-serif text-xl font-semibold text-espresso-800">
                   {formatPrice(totalOre)}
                 </span>
               </div>
-              <p className="text-xs text-stone-500 mt-1">Free shipping on orders over 400 kr</p>
+              <p className="text-xs text-stone-500">Free shipping on orders over 400 kr</p>
             </div>
 
             <Button
