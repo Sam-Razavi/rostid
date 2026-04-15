@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
+import { sendOrderStatusUpdate } from '../../utils/emails/orderStatusUpdate';
 import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput } from './admin.schema';
 
 export async function adminListProducts() {
@@ -63,7 +64,7 @@ export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatus
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order) throw AppError.notFound('Order not found');
 
-  return prisma.order.update({
+  const updated = await prisma.order.update({
     where: { id },
     data: { status: data.status },
     include: {
@@ -75,6 +76,12 @@ export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatus
       },
     },
   });
+
+  // Fire-and-forget status change email
+  sendOrderStatusUpdate(updated.user.email, updated.user.name, id, data.status)
+    .catch((err) => console.error('[email] order status update failed:', err));
+
+  return updated;
 }
 
 export async function adminGetStats() {
