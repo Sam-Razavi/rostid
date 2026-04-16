@@ -1,7 +1,10 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
 import { sendOrderStatusUpdate } from '../../utils/emails/orderStatusUpdate';
+import { sendEmail } from '../../utils/email';
 import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput } from './admin.schema';
+
+const LOW_STOCK_THRESHOLD = 5;
 
 export async function adminListProducts() {
   return prisma.product.findMany({
@@ -29,11 +32,27 @@ export async function adminUpdateProduct(id: string, data: UpdateProductInput) {
     if (conflict) throw AppError.conflict('Slug already in use', 'SLUG_TAKEN');
   }
 
-  return prisma.product.update({
+  const updated = await prisma.product.update({
     where: { id },
     data,
     include: { category: { select: { id: true, name: true, slug: true } } },
   });
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (
+    adminEmail &&
+    data.stock !== undefined &&
+    updated.stock > 0 &&
+    updated.stock <= LOW_STOCK_THRESHOLD
+  ) {
+    sendEmail({
+      to: adminEmail,
+      subject: `Low stock alert: ${updated.name}`,
+      html: `<p><strong>${updated.name}</strong> is running low — only <strong>${updated.stock}</strong> units remaining.</p>`,
+    }).catch((err) => console.error('[email] low stock alert failed:', err));
+  }
+
+  return updated;
 }
 
 export async function adminDeleteProduct(id: string) {
