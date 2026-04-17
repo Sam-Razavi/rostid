@@ -70,6 +70,14 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("newsletter_subscribers")
+}
+
 model DiscountCode {
   id          String    @id @default(cuid())
   code        String    @unique

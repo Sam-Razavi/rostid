@@ -17,6 +17,7 @@ import webhooksRoutes from './modules/webhooks/webhooks.routes';
 import usersRoutes from './modules/users/users.routes';
 import wishlistRoutes from './modules/wishlist/wishlist.routes';
 import discountsRoutes from './modules/discounts/discounts.routes';
+import newsletterRoutes from './modules/newsletter/newsletter.routes';
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/products/:slug/reviews', reviewLimiter, reviewsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/discounts', discountsRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/webhooks', webhooksRoutes);
 
