@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { fetchProducts } from '../api/products.api';
 import { ProductCard } from '../components/products/ProductCard';
 import { ProductGridSkeleton } from '../components/ui/Skeleton';
+import { NewsletterSignup } from '../components/ui/NewsletterSignup';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
 import { staggerContainer, fadeUp } from '../animations/variants';
@@ -187,6 +188,8 @@ export default function HomePage() {
           </Link>
         </div>
       </motion.section>
+
+      <NewsletterSignup />
     </div>
   );
 }
