@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -73,6 +74,10 @@ export default function ProductsPage() {
 
   return (
     <div className="container-page py-10">
+      <Helmet>
+        <title>Coffee shop — Rostid</title>
+        <meta name="description" content="Specialty coffee roasted in Stockholm. Single origins, blends, and subscriptions — shipped fresh." />
+      </Helmet>
       <div className="mb-8">
         <h1 className="font-serif text-4xl font-semibold text-stone-900">Coffee shop</h1>
         <p className="text-stone-500 mt-2">

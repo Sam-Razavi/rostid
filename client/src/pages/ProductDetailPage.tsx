@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { fetchProduct } from '../api/products.api';
@@ -78,7 +79,20 @@ export default function ProductDetailPage() {
     );
   }
 
+  const description = product.tastingNotes
+    ? `${product.tastingNotes}. ${product.origin ? `Origin: ${product.origin}.` : ''}`.trim()
+    : product.description.slice(0, 160);
+
   return (
+    <>
+    <Helmet>
+      <title>{product.name} — Rostid</title>
+      <meta name="description" content={description} />
+      <meta property="og:title" content={`${product.name} — Rostid`} />
+      <meta property="og:description" content={description} />
+      {product.imageUrl && <meta property="og:image" content={product.imageUrl} />}
+      <meta property="og:type" content="product" />
+    </Helmet>
     <div className="container-page py-12">
       <nav className="text-sm text-stone-500 mb-8 flex items-center gap-2">
         <Link to="/products" className="hover:text-stone-900 transition-colors">Coffee</Link>
@@ -223,5 +237,6 @@ export default function ProductDetailPage() {
         />
       </div>
     </div>
+    </>
   );
 }
