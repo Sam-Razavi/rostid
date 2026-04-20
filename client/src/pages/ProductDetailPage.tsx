@@ -92,6 +92,25 @@ export default function ProductDetailPage() {
       <meta property="og:description" content={description} />
       {product.imageUrl && <meta property="og:image" content={product.imageUrl} />}
       <meta property="og:type" content="product" />
+      <meta property="og:site_name" content="Rostid" />
+      <meta property="product:price:amount" content={String(product.priceOre / 100)} />
+      <meta property="product:price:currency" content="SEK" />
+      <script type="application/ld+json">{JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": product.name,
+        "description": product.description,
+        "image": product.imageUrl ?? undefined,
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "SEK",
+          "price": product.priceOre / 100,
+          "availability": product.stock > 0
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        },
+        "brand": { "@type": "Brand", "name": "Rostid" },
+      })}</script>
     </Helmet>
     <div className="container-page py-12">
       <nav className="text-sm text-stone-500 mb-8 flex items-center gap-2">
