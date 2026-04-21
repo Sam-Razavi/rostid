@@ -67,6 +67,41 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/webhooks', webhooksRoutes);
 
+app.get('/sitemap.xml', async (_req, res) => {
+  try {
+    const [products, categories] = await Promise.all([
+      (await import('./config/prisma')).prisma.product.findMany({
+        where: { isActive: true },
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+      }),
+      (await import('./config/prisma')).prisma.category.findMany({
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+      }),
+    ]);
+
+    const clientUrl = (await import('./config/env')).env.CLIENT_URL;
+    const urls: string[] = [];
+
+    urls.push(`  <url><loc>${clientUrl}/products</loc><changefreq>daily</changefreq><priority>0.9</priority></url>`);
+
+    for (const cat of categories) {
+      urls.push(`  <url><loc>${clientUrl}/products?category=${cat.slug}</loc><lastmod>${cat.updatedAt.toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
+    }
+
+    for (const p of products) {
+      urls.push(`  <url><loc>${clientUrl}/products/${p.slug}</loc><lastmod>${p.updatedAt.toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`);
+    }
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
+    res.setHeader('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) {
+    res.status(500).send('Failed to generate sitemap');
+  }
+});
+
 app.use(errorHandler);
 
 export default app;
