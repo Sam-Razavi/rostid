@@ -51,6 +51,14 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/robots.txt', (_req, res) => {
+  const clientUrl = env.CLIENT_URL;
+  res.setHeader('Content-Type', 'text/plain');
+  res.send(
+    `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /cart\nDisallow: /orders\nDisallow: /profile\nDisallow: /wishlist\n\nSitemap: ${clientUrl}/sitemap.xml\n`
+  );
+});
+
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 app.use('/api/auth', authRoutes);
