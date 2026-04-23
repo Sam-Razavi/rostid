@@ -103,6 +103,30 @@ export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatus
   return updated;
 }
 
+export async function adminListCustomers() {
+  const customers = await prisma.user.findMany({
+    where: { role: 'customer' },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      createdAt: true,
+      _count: { select: { orders: true } },
+      orders: { select: { totalOre: true } },
+    },
+  });
+
+  return customers.map((c) => ({
+    id: c.id,
+    email: c.email,
+    name: c.name,
+    createdAt: c.createdAt,
+    orderCount: c._count.orders,
+    totalSpendOre: c.orders.reduce((sum, o) => sum + o.totalOre, 0),
+  }));
+}
+
 export async function adminGetStats() {
   const [
     totalOrders,

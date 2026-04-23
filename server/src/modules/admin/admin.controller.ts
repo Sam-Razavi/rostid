@@ -12,6 +12,7 @@ import {
   adminListOrders,
   adminUpdateOrderStatus,
   adminGetStats,
+  adminListCustomers,
 } from './admin.service';
 import { listDiscounts, createDiscount, deleteDiscount } from '../discounts/discounts.service';
 
@@ -51,6 +52,11 @@ export async function updateOrderStatus(req: Request, res: Response): Promise<vo
 export async function getStats(_req: Request, res: Response): Promise<void> {
   const stats = await adminGetStats();
   res.json({ data: stats, message: 'Stats retrieved' });
+}
+
+export async function listCustomersHandler(_req: Request, res: Response): Promise<void> {
+  const customers = await adminListCustomers();
+  res.json({ data: customers, message: 'Customers retrieved' });
 }
 
 export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {
