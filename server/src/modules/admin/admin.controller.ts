@@ -59,6 +59,30 @@ export async function listCustomersHandler(_req: Request, res: Response): Promis
   res.json({ data: customers, message: 'Customers retrieved' });
 }
 
+export async function exportOrdersCsvHandler(_req: Request, res: Response): Promise<void> {
+  const { prisma } = await import('../../config/prisma');
+  const orders = await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { user: { select: { email: true, name: true } } },
+  });
+
+  const rows = [
+    ['Order ID', 'Date', 'Customer Name', 'Customer Email', 'Status', 'Total (SEK)'].join(','),
+    ...orders.map((o) => [
+      o.id,
+      o.createdAt.toISOString(),
+      `"${o.user.name.replace(/"/g, '""')}"`,
+      o.user.email,
+      o.status,
+      (o.totalOre / 100).toFixed(2),
+    ].join(',')),
+  ];
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="orders-${new Date().toISOString().split('T')[0]}.csv"`);
+  res.send(rows.join('\n'));
+}
+
 export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {
   const codes = await listDiscounts();
   res.json({ data: codes, message: 'Discount codes retrieved' });

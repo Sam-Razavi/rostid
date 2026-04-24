@@ -14,6 +14,7 @@ import {
   createDiscountHandler,
   deleteDiscountHandler,
   listCustomersHandler,
+  exportOrdersCsvHandler,
 } from './admin.controller';
 
 const router = Router();
@@ -26,6 +27,7 @@ router.patch('/products/:id', asyncHandler(updateProduct));
 router.delete('/products/:id', asyncHandler(deleteProduct));
 
 router.get('/orders', asyncHandler(listOrders));
+router.get('/orders/export', asyncHandler(exportOrdersCsvHandler));
 router.patch('/orders/:id/status', asyncHandler(updateOrderStatus));
 
 router.get('/stats', asyncHandler(getStats));
