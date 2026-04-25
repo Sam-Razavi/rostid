@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import { fetchAdminStats } from '../../api/admin.api';
+import { fetchAdminStats, fetchAdminProducts } from '../../api/admin.api';
 import { OrderStatusBadge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
 
@@ -30,6 +30,13 @@ export default function AdminDashboard() {
     queryFn: fetchAdminStats,
     refetchInterval: 30000,
   });
+
+  const { data: allProducts } = useQuery({
+    queryKey: ['admin', 'products'],
+    queryFn: fetchAdminProducts,
+  });
+
+  const lowStockProducts = (allProducts ?? []).filter((p) => p.isActive && p.stock > 0 && p.stock <= 5);
 
   const statCards = [
     { label: 'Total orders', value: stats?.totalOrders ?? 0, format: (v: number) => v.toString() },
@@ -168,6 +175,26 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Low stock widget */}
+      {lowStockProducts.length > 0 && (
+        <div className="bg-white rounded-xl shadow-soft border border-amber-200 p-6 mt-6">
+          <h2 className="font-semibold text-stone-900 mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+            Low stock alert ({lowStockProducts.length})
+          </h2>
+          <div className="divide-y divide-stone-100">
+            {lowStockProducts.map((p) => (
+              <div key={p.id} className="flex items-center justify-between py-3">
+                <span className="text-sm font-medium text-stone-900">{p.name}</span>
+                <span className="text-sm font-semibold text-amber-700 tabular-nums">
+                  {p.stock} left
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -20,6 +20,8 @@ export default function AdminLayout() {
     { to: '/admin', label: 'Dashboard', end: true },
     { to: '/admin/products', label: 'Products', end: false },
     { to: '/admin/orders', label: 'Orders', end: false },
+    { to: '/admin/customers', label: 'Customers', end: false },
+    { to: '/admin/discounts', label: 'Discounts', end: false },
   ];
 
   return (

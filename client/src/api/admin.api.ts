@@ -47,3 +47,47 @@ export async function updateOrderStatus(id: string, status: string): Promise<Adm
   const { data } = await apiClient.patch<ApiResponse<AdminOrder>>(`/admin/orders/${id}/status`, { status });
   return data.data;
 }
+
+export interface AdminCustomer {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+  orderCount: number;
+  totalSpendOre: number;
+}
+
+export async function fetchAdminCustomers(): Promise<AdminCustomer[]> {
+  const { data } = await apiClient.get<ApiResponse<AdminCustomer[]>>('/admin/customers');
+  return data.data;
+}
+
+export interface DiscountCode {
+  id: string;
+  code: string;
+  type: string;
+  value: number;
+  minOrderOre: number | null;
+  maxUses: number | null;
+  usedCount: number;
+  isActive: boolean;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+export async function fetchAdminDiscounts(): Promise<DiscountCode[]> {
+  const { data } = await apiClient.get<ApiResponse<DiscountCode[]>>('/admin/discounts');
+  return data.data;
+}
+
+export async function createAdminDiscount(payload: {
+  code: string; type: string; value: number;
+  minOrderOre?: number; maxUses?: number; expiresAt?: string;
+}): Promise<DiscountCode> {
+  const { data } = await apiClient.post<ApiResponse<DiscountCode>>('/admin/discounts', payload);
+  return data.data;
+}
+
+export async function deleteAdminDiscount(id: string): Promise<void> {
+  await apiClient.delete(`/admin/discounts/${id}`);
+}
