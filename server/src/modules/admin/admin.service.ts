@@ -135,6 +135,7 @@ export async function adminGetStats() {
     totalUsers,
     recentOrders,
     ordersByStatus,
+    topProductItems,
   ] = await Promise.all([
     prisma.order.count(),
     prisma.order.aggregate({ _sum: { totalOre: true } }),
@@ -151,7 +152,25 @@ export async function adminGetStats() {
       by: ['status'],
       _count: { id: true },
     }),
+    prisma.orderItem.groupBy({
+      by: ['productId'],
+      _sum: { priceOre: true, quantity: true },
+      orderBy: { _sum: { priceOre: 'desc' } },
+      take: 6,
+    }),
   ]);
+
+  const productIds = topProductItems.map((item) => item.productId);
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, name: true },
+  });
+  const productMap = new Map(products.map((p) => [p.id, p.name]));
+
+  const revenueByProduct = topProductItems.map((item) => ({
+    name: productMap.get(item.productId) ?? 'Unknown',
+    revenueOre: item._sum.priceOre ?? 0,
+  }));
 
   return {
     totalOrders,
@@ -160,5 +179,6 @@ export async function adminGetStats() {
     totalCustomers: totalUsers,
     recentOrders,
     ordersByStatus,
+    revenueByProduct,
   };
 }

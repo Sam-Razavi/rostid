@@ -8,6 +8,7 @@ export interface AdminStats {
   totalCustomers: number;
   recentOrders: Array<Order & { user: { name: string; email: string } }>;
   ordersByStatus: Array<{ status: string; _count: { id: number } }>;
+  revenueByProduct: Array<{ name: string; revenueOre: number }>;
 }
 
 export async function fetchAdminStats(): Promise<AdminStats> {

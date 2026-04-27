@@ -176,6 +176,37 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Revenue by product */}
+      {stats && stats.revenueByProduct && stats.revenueByProduct.length > 0 && (
+        <div className="bg-white rounded-xl shadow-soft border border-stone-100 p-6 mb-6">
+          <h2 className="font-semibold text-stone-900 mb-6">Revenue by product (top 6)</h2>
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart>
+              <Pie
+                data={stats.revenueByProduct.map((p) => ({
+                  name: p.name,
+                  value: Math.round(p.revenueOre / 100),
+                }))}
+                cx="50%"
+                cy="50%"
+                outerRadius={90}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                {stats.revenueByProduct.map((_, i) => (
+                  <Cell key={i} fill={['#5E3516', '#7c4a22', '#a0622f', '#c47a3c', '#d4956a', '#e8bfa0'][i % 6]} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value) => [`${value} kr`, 'Revenue']}
+                contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }}
+              />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
       {/* Low stock widget */}
       {lowStockProducts.length > 0 && (
         <div className="bg-white rounded-xl shadow-soft border border-amber-200 p-6 mt-6">
