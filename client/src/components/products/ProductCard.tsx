@@ -19,9 +19,20 @@ interface ProductCardProps {
   wishlisted?: boolean;
 }
 
+const NEW_THRESHOLD_DAYS = 14;
+
+function getProductBadge(product: Product): { label: string; className: string } | null {
+  const ageMs = Date.now() - new Date(product.createdAt).getTime();
+  const ageDays = ageMs / (1000 * 60 * 60 * 24);
+  if (ageDays < NEW_THRESHOLD_DAYS) return { label: 'New', className: 'bg-espresso-100 text-espresso-800 border-espresso-200' };
+  if (product.avgRating != null && product.avgRating >= 4.5) return { label: 'Popular', className: 'bg-amber-50 text-amber-700 border-amber-200' };
+  return null;
+}
+
 export function ProductCard({ product, onAddToCart, addingId, wishlisted }: ProductCardProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const queryClient = useQueryClient();
+  const badge = getProductBadge(product);
 
   const wishlistMutation = useMutation({
     mutationFn: wishlisted
@@ -49,6 +60,13 @@ export function ProductCard({ product, onAddToCart, addingId, wishlisted }: Prod
             <div className="absolute top-2 left-2 z-10">
               <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
                 Only {product.stock} left
+              </span>
+            </div>
+          )}
+          {product.stock > 5 && badge && (
+            <div className="absolute top-2 left-2 z-10">
+              <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full ${badge.className}`}>
+                {badge.label}
               </span>
             </div>
           )}

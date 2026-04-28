@@ -31,6 +31,7 @@ export interface Product {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  avgRating?: number | null;
 }
 
 export interface CartItem {
