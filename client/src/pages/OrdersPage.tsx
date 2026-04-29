@@ -1,14 +1,23 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { fetchOrders } from '../api/orders.api';
 import { OrderCard } from '../components/orders/OrderCard';
 import { OrderCardSkeleton } from '../components/ui/Skeleton';
+import { Pagination } from '../components/ui/Pagination';
+
+const PAGE_SIZE = 10;
 
 export default function OrdersPage() {
+  const [page, setPage] = useState(1);
+
   const { data: orders, isLoading, isError } = useQuery({
     queryKey: ['orders'],
     queryFn: fetchOrders,
   });
+
+  const totalPages = orders ? Math.ceil(orders.length / PAGE_SIZE) : 1;
+  const pageOrders = orders?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="container-page py-12">
@@ -31,10 +40,13 @@ export default function OrdersPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-4 max-w-2xl">
-          {orders?.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
+        <div className="max-w-2xl">
+          <div className="space-y-4">
+            {pageOrders?.map((order) => (
+              <OrderCard key={order.id} order={order} />
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
     </div>

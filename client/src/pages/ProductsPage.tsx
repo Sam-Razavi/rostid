@@ -12,6 +12,7 @@ import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
 import { staggerContainer } from '../animations/variants';
 import { useDebounce } from '../hooks/useDebounce';
+import { Pagination } from '../components/ui/Pagination';
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -125,26 +126,12 @@ export default function ProductsPage() {
             ))}
           </motion.div>
 
-          {data && data.pagination.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-12">
-              <button
-                onClick={() => setPage((p) => p - 1)}
-                disabled={page === 1}
-                className="btn-secondary text-sm px-4 py-2 rounded-lg disabled:opacity-40"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-stone-500">
-                Page {page} of {data.pagination.totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page === data.pagination.totalPages}
-                className="btn-secondary text-sm px-4 py-2 rounded-lg disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
+          {data && (
+            <Pagination
+              page={page}
+              totalPages={data.pagination.totalPages}
+              onPageChange={setPage}
+            />
           )}
         </>
       )}
