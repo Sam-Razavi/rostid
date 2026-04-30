@@ -154,8 +154,8 @@ export async function adminGetStats() {
     }),
     prisma.orderItem.groupBy({
       by: ['productId'],
-      _sum: { priceOre: true, quantity: true },
-      orderBy: { _sum: { priceOre: 'desc' } },
+      _sum: { unitPriceOre: true, quantity: true },
+      orderBy: { _sum: { unitPriceOre: 'desc' } },
       take: 6,
     }),
   ]);
@@ -169,7 +169,7 @@ export async function adminGetStats() {
 
   const revenueByProduct = topProductItems.map((item) => ({
     name: productMap.get(item.productId) ?? 'Unknown',
-    revenueOre: item._sum.priceOre ?? 0,
+    revenueOre: item._sum.unitPriceOre ?? 0,
   }));
 
   return {
