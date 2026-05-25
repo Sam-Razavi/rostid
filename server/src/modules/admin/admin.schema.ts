@@ -24,6 +24,8 @@ export const updateProductSchema = z.object({
 export const updateOrderStatusSchema = z.object({
   body: z.object({
     status: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']),
+    trackingNumber: z.string().trim().min(1).max(120).optional().nullable(),
+    carrier: z.string().trim().min(1).max(80).optional().nullable(),
   }),
 });
 

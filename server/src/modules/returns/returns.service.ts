@@ -49,7 +49,15 @@ export async function submitReturn(
 export async function adminListReturns() {
   return returnDb.return.findMany({
     orderBy: { createdAt: 'desc' },
-    include: { items: true },
+    include: {
+      items: true,
+      order: {
+        include: {
+          user: { select: { id: true, email: true, name: true } },
+          items: { include: { product: { select: { id: true, name: true, slug: true } } } },
+        },
+      },
+    },
   });
 }
 

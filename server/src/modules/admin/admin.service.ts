@@ -108,7 +108,7 @@ export async function adminDeleteProduct(id: string) {
 }
 
 export async function adminListOrders() {
-  return prisma.order.findMany({
+  return (prisma.order.findMany as unknown as (args: unknown) => Promise<unknown[]>)({
     orderBy: { createdAt: 'desc' },
     include: {
       user: { select: { id: true, email: true, name: true } },
@@ -122,13 +122,45 @@ export async function adminListOrders() {
   });
 }
 
+export async function adminGetOrder(id: string) {
+  const order = await (prisma.order.findUnique as unknown as (args: unknown) => Promise<unknown | null>)({
+    where: { id },
+    include: {
+      user: { select: { id: true, email: true, name: true } },
+      shippingAddress: true,
+      items: {
+        include: {
+          product: { select: { id: true, name: true, slug: true, imageUrl: true } },
+          variant: { select: { id: true, name: true, grind: true } },
+        },
+      },
+      returns: { include: { items: true }, orderBy: { createdAt: 'desc' } },
+    },
+  });
+  if (!order) throw AppError.notFound('Order not found');
+  return order;
+}
+
 export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatusInput) {
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order) throw AppError.notFound('Order not found');
 
-  const updated = await prisma.order.update({
+  const updateData = {
+    status: data.status,
+    ...(data.trackingNumber !== undefined ? { trackingNumber: data.trackingNumber } : {}),
+    ...(data.carrier !== undefined ? { carrier: data.carrier } : {}),
+    ...(data.status === 'delivered' ? { fulfilledAt: new Date() } : {}),
+  };
+
+  const updated = await (prisma.order.update as unknown as (args: unknown) => Promise<{
+    id: string;
+    status: string;
+    totalOre: number;
+    user: { id: string; email: string; name: string };
+    items: Array<{ product: { name: string }; quantity: number; unitPriceOre: number }>;
+  }>)({
     where: { id },
-    data: { status: data.status },
+    data: updateData,
     include: {
       user: { select: { id: true, email: true, name: true } },
       items: {

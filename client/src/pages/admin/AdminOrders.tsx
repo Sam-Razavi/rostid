@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { fetchAdminOrders, updateOrderStatus } from '../../api/admin.api';
 import { OrderStatusBadge } from '../../components/ui/Badge';
@@ -96,9 +97,9 @@ export default function AdminOrders() {
                   return (
                     <tr key={order.id} className="hover:bg-stone-50 transition-colors">
                       <td className="px-6 py-4">
-                        <p className="font-mono text-xs text-stone-500 mb-0.5">
+                        <Link to={`/admin/orders/${order.id}`} className="font-mono text-xs text-espresso-700 hover:text-espresso-900 mb-0.5 block">
                           #{order.id.slice(-8).toUpperCase()}
-                        </p>
+                        </Link>
                         <p className="text-stone-600">{formatDate(order.createdAt)}</p>
                         <p className="text-xs text-stone-400 mt-0.5">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</p>
                       </td>

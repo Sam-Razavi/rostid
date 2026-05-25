@@ -8,6 +8,7 @@ import {
   updateProduct,
   deleteProduct,
   listOrders,
+  getAdminOrderHandler,
   updateOrderStatus,
   getStats,
   listDiscountsHandler,
@@ -42,6 +43,7 @@ router.delete('/products/:productId/variants/:variantId', asyncHandler(deleteVar
 
 router.get('/orders', asyncHandler(listOrders));
 router.get('/orders/export', asyncHandler(exportOrdersCsvHandler));
+router.get('/orders/:id', asyncHandler(getAdminOrderHandler));
 router.patch('/orders/:id/status', asyncHandler(updateOrderStatus));
 
 router.get('/stats', asyncHandler(getStats));

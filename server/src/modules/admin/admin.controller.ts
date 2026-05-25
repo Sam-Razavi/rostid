@@ -13,6 +13,7 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
   adminListOrders,
+  adminGetOrder,
   adminUpdateOrderStatus,
   adminGetStats,
   adminListCustomers,
@@ -50,6 +51,11 @@ export async function deleteProduct(req: Request, res: Response): Promise<void> 
 export async function listOrders(_req: Request, res: Response): Promise<void> {
   const orders = await adminListOrders();
   res.json({ data: orders, message: 'Orders retrieved' });
+}
+
+export async function getAdminOrderHandler(req: Request, res: Response): Promise<void> {
+  const order = await adminGetOrder(req.params.id);
+  res.json({ data: order, message: 'Order retrieved' });
 }
 
 export async function updateOrderStatus(req: Request, res: Response): Promise<void> {
@@ -182,9 +188,9 @@ export async function createDiscountHandler(req: Request, res: Response): Promis
     code: body.code,
     type: body.type,
     value: body.value,
-    minOrderOre: body.minOrderOre,
-    maxUses: body.maxUses,
-    expiresAt: body.expiresAt,
+    minOrderOre: body.minOrderOre ?? undefined,
+    maxUses: body.maxUses ?? undefined,
+    expiresAt: body.expiresAt ?? undefined,
   });
   res.status(201).json({ data: discount, message: 'Discount code created' });
 }

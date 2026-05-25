@@ -37,6 +37,16 @@ export async function deleteProduct(id: string): Promise<void> {
 
 export interface AdminOrder extends Order {
   user: { id: string; email: string; name: string };
+  shippingAddress?: {
+    id: string;
+    name: string;
+    line1: string;
+    line2: string | null;
+    city: string;
+    postalCode: string;
+    country: string;
+  } | null;
+  returns?: AdminReturn[];
 }
 
 export async function fetchAdminOrders(): Promise<AdminOrder[]> {
@@ -44,8 +54,43 @@ export async function fetchAdminOrders(): Promise<AdminOrder[]> {
   return data.data;
 }
 
-export async function updateOrderStatus(id: string, status: string): Promise<AdminOrder> {
-  const { data } = await apiClient.patch<ApiResponse<AdminOrder>>(`/admin/orders/${id}/status`, { status });
+export async function fetchAdminOrder(id: string): Promise<AdminOrder> {
+  const { data } = await apiClient.get<ApiResponse<AdminOrder>>(`/admin/orders/${id}`);
+  return data.data;
+}
+
+export async function updateOrderStatus(
+  id: string,
+  status: string,
+  extras?: { trackingNumber?: string | null; carrier?: string | null }
+): Promise<AdminOrder> {
+  const { data } = await apiClient.patch<ApiResponse<AdminOrder>>(`/admin/orders/${id}/status`, { status, ...extras });
+  return data.data;
+}
+
+export interface AdminReturn {
+  id: string;
+  orderId: string;
+  userId: string;
+  reason: string;
+  status: string;
+  refundOre: number | null;
+  stripeRefundId: string | null;
+  createdAt: string;
+  items: Array<{ id: string; orderItemId: string; quantity: number }>;
+  order?: AdminOrder;
+}
+
+export async function fetchAdminReturns(): Promise<AdminReturn[]> {
+  const { data } = await apiClient.get<ApiResponse<AdminReturn[]>>('/admin/returns');
+  return data.data;
+}
+
+export async function updateAdminReturn(
+  id: string,
+  payload: { status: 'approved' | 'rejected' | 'refunded'; refundOre?: number }
+): Promise<AdminReturn> {
+  const { data } = await apiClient.patch<ApiResponse<AdminReturn>>(`/admin/returns/${id}`, payload);
   return data.data;
 }
 
