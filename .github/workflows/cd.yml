@@ -3,11 +3,13 @@ name: CD
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy-server:
     name: Deploy server to Railway
     runs-on: ubuntu-latest
+    if: ${{ secrets.RAILWAY_TOKEN != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +25,7 @@ jobs:
   deploy-client:
     name: Deploy client to Vercel
     runs-on: ubuntu-latest
+    if: ${{ secrets.VERCEL_TOKEN != '' }}
 
     steps:
       - uses: actions/checkout@v4

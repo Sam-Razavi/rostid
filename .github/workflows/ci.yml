@@ -41,8 +41,8 @@ jobs:
       - name: Typecheck
         run: cd server && npm run build
 
-      - name: Run migrations on test DB
-        run: cd server && npx prisma migrate deploy
+      - name: Push schema to test DB
+        run: cd server && npx prisma db push
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rostid_test
 
