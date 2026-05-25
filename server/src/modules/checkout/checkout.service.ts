@@ -1,11 +1,14 @@
 import { stripe } from '../../config/stripe';
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
-import { validateDiscount, incrementUsedCount } from '../discounts/discounts.service';
+import { validateDiscount } from '../discounts/discounts.service';
 
 type ShippingRatePrisma = {
   shippingRate: {
     findUnique: (a: unknown) => Promise<{ id: string; name: string; priceOre: number; freeThresholdOre: number | null } | null>;
+  };
+  shippingAddress: {
+    findFirst: (a: unknown) => Promise<{ id: string } | null>;
   };
 };
 
@@ -16,7 +19,8 @@ export async function createCheckoutSession(
   discountCode?: string | null,
   shippingRateId?: string | null,
   loyaltyPoints?: number | null,
-  giftCardCode?: string | null
+  giftCardCode?: string | null,
+  shippingAddressId?: string | null
 ) {
   if (!stripe) throw AppError.badRequest('Payments are not configured on this server');
 
@@ -43,6 +47,16 @@ export async function createCheckoutSession(
 
   if (!cart || cart.items.length === 0) {
     throw AppError.badRequest('Your cart is empty');
+  }
+
+  let verifiedShippingAddressId: string | undefined;
+  if (shippingAddressId) {
+    const address = await (prisma as unknown as ShippingRatePrisma).shippingAddress.findFirst({
+      where: { id: shippingAddressId, userId },
+      select: { id: true },
+    });
+    if (!address) throw AppError.badRequest('Shipping address not found');
+    verifiedShippingAddressId = address.id;
   }
 
   const subtotalOre = cart.items.reduce(
@@ -87,25 +101,21 @@ export async function createCheckoutSession(
   // Loyalty points redemption
   let loyaltyDiscountOre = 0;
   if (loyaltyPoints && loyaltyPoints >= 100) {
-    loyaltyDiscountOre = Math.floor(loyaltyPoints / 100) * 1000;
-    lineItems.push({
-      price_data: { currency: 'sek', product_data: { name: `Loyalty points (${loyaltyPoints} pts)` }, unit_amount: -loyaltyDiscountOre },
-      quantity: 1,
-    });
+    const { getBalance } = await import('../loyalty/loyalty.service');
+    const balance = await getBalance(userId) as { points: number };
+    const redeemablePoints = Math.min(balance.points, loyaltyPoints);
+    loyaltyDiscountOre = Math.floor(redeemablePoints / 100) * 1000;
   }
 
   // Gift card redemption
   let appliedGiftCard: string | undefined;
+  let giftCardOre = 0;
   if (giftCardCode) {
     try {
       const { validateGiftCard } = await import('../giftcards/giftcards.service');
       const gc = await validateGiftCard(giftCardCode);
-      const deductOre = Math.min(gc.availableOre, subtotalOre + shippingOre - loyaltyDiscountOre);
-      if (deductOre > 0) {
-        lineItems.push({
-          price_data: { currency: 'sek', product_data: { name: `Gift card (${gc.code})` }, unit_amount: -deductOre },
-          quantity: 1,
-        });
+      giftCardOre = Math.min(gc.availableOre, subtotalOre + shippingOre - loyaltyDiscountOre);
+      if (giftCardOre > 0) {
         appliedGiftCard = gc.code;
       }
     } catch {
@@ -114,41 +124,54 @@ export async function createCheckoutSession(
   }
 
   let appliedCode: string | undefined;
+  let discountOre = 0;
   if (discountCode) {
     try {
       const discount = await validateDiscount(discountCode, subtotalOre);
-      lineItems.push({
-        price_data: {
-          currency: 'sek',
-          product_data: { name: `Discount (${discount.code})` },
-          unit_amount: -discount.discountOre,
-        },
-        quantity: 1,
-      });
+      discountOre = discount.discountOre;
       appliedCode = discount.code;
     } catch {
       // Invalid discount code — proceed without discount
     }
   }
 
+  const combinedDiscountOre = Math.min(
+    discountOre + loyaltyDiscountOre + giftCardOre,
+    subtotalOre + shippingOre
+  );
+
+  const discounts = combinedDiscountOre > 0
+    ? [{
+        coupon: (await stripe.coupons.create({
+          amount_off: combinedDiscountOre,
+          currency: 'sek',
+          duration: 'once',
+          name: 'Rostid checkout discount',
+        })).id,
+      }]
+    : undefined;
+
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     payment_method_types: ['card'],
     line_items: lineItems,
+    discounts,
     success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancelUrl,
     metadata: {
       userId, cartId: cart.id,
       ...(appliedCode ? { discountCode: appliedCode } : {}),
       ...(shippingRateId ? { shippingRateId } : {}),
+      ...(verifiedShippingAddressId ? { shippingAddressId: verifiedShippingAddressId } : {}),
+      subtotalOre: String(subtotalOre),
+      shippingOre: String(shippingOre),
+      discountOre: String(discountOre),
+      loyaltyDiscountOre: String(loyaltyDiscountOre),
+      giftCardOre: String(giftCardOre),
       ...(loyaltyPoints && loyaltyPoints > 0 ? { loyaltyPoints: String(loyaltyPoints) } : {}),
       ...(appliedGiftCard ? { giftCardCode: appliedGiftCard } : {}),
     },
   });
-
-  if (appliedCode) {
-    await incrementUsedCount(appliedCode).catch(() => undefined);
-  }
 
   return { url: session.url };
 }

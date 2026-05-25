@@ -8,7 +8,7 @@ import { CartItem } from '../components/cart/CartItem';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { createCheckoutSession } from '../api/checkout.api';
-import { fetchShippingRates, type ShippingRate } from '../api/shipping.api';
+import { fetchAddresses, fetchShippingRates, type ShippingRate } from '../api/shipping.api';
 import { fetchLoyaltyBalance } from '../api/loyalty.api';
 import { validateGiftCard } from '../api/giftcards.api';
 import { useAuthStore } from '../store/authStore';
@@ -34,6 +34,7 @@ export default function CartPage() {
   const [discountLoading, setDiscountLoading] = useState(false);
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountResult | null>(null);
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [redeemPoints, setRedeemPoints] = useState(0);
   const [giftCardCode, setGiftCardCode] = useState('');
   const [giftCardLoading, setGiftCardLoading] = useState(false);
@@ -76,9 +77,21 @@ export default function CartPage() {
   }
 
   async function handleCheckout() {
+    if (!selectedAddress) {
+      toast.error('Add a shipping address before checkout');
+      navigate('/profile');
+      return;
+    }
+
     setCheckingOut(true);
     try {
-      const url = await createCheckoutSession(appliedDiscount?.code, selectedRate?.id, redeemPoints > 0 ? redeemPoints : undefined, appliedGiftCard?.code);
+      const url = await createCheckoutSession(
+        appliedDiscount?.code,
+        selectedRate?.id,
+        redeemPoints > 0 ? redeemPoints : undefined,
+        appliedGiftCard?.code,
+        selectedAddress.id
+      );
       window.location.href = url;
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Checkout failed';
@@ -88,19 +101,6 @@ export default function CartPage() {
     } finally {
       setCheckingOut(false);
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="container-page py-16">
-        <div className="h-8 bg-stone-200 animate-pulse rounded w-32 mb-8" />
-        <div className="space-y-4">
-          {[1, 2].map((i) => (
-            <div key={i} className="h-24 bg-stone-200 animate-pulse rounded-xl" />
-          ))}
-        </div>
-      </div>
-    );
   }
 
   const items = cart?.items ?? [];
@@ -119,12 +119,32 @@ export default function CartPage() {
     enabled: isAuthenticated && items.length > 0,
   });
 
+  const { data: addresses = [] } = useQuery({
+    queryKey: ['addresses'],
+    queryFn: fetchAddresses,
+    enabled: isAuthenticated && items.length > 0,
+  });
+
   const selectedRate = shippingRates.find((r: ShippingRate) => r.id === selectedRateId) ?? shippingRates[0] ?? null;
+  const selectedAddress = addresses.find((addr) => addr.id === selectedAddressId) ?? addresses.find((addr) => addr.isDefault) ?? addresses[0] ?? null;
   const shippingOre = selectedRate?.effectivePriceOre ?? 0;
   const loyaltyDiscountOre = redeemPoints >= 100 ? Math.floor(redeemPoints / 100) * 1000 : 0;
   const giftCardDiscountOre = appliedGiftCard ? Math.min(appliedGiftCard.availableOre, subtotalOre - discountOre - loyaltyDiscountOre + shippingOre) : 0;
   const totalOre = Math.max(0, subtotalOre - discountOre - loyaltyDiscountOre - giftCardDiscountOre + shippingOre);
   const pointsEarned = Math.floor(totalOre / 1000);
+
+  if (isLoading) {
+    return (
+      <div className="container-page py-16">
+        <div className="h-8 bg-stone-200 animate-pulse rounded w-32 mb-8" />
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-24 bg-stone-200 animate-pulse rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -199,6 +219,40 @@ export default function CartPage() {
                 </div>
               </div>
             )}
+
+            {/* Shipping address selector */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-stone-700">Ship to</p>
+                <Link to="/profile" className="text-xs text-espresso-700 hover:text-espresso-900">
+                  Manage
+                </Link>
+              </div>
+              {addresses.length > 0 ? (
+                <div className="space-y-2">
+                  {addresses.map((address) => (
+                    <label key={address.id} className="flex items-start gap-2 p-3 rounded-lg border border-stone-200 cursor-pointer hover:border-espresso-400">
+                      <input
+                        type="radio"
+                        name="shipping-address"
+                        value={address.id}
+                        checked={selectedAddress?.id === address.id}
+                        onChange={() => setSelectedAddressId(address.id)}
+                        className="accent-espresso-700 mt-1"
+                      />
+                      <span className="text-sm text-stone-600">
+                        <span className="block font-medium text-stone-900">{address.name}</span>
+                        <span>{address.line1}, {address.postalCode} {address.city}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <Link to="/profile" className="block p-3 rounded-lg border border-dashed border-stone-300 text-sm text-stone-500 hover:border-espresso-400 hover:text-stone-700">
+                  Add a shipping address
+                </Link>
+              )}
+            </div>
 
             {/* Discount code input */}
             <div className="mb-4">

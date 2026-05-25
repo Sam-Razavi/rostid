@@ -8,7 +8,7 @@ type CartWithVariants = {
     productId: string;
     quantity: number;
     variantId: string | null;
-    product: { priceOre: number };
+    product: { priceOre: number; stock: number; isActive: boolean };
     variant: { priceOre: number; stock: number } | null;
   }>;
 };
@@ -27,6 +27,17 @@ type SubPrisma = {
   };
 };
 
+type StripeEventPrisma = {
+  stripeEvent: {
+    create: (a: unknown) => Promise<unknown>;
+  };
+};
+
+function metaInt(value: unknown, fallback = 0): number {
+  const parsed = typeof value === 'string' ? parseInt(value, 10) : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fulfillSubscription(session: any) {
   const subscriptionId = session.metadata?.subscriptionId as string | undefined;
@@ -40,10 +51,13 @@ async function fulfillSubscription(session: any) {
   if (!sub) return;
 
   const amountPaid = session.amount_total as number ?? Math.round(sub.product.priceOre * 0.9);
+  const subtotalOre = sub.product.priceOre;
 
   await (prisma.order.create as unknown as (a: unknown) => Promise<OrderResult>)({
     data: {
       userId,
+      subtotalOre,
+      discountOre: Math.max(0, subtotalOre - amountPaid),
       totalOre: amountPaid,
       status: 'processing',
       ...(session.id ? { stripeSessionId: session.id } : {}),
@@ -65,6 +79,9 @@ async function fulfillOrder(session: any) {
   const cartId = session.metadata?.cartId as string | undefined;
   const loyaltyPointsStr = session.metadata?.loyaltyPoints as string | undefined;
   const giftCardCode = session.metadata?.giftCardCode as string | undefined;
+  const discountCode = session.metadata?.discountCode as string | undefined;
+  const shippingRateId = session.metadata?.shippingRateId as string | undefined;
+  const shippingAddressId = session.metadata?.shippingAddressId as string | undefined;
   if (!userId || !cartId) return;
 
   const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<CartWithVariants | null>)({
@@ -81,18 +98,37 @@ async function fulfillOrder(session: any) {
 
   if (!cart || cart.items.length === 0) return;
 
-  const totalOre = cart.items.reduce(
+  const calculatedSubtotalOre = cart.items.reduce(
     (sum, item) => sum + (item.variant?.priceOre ?? item.product.priceOre) * item.quantity,
     0
   );
+  const subtotalOre = metaInt(session.metadata?.subtotalOre, calculatedSubtotalOre);
+  const shippingOre = metaInt(session.metadata?.shippingOre);
+  const discountOre = metaInt(session.metadata?.discountOre);
+  const loyaltyDiscountOre = metaInt(session.metadata?.loyaltyDiscountOre);
+  const giftCardOre = metaInt(session.metadata?.giftCardOre);
+  const totalOre = metaInt(session.amount_total, Math.max(0, subtotalOre + shippingOre - discountOre - loyaltyDiscountOre - giftCardOre));
 
   let createdOrderId: string | null = null;
 
   await prisma.$transaction(async (tx) => {
+    for (const item of cart.items) {
+      if (!item.product.isActive) return;
+      const stock = item.variant?.stock ?? item.product.stock;
+      if (item.quantity > stock) return;
+    }
+
     const order = await (tx.order.create as unknown as (a: unknown) => Promise<OrderResult>)({
       data: {
         userId,
+        subtotalOre,
+        discountOre,
+        loyaltyDiscountOre,
+        giftCardOre,
         totalOre,
+        shippingOre,
+        ...(shippingRateId ? { shippingRateId } : {}),
+        ...(shippingAddressId ? { shippingAddressId } : {}),
         status: 'processing',
         ...(session.id ? { stripeSessionId: session.id } : {}),
         items: {
@@ -135,7 +171,12 @@ async function fulfillOrder(session: any) {
 
   if (giftCardCode) {
     const { useGiftCard } = await import('../giftcards/giftcards.service');
-    await useGiftCard(giftCardCode, totalOre).catch(console.error);
+    await useGiftCard(giftCardCode, giftCardOre).catch(console.error);
+  }
+
+  if (discountCode) {
+    const { incrementUsedCount } = await import('../discounts/discounts.service');
+    await incrementUsedCount(discountCode).catch(console.error);
   }
 }
 
@@ -157,6 +198,15 @@ export async function stripeWebhook(req: Request, res: Response): Promise<void> 
   }
 
   if (event.type === 'checkout.session.completed') {
+    try {
+      await (prisma as unknown as StripeEventPrisma).stripeEvent.create({
+        data: { id: event.id, type: event.type },
+      });
+    } catch {
+      res.json({ received: true, duplicate: true });
+      return;
+    }
+
     const sess = event.data.object;
     if (sess.metadata?.subscriptionId) {
       await fulfillSubscription(sess);

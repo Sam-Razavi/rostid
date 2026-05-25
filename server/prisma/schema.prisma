@@ -338,11 +338,18 @@ model Order {
   id                String      @id @default(cuid())
   userId            String      @map("user_id")
   status            OrderStatus @default(pending)
+  subtotalOre       Int         @map("subtotal_ore")
+  discountOre       Int         @default(0) @map("discount_ore")
+  loyaltyDiscountOre Int        @default(0) @map("loyalty_discount_ore")
+  giftCardOre       Int         @default(0) @map("gift_card_ore")
   totalOre          Int         @map("total_ore")
   shippingOre       Int         @default(0) @map("shipping_ore")
   shippingAddressId String?     @map("shipping_address_id")
   shippingRateId    String?     @map("shipping_rate_id")
   stripeSessionId   String?     @map("stripe_session_id")
+  trackingNumber    String?     @map("tracking_number")
+  carrier           String?
+  fulfilledAt       DateTime?   @map("fulfilled_at")
   createdAt         DateTime    @default(now()) @map("created_at")
   updatedAt         DateTime    @updatedAt @map("updated_at")
 
@@ -354,6 +361,7 @@ model Order {
   @@index([userId])
   @@index([status])
   @@index([createdAt(sort: Desc)])
+  @@index([stripeSessionId])
   @@map("orders")
 }
 
@@ -371,4 +379,12 @@ model OrderItem {
 
   @@index([orderId])
   @@map("order_items")
+}
+
+model StripeEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("stripe_events")
 }

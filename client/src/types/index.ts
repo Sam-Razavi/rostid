@@ -94,7 +94,18 @@ export interface Order {
   id: string;
   userId: string;
   status: OrderStatus;
+  subtotalOre?: number;
+  discountOre?: number;
+  loyaltyDiscountOre?: number;
+  giftCardOre?: number;
   totalOre: number;
+  shippingOre?: number;
+  shippingAddressId?: string | null;
+  shippingRateId?: string | null;
+  stripeSessionId?: string | null;
+  trackingNumber?: string | null;
+  carrier?: string | null;
+  fulfilledAt?: string | null;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];

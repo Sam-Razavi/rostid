@@ -197,10 +197,10 @@ rostid/
 
 **Atomic checkout** — Order creation runs inside a Prisma transaction: prices are snapshotted, order and items are created, stock is decremented (variant-aware), and the cart is cleared. All-or-nothing.
 
-**Stripe webhooks** — `checkout.session.completed` is the source of truth for order creation. The checkout service creates the session; the webhook handler creates the order, decrements stock, and processes any loyalty or gift card side-effects.
+**Stripe webhooks** — `checkout.session.completed` is the source of truth for order creation. The checkout service records checkout totals in session metadata, applies combined checkout discounts through a Stripe coupon, and the webhook creates the order idempotently, decrements stock, and processes discount, loyalty, and gift card side-effects.
 
 **Subscriptions (manual interval)** — No Stripe Subscription objects. Each renewal is a fresh Checkout session created by the `/api/subscriptions/process-due` endpoint, which advances `nextBillingDate` by `intervalDays` after firing.
 
-**Loyalty points** — Earned when an admin marks an order as `delivered` (1 pt per 10 kr). Redeemed at checkout as a negative Stripe line item. LoyaltyAccount is upserted on first earn.
+**Loyalty points** — Earned when an admin marks an order as `delivered` (1 pt per 10 kr). Redeemed during checkout as part of the combined Stripe checkout discount. LoyaltyAccount is upserted on first earn.
 
 **Design system** — Warm Scandinavian minimalism. Espresso palette (50–950), Playfair Display serif headings, Inter body, 4pt spacing scale.

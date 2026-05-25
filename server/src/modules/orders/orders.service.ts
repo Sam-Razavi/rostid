@@ -3,6 +3,7 @@ import { AppError } from '../../utils/AppError';
 import { sendOrderConfirmation } from '../../utils/emails/orderConfirmation';
 
 const orderInclude = {
+  shippingAddress: true,
   items: {
     include: {
       product: {
@@ -13,6 +14,16 @@ const orderInclude = {
       },
     },
   },
+};
+
+type OrderWithItemsForEmail = {
+  id: string;
+  totalOre: number;
+  items: Array<{
+    quantity: number;
+    unitPriceOre: number;
+    product: { name: string };
+  }>;
 };
 
 export async function placeOrder(userId: string) {
@@ -44,9 +55,10 @@ export async function placeOrder(userId: string) {
   );
 
   const order = await prisma.$transaction(async (tx) => {
-    const newOrder = await tx.order.create({
+    const newOrder = await (tx.order.create as unknown as (args: unknown) => Promise<OrderWithItemsForEmail>)({
       data: {
         userId,
+        subtotalOre: totalOre,
         totalOre,
         items: {
           create: cart.items.map((item) => ({
