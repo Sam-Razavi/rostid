@@ -1,5 +1,13 @@
 # Rostid
 
+[![CI](https://github.com/Sam-Razavi/rostid/actions/workflows/ci.yml/badge.svg)](https://github.com/Sam-Razavi/rostid/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Stripe](https://img.shields.io/badge/Stripe-Checkout-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
+
 **Specialty Coffee E-Commerce** — A full-stack DTC platform for a premium Stockholm coffee brand.
 
 > "Rost" (roast) + "tid" (time) — crafted for those who take their coffee seriously.
