@@ -22,7 +22,7 @@ vi.mock('../../../api/client', () => ({
 
 import { useAuthStore } from '../../../store/authStore';
 
-const mockUseAuthStore = useAuthStore as ReturnType<typeof vi.fn>;
+const mockUseAuthStore = useAuthStore as unknown as ReturnType<typeof vi.fn>;
 
 function renderNavbar() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });

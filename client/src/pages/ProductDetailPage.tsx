@@ -154,11 +154,11 @@ export default function ProductDetailPage() {
         "category": product.category.name,
         ...(product.origin ? { "countryOfOrigin": product.origin } : {}),
         ...(product.weightGrams ? { "weight": { "@type": "QuantitativeValue", "value": product.weightGrams, "unitCode": "GRM" } } : {}),
-        ...(reviewsData?.averageRating ? {
+        ...(reviewsData?.avgRating ? {
           "aggregateRating": {
             "@type": "AggregateRating",
-            "ratingValue": reviewsData.averageRating,
-            "reviewCount": reviewsData.total,
+            "ratingValue": reviewsData.avgRating,
+            "reviewCount": reviewsData.count,
             "bestRating": 5,
             "worstRating": 1,
           },

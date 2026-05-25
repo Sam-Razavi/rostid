@@ -5,6 +5,7 @@ import type { Review } from '../../../types';
 
 const makeReview = (overrides: Partial<Review> = {}): Review => ({
   id: 'r1',
+  userId: 'u1',
   productId: 'p1',
   rating: 4,
   body: 'Great coffee!',

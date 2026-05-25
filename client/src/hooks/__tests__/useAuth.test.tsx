@@ -30,7 +30,7 @@ function wrapper({ children }: { children: ReactNode }) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  useAuthStore.getState().logout();
+  useAuthStore.getState().clearAuth();
 });
 
 describe('useLogin', () => {
