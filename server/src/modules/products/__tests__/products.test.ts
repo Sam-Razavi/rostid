@@ -96,15 +96,15 @@ describe('Products API', () => {
     it('returns pagination total in response', async () => {
       const res = await request(app).get('/api/products');
       expect(res.status).toBe(200);
-      expect(res.body.data).toHaveProperty('total');
-      expect(typeof res.body.data.total).toBe('number');
-      expect(res.body.data.total).toBeGreaterThanOrEqual(1);
+      expect(res.body.data.pagination).toHaveProperty('total');
+      expect(typeof res.body.data.pagination.total).toBe('number');
+      expect(res.body.data.pagination.total).toBeGreaterThanOrEqual(1);
     });
 
     it('total matches products count when no filters applied', async () => {
       const res = await request(app).get('/api/products?limit=100');
       expect(res.status).toBe(200);
-      expect(res.body.data.total).toBe(res.body.data.products.length);
+      expect(res.body.data.pagination.total).toBe(res.body.data.products.length);
     });
 
     it('category filter returns only matching products', async () => {
@@ -130,7 +130,7 @@ describe('Products API', () => {
     it('returns product by slug', async () => {
       const res = await request(app).get(`/api/products/${testProductSlug}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.product.slug).toBe(testProductSlug);
+      expect(res.body.data.slug).toBe(testProductSlug);
     });
 
     it('returns 404 for unknown slug', async () => {
@@ -162,7 +162,7 @@ describe('Products API', () => {
           categoryId: testCategoryId,
         });
       expect(res.status).toBe(201);
-      expect(res.body.data.product.slug).toBe('new-product');
+      expect(res.body.data.slug).toBe('new-product');
     });
 
     it('customer cannot create a product', async () => {

@@ -17,7 +17,7 @@ describe('Cart API', () => {
       const token = await loginCustomer();
       const res = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.cart.items).toEqual([]);
+      expect(res.body.data.items).toEqual([]);
     });
 
     it('requires authentication', async () => {
@@ -34,7 +34,7 @@ describe('Cart API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ productId: testProductId, quantity: 2 });
       expect(res.status).toBe(200);
-      expect(res.body.data.cart.items[0].quantity).toBe(2);
+      expect(res.body.data.items[0].quantity).toBe(2);
     });
 
     it('increments quantity when same product added again', async () => {
@@ -48,7 +48,7 @@ describe('Cart API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ productId: testProductId, quantity: 2 });
       const cart = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
-      expect(cart.body.data.cart.items[0].quantity).toBe(3);
+      expect(cart.body.data.items[0].quantity).toBe(3);
     });
 
     it('rejects quantity of 0', async () => {
@@ -89,14 +89,14 @@ describe('Cart API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ productId: testProductId, quantity: 1 });
       const cartRes = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
-      const itemId = cartRes.body.data.cart.items[0].id;
+      const itemId = cartRes.body.data.items[0].id;
 
       const res = await request(app)
         .patch(`/api/cart/items/${itemId}`)
         .set('Authorization', `Bearer ${token}`)
         .send({ quantity: 3 });
       expect(res.status).toBe(200);
-      expect(res.body.data.cart.items[0].quantity).toBe(3);
+      expect(res.body.data.items[0].quantity).toBe(3);
     });
 
     it('returns 400 when updated quantity exceeds stock', async () => {
@@ -106,7 +106,7 @@ describe('Cart API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ productId: testProductId, quantity: 1 });
       const cartRes = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
-      const itemId = cartRes.body.data.cart.items[0].id;
+      const itemId = cartRes.body.data.items[0].id;
 
       const res = await request(app)
         .patch(`/api/cart/items/${itemId}`)
@@ -134,13 +134,13 @@ describe('Cart API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ productId: testProductId, quantity: 1 });
       const cartRes = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
-      const itemId = cartRes.body.data.cart.items[0].id;
+      const itemId = cartRes.body.data.items[0].id;
 
       const res = await request(app)
         .delete(`/api/cart/items/${itemId}`)
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.cart.items).toHaveLength(0);
+      expect(res.body.data.items).toHaveLength(0);
     });
   });
 });
