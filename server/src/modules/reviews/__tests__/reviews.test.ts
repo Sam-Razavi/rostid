@@ -30,7 +30,7 @@ describe('Reviews API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ rating: 5, body: 'Excellent coffee!' });
       expect(res.status).toBe(201);
-      expect(res.body.data.review.rating).toBe(5);
+      expect(res.body.data.rating).toBe(5);
     });
 
     it('rejects unauthenticated review', async () => {

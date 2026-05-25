@@ -17,7 +17,7 @@ describe('Wishlist API', () => {
       const token = await loginCustomer();
       const res = await request(app).get('/api/wishlist').set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.items).toEqual([]);
+      expect(res.body.data).toEqual([]);
     });
 
     it('requires authentication', async () => {
@@ -36,8 +36,8 @@ describe('Wishlist API', () => {
       expect(res.status).toBe(201);
 
       const getRes = await request(app).get('/api/wishlist').set('Authorization', `Bearer ${token}`);
-      expect(getRes.body.data.items).toHaveLength(1);
-      expect(getRes.body.data.items[0].product.id).toBe(testProductId);
+      expect(getRes.body.data).toHaveLength(1);
+      expect(getRes.body.data[0].product.id).toBe(testProductId);
     });
 
     it('is idempotent — adding same product twice yields one entry', async () => {
@@ -52,7 +52,7 @@ describe('Wishlist API', () => {
         .send({ productId: testProductId });
 
       const getRes = await request(app).get('/api/wishlist').set('Authorization', `Bearer ${token}`);
-      expect(getRes.body.data.items).toHaveLength(1);
+      expect(getRes.body.data).toHaveLength(1);
     });
 
     it('requires authentication', async () => {
@@ -77,7 +77,7 @@ describe('Wishlist API', () => {
       expect(res.status).toBe(200);
 
       const getRes = await request(app).get('/api/wishlist').set('Authorization', `Bearer ${token}`);
-      expect(getRes.body.data.items).toHaveLength(0);
+      expect(getRes.body.data).toHaveLength(0);
     });
 
     it('returns 200 even when removing a product not in the wishlist', async () => {

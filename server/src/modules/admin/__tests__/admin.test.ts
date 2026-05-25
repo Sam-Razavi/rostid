@@ -60,7 +60,7 @@ describe('Admin API', () => {
           categoryId: testCategoryId,
         });
       expect(res.status).toBe(201);
-      expect(res.body.data.product.name).toBe('Admin Product');
+      expect(res.body.data.name).toBe('Admin Product');
     });
 
     it('updates a product', async () => {
@@ -70,7 +70,7 @@ describe('Admin API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ stock: 99 });
       expect(res.status).toBe(200);
-      expect(res.body.data.product.stock).toBe(99);
+      expect(res.body.data.stock).toBe(99);
     });
 
     it('deletes a product', async () => {
@@ -87,7 +87,7 @@ describe('Admin API', () => {
           stock: 1,
           categoryId: testCategoryId,
         });
-      const id = created.body.data.product.id;
+      const id = created.body.data.id;
       const res = await request(app)
         .delete(`/api/admin/products/${id}`)
         .set('Authorization', `Bearer ${token}`);
@@ -100,7 +100,7 @@ describe('Admin API', () => {
       const token = await adminToken();
       const res = await request(app).get('/api/admin/orders').set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.orders).toBeInstanceOf(Array);
+      expect(res.body.data).toBeInstanceOf(Array);
     });
   });
 
@@ -186,7 +186,7 @@ describe('Admin API', () => {
         .get('/api/admin/orders')
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.orders).toBeInstanceOf(Array);
+      expect(res.body.data).toBeInstanceOf(Array);
     });
 
     it('filters orders by from date', async () => {
@@ -195,7 +195,7 @@ describe('Admin API', () => {
         .get('/api/admin/orders?from=2025-01-01')
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.orders).toBeInstanceOf(Array);
+      expect(res.body.data).toBeInstanceOf(Array);
     });
 
     it('filters orders by to date', async () => {
@@ -204,7 +204,7 @@ describe('Admin API', () => {
         .get('/api/admin/orders?to=2099-12-31')
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.orders).toBeInstanceOf(Array);
+      expect(res.body.data).toBeInstanceOf(Array);
     });
 
     it('filters orders by date range returning empty for far future', async () => {
@@ -213,7 +213,7 @@ describe('Admin API', () => {
         .get('/api/admin/orders?from=2099-01-01&to=2099-12-31')
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.orders).toHaveLength(0);
+      expect(res.body.data).toHaveLength(0);
     });
   });
 

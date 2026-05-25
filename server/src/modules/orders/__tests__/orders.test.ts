@@ -35,8 +35,8 @@ describe('Orders API', () => {
       const token = await loginCustomer();
       const res = await addToCartAndCheckout(token);
       expect(res.status).toBe(201);
-      expect(res.body.data.order.items).toHaveLength(1);
-      expect(res.body.data.order.items[0].quantity).toBe(2);
+      expect(res.body.data.items).toHaveLength(1);
+      expect(res.body.data.items[0].quantity).toBe(2);
     });
 
     it('decrements product stock', async () => {
@@ -51,7 +51,7 @@ describe('Orders API', () => {
       const token = await loginCustomer();
       await addToCartAndCheckout(token);
       const cart = await request(app).get('/api/cart').set('Authorization', `Bearer ${token}`);
-      expect(cart.body.data.cart.items).toHaveLength(0);
+      expect(cart.body.data.items).toHaveLength(0);
     });
 
     it('returns 400 for empty cart', async () => {
@@ -131,7 +131,7 @@ describe('Orders API', () => {
         .send({ shippingAddress: '1 Variant St, Stockholm' });
 
       expect(res.status).toBe(201);
-      expect(res.body.data.order.totalOre).toBe(9900);
+      expect(res.body.data.totalOre).toBe(9900);
     });
   });
 
@@ -139,20 +139,20 @@ describe('Orders API', () => {
     it('cancels a pending order', async () => {
       const token = await loginCustomer();
       const orderRes = await addToCartAndCheckout(token);
-      const orderId = orderRes.body.data.order.id;
+      const orderId = orderRes.body.data.id;
 
       const res = await request(app)
         .patch(`/api/orders/${orderId}/cancel`)
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.order.status).toBe('cancelled');
+      expect(res.body.data.status).toBe('cancelled');
     });
 
     it('restores stock after cancellation', async () => {
       const token = await loginCustomer();
       const before = await prisma.product.findUniqueOrThrow({ where: { id: testProductId } });
       const orderRes = await addToCartAndCheckout(token);
-      const orderId = orderRes.body.data.order.id;
+      const orderId = orderRes.body.data.id;
 
       await request(app)
         .patch(`/api/orders/${orderId}/cancel`)
@@ -165,7 +165,7 @@ describe('Orders API', () => {
     it('returns 400 when trying to cancel a delivered order', async () => {
       const token = await loginCustomer();
       const orderRes = await addToCartAndCheckout(token);
-      const orderId = orderRes.body.data.order.id;
+      const orderId = orderRes.body.data.id;
       await prisma.order.update({ where: { id: orderId }, data: { status: 'delivered' } });
 
       const res = await request(app)
@@ -193,19 +193,19 @@ describe('Orders API', () => {
     it('returns order detail', async () => {
       const token = await loginCustomer();
       const orderRes = await addToCartAndCheckout(token);
-      const orderId = orderRes.body.data.order.id;
+      const orderId = orderRes.body.data.id;
 
       const res = await request(app)
         .get(`/api/orders/${orderId}`)
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.order.id).toBe(orderId);
+      expect(res.body.data.id).toBe(orderId);
     });
 
     it('cannot access another user\'s order', async () => {
       const token = await loginCustomer();
       const orderRes = await addToCartAndCheckout(token);
-      const orderId = orderRes.body.data.order.id;
+      const orderId = orderRes.body.data.id;
 
       // Login as admin
       const adminLogin = await request(app).post('/api/auth/login').send({
