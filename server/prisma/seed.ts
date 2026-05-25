@@ -69,6 +69,7 @@ async function main() {
       tastingNotes: 'Blueberry, jasmine, citrus',
       weightGrams: 250,
       stock: 48,
+      imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&q=80',
     },
     {
       name: 'Guatemala Antigua',
@@ -82,6 +83,7 @@ async function main() {
       tastingNotes: 'Chocolate, caramel, walnut',
       weightGrams: 250,
       stock: 52,
+      imageUrl: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&auto=format&q=80',
     },
     {
       name: 'Kenya AA',
@@ -95,6 +97,7 @@ async function main() {
       tastingNotes: 'Blackcurrant, tomato, citrus',
       weightGrams: 250,
       stock: 34,
+      imageUrl: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&auto=format&q=80',
     },
     {
       name: 'Colombia Huila',
@@ -108,6 +111,7 @@ async function main() {
       tastingNotes: 'Caramel, red apple, hazelnut',
       weightGrams: 250,
       stock: 60,
+      imageUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800&auto=format&q=80',
     },
     {
       name: 'Brazil Santos',
@@ -121,6 +125,7 @@ async function main() {
       tastingNotes: 'Peanut, dark chocolate, smoky',
       weightGrams: 500,
       stock: 40,
+      imageUrl: 'https://images.unsplash.com/photo-1610632380989-680fe40816c6?w=800&auto=format&q=80',
     },
     {
       name: 'Norrland Blend',
@@ -134,6 +139,7 @@ async function main() {
       tastingNotes: 'Smoky, full body, dark chocolate',
       weightGrams: 500,
       stock: 55,
+      imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&q=80',
     },
     {
       name: 'Morgonblandning',
@@ -147,6 +153,7 @@ async function main() {
       tastingNotes: 'Balanced, nuts, mild sweetness',
       weightGrams: 500,
       stock: 70,
+      imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&auto=format&q=80',
     },
     {
       name: 'Decaf Colombia',
@@ -160,6 +167,7 @@ async function main() {
       tastingNotes: 'Chocolate, mild fruit, clean',
       weightGrams: 250,
       stock: 25,
+      imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&q=80',
     },
     {
       name: 'Hario V60 Dripper',
@@ -173,6 +181,7 @@ async function main() {
       tastingNotes: null,
       weightGrams: null,
       stock: 18,
+      imageUrl: 'https://images.unsplash.com/photo-1748895177768-b4a54b9c2954?w=800&auto=format&q=80',
     },
     {
       name: 'Timemore Hand Grinder',
@@ -186,6 +195,7 @@ async function main() {
       tastingNotes: null,
       weightGrams: null,
       stock: 12,
+      imageUrl: 'https://images.unsplash.com/photo-1743410552676-569a2d0ef4a9?w=800&auto=format&q=80',
     },
     {
       name: 'Monthly Single Origin Box',
@@ -199,6 +209,7 @@ async function main() {
       tastingNotes: 'Rotating single origin 4×250g',
       weightGrams: 1000,
       stock: 99,
+      imageUrl: 'https://images.unsplash.com/photo-1766072866363-aaabeb462db3?w=800&auto=format&q=80',
     },
     {
       name: 'Espresso Discovery Box',
@@ -212,13 +223,14 @@ async function main() {
       tastingNotes: '3 espresso blends monthly',
       weightGrams: 750,
       stock: 99,
+      imageUrl: 'https://images.unsplash.com/photo-1748895177768-b4a54b9c2954?w=800&auto=format&q=80',
     },
   ];
 
   for (const product of products) {
     await prisma.product.upsert({
       where: { slug: product.slug },
-      update: {},
+      update: { imageUrl: product.imageUrl },
       create: product,
     });
   }
