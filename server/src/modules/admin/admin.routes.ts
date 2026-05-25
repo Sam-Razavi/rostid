@@ -63,8 +63,8 @@ router.get('/subscriptions', asyncHandler(listAdminSubscriptionsHandler));
 router.get('/returns', asyncHandler(listAdminReturnsHandler));
 router.patch('/returns/:id', asyncHandler(updateAdminReturnHandler));
 
-router.get('/gift-cards', asyncHandler(listAdminGiftCardsHandler));
-router.post('/gift-cards', asyncHandler(createAdminGiftCardHandler));
+router.get('/giftcards', asyncHandler(listAdminGiftCardsHandler));
+router.post('/giftcards', asyncHandler(createAdminGiftCardHandler));
 
 router.get('/newsletter', asyncHandler(listNewsletterSubscribersHandler));
 router.get('/newsletter/export', asyncHandler(exportNewsletterCsvHandler));

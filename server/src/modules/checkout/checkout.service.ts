@@ -23,8 +23,6 @@ export async function createCheckoutSession(
   shippingAddressId?: string | null,
   customerNote?: string | null
 ) {
-  if (!stripe) throw AppError.badRequest('Payments are not configured on this server');
-
   const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<{
     id: string;
     items: Array<{
@@ -49,6 +47,8 @@ export async function createCheckoutSession(
   if (!cart || cart.items.length === 0) {
     throw AppError.badRequest('Your cart is empty');
   }
+
+  if (!stripe) throw AppError.badRequest('Payments are not configured on this server');
 
   for (const item of cart.items) {
     if (!item.product.isActive) {

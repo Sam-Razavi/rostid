@@ -219,14 +219,14 @@ export async function updateAdminReturnHandler(req: Request, res: Response): Pro
 export async function listAdminGiftCardsHandler(_req: Request, res: Response): Promise<void> {
   const { adminListGiftCards } = await import('../giftcards/giftcards.service');
   const cards = await adminListGiftCards();
-  res.json({ data: cards, message: 'Gift cards retrieved' });
+  res.json({ data: { cards }, message: 'Gift cards retrieved' });
 }
 
 export async function createAdminGiftCardHandler(req: Request, res: Response): Promise<void> {
   const { adminCreateGiftCard } = await import('../giftcards/giftcards.service');
   const { body } = createGiftCardSchema.parse({ body: req.body });
   const card = await adminCreateGiftCard(body.balanceOre, body.expiresAt ? new Date(body.expiresAt) : null);
-  res.status(201).json({ data: card, message: 'Gift card created' });
+  res.status(201).json({ data: { card }, message: 'Gift card created' });
 }
 
 export async function listDiscountsHandler(_req: Request, res: Response): Promise<void> {

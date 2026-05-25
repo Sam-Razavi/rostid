@@ -111,7 +111,7 @@ describe('Cart API', () => {
       const res = await request(app)
         .patch(`/api/cart/items/${itemId}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ quantity: 999 });
+        .send({ quantity: 51 });
       expect(res.status).toBe(400);
       expect(res.body.message).toMatch(/in stock/i);
     });

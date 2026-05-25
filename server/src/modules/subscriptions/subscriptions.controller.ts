@@ -12,7 +12,7 @@ export async function createSubscriptionHandler(req: Request, res: Response): Pr
 export async function listSubscriptionsHandler(req: Request, res: Response): Promise<void> {
   const userId = req.user!.userId;
   const subscriptions = await listSubscriptions(userId);
-  res.json({ data: subscriptions });
+  res.json({ data: { subscriptions } });
 }
 
 export async function updateSubscriptionHandler(req: Request, res: Response): Promise<void> {
@@ -20,7 +20,7 @@ export async function updateSubscriptionHandler(req: Request, res: Response): Pr
   const { id } = req.params;
   const { body } = updateSubscriptionSchema.parse({ body: req.body });
   const subscription = await updateSubscription(userId, id, { status: body.status, intervalDays: body.intervalDays });
-  res.json({ data: subscription, message: 'Subscription updated' });
+  res.json({ data: { subscription }, message: 'Subscription updated' });
 }
 
 export async function processDueHandler(_req: Request, res: Response): Promise<void> {

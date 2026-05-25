@@ -127,7 +127,7 @@ app.use('/api/subscriptions', subscriptionsRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/giftcards', giftcardsRoutes);
 app.use('/api/checkout', checkoutRoutes);
-app.use('/webhooks', webhooksRoutes);
+app.use('/api/webhooks', webhooksRoutes);
 
 app.get('/sitemap.xml', async (_req, res) => {
   try {
