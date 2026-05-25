@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 
-export function responseTime(req: Request, res: Response, next: NextFunction): void {
+export function responseTime(_req: Request, res: Response, next: NextFunction): void {
   const start = Date.now();
 
   const originalWriteHead = res.writeHead.bind(res);

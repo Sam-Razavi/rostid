@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../../../app';
-import { testProductId, prisma, testCategoryId } from '../../../test/setup';
+import { testProductId, prisma } from '../../../test/setup';
 
 type VariantPrisma = {
   productVariant: {
