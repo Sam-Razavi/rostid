@@ -48,3 +48,6 @@ coverage/
 
 # Misc
 .turbo/
+
+# Claude context (local only)
+CLAUDE.md
