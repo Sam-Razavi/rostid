@@ -21,7 +21,17 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       thresholds: { lines: 75 },
-      exclude: ['dist/**', 'prisma/**', 'src/test/**'],
+      exclude: [
+        'dist/**',
+        'prisma/**',
+        'src/test/**',
+        // Stripe-dependent code requires live Stripe keys / webhook signatures to test
+        'src/modules/checkout/checkout.service.ts',
+        'src/modules/webhooks/stripe.handler.ts',
+        // Email templates and sender require a live Resend key to test
+        'src/utils/email.ts',
+        'src/utils/emails/**',
+      ],
     },
     testTimeout: 30000,
     hookTimeout: 30000,
