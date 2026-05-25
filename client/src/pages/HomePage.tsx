@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import { fetchProducts } from '../api/products.api';
 import { ProductCard } from '../components/products/ProductCard';
 import { ProductGridSkeleton } from '../components/ui/Skeleton';
@@ -50,6 +50,29 @@ export default function HomePage() {
   const { getAll } = useRecentlyViewed();
   const recentlyViewed = useMemo(() => getAll(), [getAll]);
 
+  const heroRef = useRef<HTMLElement>(null);
+  const beanContainerRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const beanScale = useTransform(scrollYProgress, [0, 1], [1, 0.72]);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-160, 160], [14, -14]), { stiffness: 140, damping: 22 });
+  const rotateY = useSpring(useTransform(mouseX, [-160, 160], [-14, 14]), { stiffness: 140, damping: 22 });
+
+  function handleBeanMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!beanContainerRef.current) return;
+    const rect = beanContainerRef.current.getBoundingClientRect();
+    mouseX.set(e.clientX - (rect.left + rect.width / 2));
+    mouseY.set(e.clientY - (rect.top + rect.height / 2));
+  }
+
+  function handleBeanMouseLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+  }
+
   const { data, isLoading } = useQuery({
     queryKey: ['products', 'featured'],
     queryFn: () => fetchProducts({ limit: 4, sort: 'newest' }),
@@ -71,7 +94,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-espresso-950 text-white overflow-hidden">
+      <section ref={heroRef} className="bg-espresso-950 text-white overflow-hidden">
         <div className="container-page py-16 sm:py-24 md:py-32">
           <motion.div
             className="grid items-center gap-12 md:grid-cols-2"
@@ -105,49 +128,58 @@ export default function HomePage() {
             </motion.div>
             </div>
 
-            <motion.div variants={fadeUp} className="flex justify-center md:justify-end" aria-hidden="true">
-              <motion.div
-                animate={{ y: [0, -14, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            <motion.div variants={fadeUp} className="flex justify-center md:justify-end" aria-hidden="true" style={{ scale: beanScale }}>
+              <div
+                ref={beanContainerRef}
+                onMouseMove={handleBeanMouseMove}
+                onMouseLeave={handleBeanMouseLeave}
                 className="relative flex h-72 w-72 items-center justify-center sm:h-80 sm:w-80"
+                style={{ perspective: 900 }}
               >
-                <div className="absolute inset-8 rounded-full bg-espresso-900/40 blur-3xl" />
-                <motion.svg
-                  viewBox="0 0 260 300"
-                  className="relative h-[280px] w-[244px] text-espresso-400 drop-shadow-2xl"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                <motion.div
+                  style={{ rotateX, rotateY }}
+                  animate={{ y: [0, -14, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  className="relative flex items-center justify-center"
                 >
-                  <defs>
-                    <linearGradient id="beanGradient" x1="70" y1="40" x2="210" y2="260" gradientUnits="userSpaceOnUse">
-                      <stop offset="0" stopColor="#C58B5B" />
-                      <stop offset="0.45" stopColor="#9A5A31" />
-                      <stop offset="1" stopColor="#5E3516" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M203.9 39.4c42.6 31.8 46.3 104 16.3 164.5-30 60.4-86.4 96.2-131.1 74.8-44.7-21.5-59.4-92.1-32.8-157.7 26.6-65.7 105-113.3 147.6-81.6Z"
-                    fill="url(#beanGradient)"
-                  />
-                  <path
-                    d="M161.8 48.6c-31.4 35.2-22.2 65.1-4.1 95 17.9 29.6 21.4 60.7-24.4 105.5"
-                    fill="none"
-                    stroke="#3B2111"
-                    strokeWidth="16"
-                    strokeLinecap="round"
-                    opacity="0.72"
-                  />
-                  <path
-                    d="M151.7 54.7c-20.6 33.8-10.2 58.9 6.9 86.8 18.7 30.5 23.3 57.7-13 96.9"
-                    fill="none"
-                    stroke="#E0B083"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                    opacity="0.38"
-                  />
-                  <ellipse cx="100" cy="73" rx="18" ry="38" fill="#E0B083" opacity="0.12" transform="rotate(31 100 73)" />
-                </motion.svg>
-              </motion.div>
+                  <div className="absolute inset-8 rounded-full bg-espresso-900/40 blur-3xl" />
+                  <motion.svg
+                    viewBox="0 0 260 300"
+                    className="relative h-[280px] w-[244px] text-espresso-400 drop-shadow-2xl"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <defs>
+                      <linearGradient id="beanGradient" x1="70" y1="40" x2="210" y2="260" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stopColor="#C58B5B" />
+                        <stop offset="0.45" stopColor="#9A5A31" />
+                        <stop offset="1" stopColor="#5E3516" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M203.9 39.4c42.6 31.8 46.3 104 16.3 164.5-30 60.4-86.4 96.2-131.1 74.8-44.7-21.5-59.4-92.1-32.8-157.7 26.6-65.7 105-113.3 147.6-81.6Z"
+                      fill="url(#beanGradient)"
+                    />
+                    <path
+                      d="M161.8 48.6c-31.4 35.2-22.2 65.1-4.1 95 17.9 29.6 21.4 60.7-24.4 105.5"
+                      fill="none"
+                      stroke="#3B2111"
+                      strokeWidth="16"
+                      strokeLinecap="round"
+                      opacity="0.72"
+                    />
+                    <path
+                      d="M151.7 54.7c-20.6 33.8-10.2 58.9 6.9 86.8 18.7 30.5 23.3 57.7-13 96.9"
+                      fill="none"
+                      stroke="#E0B083"
+                      strokeWidth="5"
+                      strokeLinecap="round"
+                      opacity="0.38"
+                    />
+                    <ellipse cx="100" cy="73" rx="18" ry="38" fill="#E0B083" opacity="0.12" transform="rotate(31 100 73)" />
+                  </motion.svg>
+                </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         </div>

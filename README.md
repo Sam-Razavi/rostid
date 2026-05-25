@@ -31,40 +31,44 @@
 ## Getting started
 
 ### Prerequisites
-- Docker & Docker Compose
-- Node.js 20+
+- Docker Desktop (includes Compose)
 
-### Local dev
-
-```bash
-# Copy and fill in env vars
-cp .env.example .env
-
-# Start database
-docker-compose up -d db
-
-# Install server deps and run migrations
-cd server && npm install
-npx prisma migrate dev
-npx prisma db seed
-
-# Start server
-npm run dev
-```
+### Run with Docker (recommended)
 
 ```bash
-# In a separate terminal — start client
-cd client && npm install && npm run dev
+# First run — build images, push schema, seed database, start all services
+docker compose up --build
+
+# Subsequent runs (no source changes)
+docker compose up
+
+# Wipe the database and start fresh
+docker compose down -v && docker compose up --build
 ```
+
+On first boot the server automatically:
+1. Syncs the Prisma schema to the database (`prisma db push`)
+2. Seeds products, categories, and demo accounts
+3. Starts the Express API
 
 App runs at:
 - Client: `http://localhost:5173`
 - API: `http://localhost:4000/api`
 
-### Full Docker dev
+### Run without Docker
 
 ```bash
-docker-compose up
+# Terminal 1 — start Postgres
+docker compose up db
+
+# Terminal 2 — server
+cd server && npm install
+npx prisma db push
+npx prisma db seed
+npm run dev
+
+# Terminal 3 — client
+cd client && npm install && npm run dev
 ```
 
 ---
