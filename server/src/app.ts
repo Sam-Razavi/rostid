@@ -37,9 +37,12 @@ import giftcardsRoutes from './modules/giftcards/giftcards.routes';
 
 const app = express();
 
+const isTest = env.NODE_ENV === 'test';
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
+  skip: () => isTest,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'TOO_MANY_REQUESTS', message: 'Too many attempts, please try again later' },
@@ -48,6 +51,7 @@ const authLimiter = rateLimit({
 const reviewLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
+  skip: () => isTest,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'TOO_MANY_REQUESTS', message: 'Too many review submissions, please try again later' },
@@ -56,6 +60,7 @@ const reviewLimiter = rateLimit({
 const newsletterLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
+  skip: () => isTest,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'TOO_MANY_REQUESTS', message: 'Too many subscription attempts, please try again later' },
