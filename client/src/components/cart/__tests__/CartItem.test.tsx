@@ -14,6 +14,7 @@ const mockItem: CartItemType = {
   id: 'item-1',
   cartId: 'cart-1',
   productId: 'prod-1',
+  variantId: null,
   quantity: 2,
   product: {
     id: 'prod-1',
@@ -24,6 +25,7 @@ const mockItem: CartItemType = {
     imageUrl: null,
     isActive: true,
   },
+  variant: null,
 };
 
 function renderItem(item = mockItem) {

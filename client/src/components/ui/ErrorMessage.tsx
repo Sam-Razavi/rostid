@@ -3,7 +3,7 @@ interface ErrorMessageProps {
   onRetry?: () => void;
 }
 
-export function ErrorMessage({ message = 'Something went wrong. Please try again.', onRetry }: ErrorMessageProps) {
+export function ErrorMessage({ message = 'Something went wrong.', onRetry }: ErrorMessageProps) {
   return (
     <div className="text-center py-16">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mb-4">

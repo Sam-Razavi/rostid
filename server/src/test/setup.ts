@@ -19,10 +19,31 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  const db = prisma as unknown as {
+    stripeEvent: { deleteMany: () => Promise<unknown> };
+    returnItem: { deleteMany: () => Promise<unknown> };
+    return: { deleteMany: () => Promise<unknown> };
+    loyaltyTransaction: { deleteMany: () => Promise<unknown> };
+    loyaltyAccount: { deleteMany: () => Promise<unknown> };
+    giftCard: { deleteMany: () => Promise<unknown> };
+    discountCode: { deleteMany: () => Promise<unknown> };
+    shippingAddress: { deleteMany: () => Promise<unknown> };
+    subscription: { deleteMany: () => Promise<unknown> };
+  };
+
   // Clean in dependency order
+  await db.stripeEvent.deleteMany();
+  await db.returnItem.deleteMany();
+  await db.return.deleteMany();
+  await db.loyaltyTransaction.deleteMany();
+  await db.loyaltyAccount.deleteMany();
+  await db.subscription.deleteMany();
   await prisma.review.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
+  await db.shippingAddress.deleteMany();
+  await db.giftCard.deleteMany();
+  await db.discountCode.deleteMany();
   await prisma.cartItem.deleteMany();
   await prisma.cart.deleteMany();
   await prisma.refreshToken.deleteMany();
