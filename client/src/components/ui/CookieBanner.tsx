@@ -1,15 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STORAGE_KEY = 'rostid_cookie_consent';
 
 export function CookieBanner() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) setVisible(true);
-  }, []);
+  const [visible, setVisible] = useState(() => !localStorage.getItem(STORAGE_KEY));
 
   function accept() {
     localStorage.setItem(STORAGE_KEY, 'accepted');
