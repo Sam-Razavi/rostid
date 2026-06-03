@@ -10,7 +10,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      thresholds: { lines: 65 },
+      thresholds: { lines: 70 },
       exclude: ['dist/**', 'src/test/**', 'src/router/**', 'src/animations/**'],
     },
   },
