@@ -1,4 +1,4 @@
-.PHONY: dev dev-build reset test test-server test-client seed lint typecheck build
+.PHONY: dev dev-build reset test test-server test-client seed lint typecheck build format
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 
@@ -35,6 +35,12 @@ lint:
 typecheck:
 	cd server && npm run typecheck
 	cd client && npm run typecheck
+
+# ── Formatting ────────────────────────────────────────────────────────────────
+
+format:
+	cd server && npm run format
+	cd client && npm run format
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 
