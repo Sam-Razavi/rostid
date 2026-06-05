@@ -17,7 +17,7 @@
     "format:check": "prettier --check src"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
+    "@prisma/client": "^7.8.0",
     "@sentry/node": "^10.53.1",
     "bcryptjs": "^2.4.3",
     "compression": "^1.8.1",
