@@ -56,7 +56,7 @@ npx prisma db seed
 ### 1e. Stripe webhook
 
 In [Stripe Dashboard](https://dashboard.stripe.com/webhooks) → **Add endpoint**:
-- Endpoint URL: `https://your-app.railway.app/webhooks/stripe`
+- Endpoint URL: `https://your-app.railway.app/api/webhooks/stripe`
 - Events to listen: `checkout.session.completed`
 - Copy the **Signing secret** → paste as `STRIPE_WEBHOOK_SECRET` in Railway
 

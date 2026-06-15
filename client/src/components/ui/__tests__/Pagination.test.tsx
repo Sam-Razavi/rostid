@@ -61,4 +61,30 @@ describe('Pagination', () => {
     fireEvent.click(screen.getByLabelText('Page 3'));
     expect(onChange).toHaveBeenCalledWith(3);
   });
+
+  it('shows both ellipses when on a middle page of large pagination', () => {
+    render(<Pagination page={10} totalPages={20} onPageChange={vi.fn()} />);
+    expect(screen.getAllByText('…')).toHaveLength(2);
+    expect(screen.getByLabelText('Page 1')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 9')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 10')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 11')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 20')).toBeInTheDocument();
+  });
+
+  it('shows only trailing ellipsis when on page 1 of large pagination', () => {
+    render(<Pagination page={1} totalPages={20} onPageChange={vi.fn()} />);
+    expect(screen.getAllByText('…')).toHaveLength(1);
+    expect(screen.getByLabelText('Page 1')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 2')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 20')).toBeInTheDocument();
+  });
+
+  it('shows only leading ellipsis when on the last page of large pagination', () => {
+    render(<Pagination page={20} totalPages={20} onPageChange={vi.fn()} />);
+    expect(screen.getAllByText('…')).toHaveLength(1);
+    expect(screen.getByLabelText('Page 1')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 19')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 20')).toBeInTheDocument();
+  });
 });

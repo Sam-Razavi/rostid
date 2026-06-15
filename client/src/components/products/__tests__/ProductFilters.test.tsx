@@ -19,12 +19,14 @@ function renderFilters(overrides: Partial<Parameters<typeof ProductFilters>[0]> 
     sort: 'newest',
     minPrice: '',
     maxPrice: '',
+    inStock: false,
     onCategoryChange: vi.fn(),
     onRoastChange: vi.fn(),
     onSearchChange: vi.fn(),
     onSortChange: vi.fn(),
     onMinPriceChange: vi.fn(),
     onMaxPriceChange: vi.fn(),
+    onInStockChange: vi.fn(),
     ...overrides,
   };
 

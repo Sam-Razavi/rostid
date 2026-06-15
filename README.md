@@ -7,10 +7,22 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![Stripe](https://img.shields.io/badge/Stripe-Checkout-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
+[![API Docs](https://img.shields.io/badge/API-Swagger%20UI-85EA2D?logo=swagger&logoColor=black)](https://your-api-url/api/docs)
 
 **Specialty Coffee E-Commerce** — A full-stack DTC platform for a premium Stockholm coffee brand.
 
 > "Rost" (roast) + "tid" (time) — crafted for those who take their coffee seriously.
+
+---
+
+## Highlights
+
+- **Stripe webhooks as source of truth** — the checkout endpoint only creates a Stripe session; `checkout.session.completed` creates the order idempotently, decrements stock, and processes discounts, loyalty, and gift card side-effects
+- **Atomic checkout via Prisma transaction** — prices snapshotted at purchase time, order + items created, stock decremented, and cart cleared in a single all-or-nothing transaction
+- **JWT with silent refresh** — access token lives in memory (XSS-safe), refresh token in an httpOnly cookie; an Axios interceptor queues concurrent 401s, refreshes once, then retries all queued requests transparently
+- **Prices stored as integers in öre** — no floating-point money arithmetic anywhere in the stack (1 kr = 100 öre)
+- **400+ tests with CI coverage gates** — supertest integration tests against a real Postgres instance on every push; separate coverage thresholds enforced for server and client
+- **Manual subscription renewals** — no Stripe Subscription objects; a cron-callable endpoint creates a fresh Checkout session per due subscription and advances `nextBillingDate`, keeping the billing logic entirely in-app
 
 ---
 
@@ -44,24 +56,20 @@
 ### Run with Docker (recommended)
 
 ```bash
-# First run — build images, push schema, seed database, start all services
-docker compose up --build
-
-# Subsequent runs (no source changes)
-docker compose up
-
-# Wipe the database and start fresh
-docker compose down -v && docker compose up --build
+make dev-build   # first run — builds images, pushes schema, seeds DB, starts all services
+make dev         # subsequent runs
+make reset       # wipe the database and start fresh
 ```
+
+App runs at:
+- Client: `http://localhost:5173`
+- API: `http://localhost:4000/api`
+- API Docs: `http://localhost:4000/api/docs`
 
 On first boot the server automatically:
 1. Syncs the Prisma schema to the database (`prisma db push`)
 2. Seeds products, categories, and demo accounts
 3. Starts the Express API
-
-App runs at:
-- Client: `http://localhost:5173`
-- API: `http://localhost:4000/api`
 
 ### Run without Docker
 
@@ -77,6 +85,17 @@ npm run dev
 
 # Terminal 3 — client
 cd client && npm install && npm run dev
+```
+
+### Other useful commands
+
+```bash
+make test        # run all tests (server + client)
+make test-server # server tests only
+make test-client # client tests only
+make seed        # re-seed the database
+make lint        # lint both packages
+make typecheck   # TypeScript check both packages
 ```
 
 ---

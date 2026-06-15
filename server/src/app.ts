@@ -16,6 +16,8 @@ Sentry.init({
   tracesSampleRate: 0.2,
   integrations: [Sentry.expressIntegration()],
 });
+import swaggerUi from 'swagger-ui-express';
+import { openApiSpec } from './docs/openapi';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './modules/auth/auth.routes';
 import categoriesRoutes from './modules/categories/categories.routes';
@@ -128,6 +130,7 @@ app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/giftcards', giftcardsRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/webhooks', webhooksRoutes);
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, { customSiteTitle: 'Rostid API Docs' }));
 
 app.get('/sitemap.xml', async (_req, res) => {
   try {
@@ -159,7 +162,7 @@ app.get('/sitemap.xml', async (_req, res) => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
     res.setHeader('Content-Type', 'application/xml');
     res.send(xml);
-  } catch (err) {
+  } catch {
     res.status(500).send('Failed to generate sitemap');
   }
 });

@@ -11,7 +11,7 @@ env:
 
 jobs:
   server:
-    name: Server — typecheck & test
+    name: Server — lint, typecheck & test
     runs-on: ubuntu-latest
 
     services:
@@ -30,9 +30,9 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -46,6 +46,9 @@ jobs:
 
       - name: Typecheck
         run: cd server && npm run build
+
+      - name: Lint
+        run: cd server && npm run lint
 
       - name: Push schema to test DB
         run: cd server && npx prisma db push
@@ -65,13 +68,13 @@ jobs:
           NODE_ENV: test
 
   client:
-    name: Client — typecheck & build
+    name: Client — lint, typecheck & build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -84,6 +87,9 @@ jobs:
         run: cd client && npm run build
         env:
           VITE_API_URL: http://localhost:4000
+
+      - name: Lint
+        run: cd client && npm run lint
 
       - name: Run tests with coverage
         run: cd client && npm run test:coverage

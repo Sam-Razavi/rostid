@@ -97,6 +97,30 @@ describe('useRemoveCartItem', () => {
 
     expect(apiClient.delete).toHaveBeenCalledWith('/cart/items/item-1');
   });
+
+  it('shows success toast when item is removed', async () => {
+    const toast = (await import('react-hot-toast')).default;
+    (apiClient.delete as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { data: { ...mockCart, items: [] } },
+    });
+
+    const { result } = renderHook(() => useRemoveCartItem(), { wrapper });
+    act(() => result.current.mutate('item-1'));
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(toast.success).toHaveBeenCalledWith('Item removed');
+  });
+
+  it('shows error toast when remove fails', async () => {
+    const toast = (await import('react-hot-toast')).default;
+    (apiClient.delete as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
+
+    const { result } = renderHook(() => useRemoveCartItem(), { wrapper });
+    act(() => result.current.mutate('item-1'));
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(toast.error).toHaveBeenCalledWith('Could not remove item');
+  });
 });
 
 describe('useUpdateCartItem', () => {
@@ -110,5 +134,16 @@ describe('useUpdateCartItem', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(apiClient.patch).toHaveBeenCalledWith('/cart/items/item-1', { quantity: 3 });
+  });
+
+  it('shows error toast when update fails', async () => {
+    const toast = (await import('react-hot-toast')).default;
+    (apiClient.patch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
+
+    const { result } = renderHook(() => useUpdateCartItem(), { wrapper });
+    act(() => result.current.mutate({ id: 'item-1', quantity: 3 }));
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(toast.error).toHaveBeenCalledWith('Could not update quantity');
   });
 });

@@ -95,16 +95,13 @@ export async function createCheckoutSession(
 
   // Shipping
   let shippingOre = 0;
-  let shippingRateName = '';
   if (shippingRateId) {
     const rate = await (prisma as unknown as ShippingRatePrisma).shippingRate.findUnique({ where: { id: shippingRateId } });
     if (rate) {
-      const effectivePrice = rate.freeThresholdOre && subtotalOre >= rate.freeThresholdOre ? 0 : rate.priceOre;
-      shippingOre = effectivePrice;
-      shippingRateName = rate.name;
+      shippingOre = rate.freeThresholdOre && subtotalOre >= rate.freeThresholdOre ? 0 : rate.priceOre;
       if (shippingOre > 0) {
         lineItems.push({
-          price_data: { currency: 'sek', product_data: { name: `Shipping (${shippingRateName})` }, unit_amount: shippingOre },
+          price_data: { currency: 'sek', product_data: { name: `Shipping (${rate.name})` }, unit_amount: shippingOre },
           quantity: 1,
         });
       }
