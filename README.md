@@ -15,6 +15,30 @@
 
 ---
 
+## Screenshots
+
+### Storefront
+
+![Rostid storefront home page](docs/screenshots/home.png)
+
+### Product browsing
+
+![Rostid coffee shop product grid](docs/screenshots/shop.png)
+
+### Product detail
+
+![Rostid product detail page](docs/screenshots/product-detail.png)
+
+### Authentication
+
+![Rostid sign-in page](docs/screenshots/login.png)
+
+### Admin dashboard
+
+![Rostid admin dashboard](docs/screenshots/admin-dashboard.png)
+
+---
+
 ## Highlights
 
 - **Stripe webhooks as source of truth** — the checkout endpoint only creates a Stripe session; `checkout.session.completed` creates the order idempotently, decrements stock, and processes discounts, loyalty, and gift card side-effects
