@@ -25,7 +25,9 @@ export interface ShippingRate {
 }
 
 export async function fetchShippingRates(totalOre: number): Promise<ShippingRate[]> {
-  const { data } = await apiClient.get<ApiResponse<ShippingRate[]>>(`/shipping/rates?totalOre=${totalOre}`);
+  const { data } = await apiClient.get<ApiResponse<ShippingRate[]>>(
+    `/shipping/rates?totalOre=${totalOre}`
+  );
   return data.data;
 }
 
@@ -34,13 +36,24 @@ export async function fetchAddresses(): Promise<ShippingAddress[]> {
   return data.data;
 }
 
-export async function createAddress(payload: Omit<ShippingAddress, 'id' | 'userId' | 'createdAt'>): Promise<ShippingAddress> {
-  const { data } = await apiClient.post<ApiResponse<ShippingAddress>>('/shipping/addresses', payload);
+export async function createAddress(
+  payload: Omit<ShippingAddress, 'id' | 'userId' | 'createdAt'>
+): Promise<ShippingAddress> {
+  const { data } = await apiClient.post<ApiResponse<ShippingAddress>>(
+    '/shipping/addresses',
+    payload
+  );
   return data.data;
 }
 
-export async function updateAddress(id: string, payload: Partial<ShippingAddress>): Promise<ShippingAddress> {
-  const { data } = await apiClient.patch<ApiResponse<ShippingAddress>>(`/shipping/addresses/${id}`, payload);
+export async function updateAddress(
+  id: string,
+  payload: Partial<ShippingAddress>
+): Promise<ShippingAddress> {
+  const { data } = await apiClient.patch<ApiResponse<ShippingAddress>>(
+    `/shipping/addresses/${id}`,
+    payload
+  );
   return data.data;
 }
 

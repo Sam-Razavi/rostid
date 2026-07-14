@@ -48,7 +48,9 @@ describe('ProductFilters', () => {
 
   it('calls onSearchChange when search input changes', () => {
     const { onSearchChange } = renderFilters();
-    fireEvent.change(screen.getByPlaceholderText('Search coffees...'), { target: { value: 'ethiopia' } });
+    fireEvent.change(screen.getByPlaceholderText('Search coffees...'), {
+      target: { value: 'ethiopia' },
+    });
     expect(onSearchChange).toHaveBeenCalledWith('ethiopia');
   });
 

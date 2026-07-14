@@ -6,7 +6,10 @@ export function responseTime(_req: Request, res: Response, next: NextFunction): 
   const originalWriteHead = res.writeHead.bind(res);
   res.writeHead = function (statusCode: number, ...args: unknown[]) {
     res.setHeader('X-Response-Time', `${Date.now() - start}ms`);
-    return (originalWriteHead as (...a: unknown[]) => ReturnType<typeof res.writeHead>)(statusCode, ...args);
+    return (originalWriteHead as (...a: unknown[]) => ReturnType<typeof res.writeHead>)(
+      statusCode,
+      ...args
+    );
   };
 
   next();

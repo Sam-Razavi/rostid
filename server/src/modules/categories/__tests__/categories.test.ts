@@ -27,7 +27,9 @@ describe('Categories API', () => {
     });
 
     it('returns multiple categories when seeded', async () => {
-      await prisma.category.create({ data: { name: 'Second', slug: 'second', description: 'desc' } });
+      await prisma.category.create({
+        data: { name: 'Second', slug: 'second', description: 'desc' },
+      });
       const res = await request(app).get('/api/categories');
       expect(res.body.data.length).toBeGreaterThanOrEqual(2);
     });

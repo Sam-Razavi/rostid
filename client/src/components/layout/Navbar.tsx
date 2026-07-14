@@ -41,7 +41,10 @@ export function Navbar() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-stone-200">
         <div className="container-page">
           <div className="flex h-16 items-center justify-between">
-            <Link to="/" className="font-serif text-2xl font-semibold text-espresso-950 tracking-tight">
+            <Link
+              to="/"
+              className="font-serif text-2xl font-semibold text-espresso-950 tracking-tight"
+            >
               Rostid
             </Link>
 
@@ -74,7 +77,12 @@ export function Navbar() {
                   className="relative p-2 text-stone-600 hover:text-stone-900 cursor-pointer transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
                   </svg>
                   {wishlistCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
@@ -90,8 +98,12 @@ export function Navbar() {
                   className="relative p-2 text-stone-600 hover:text-stone-900 cursor-pointer transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                    />
                   </svg>
                   {cartCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-espresso-800 text-white text-[10px] font-bold rounded-full px-1">
@@ -106,14 +118,23 @@ export function Navbar() {
                 {isAuthenticated ? (
                   <>
                     {user?.role === 'admin' && (
-                      <Link to="/admin" className="text-sm font-medium text-espresso-700 hover:text-espresso-900 transition-colors">
+                      <Link
+                        to="/admin"
+                        className="text-sm font-medium text-espresso-700 hover:text-espresso-900 transition-colors"
+                      >
                         Admin
                       </Link>
                     )}
-                    <Link to="/orders" className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">
+                    <Link
+                      to="/orders"
+                      className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                    >
                       Orders
                     </Link>
-                    <Link to="/profile" className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">
+                    <Link
+                      to="/profile"
+                      className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                    >
                       Profile
                     </Link>
                     <button
@@ -125,10 +146,16 @@ export function Navbar() {
                   </>
                 ) : (
                   <>
-                    <Link to="/login" className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">
+                    <Link
+                      to="/login"
+                      className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                    >
                       Sign in
                     </Link>
-                    <Link to="/register" className="btn-primary text-sm px-4 py-2 rounded-lg min-h-[44px]">
+                    <Link
+                      to="/register"
+                      className="btn-primary text-sm px-4 py-2 rounded-lg min-h-[44px]"
+                    >
                       Get started
                     </Link>
                   </>
@@ -142,7 +169,12 @@ export function Navbar() {
                 className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
             </div>
@@ -182,7 +214,12 @@ export function Navbar() {
                   className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -218,7 +255,9 @@ export function Navbar() {
                       onClick={() => setDrawerOpen(false)}
                       className={({ isActive }) =>
                         `px-3 py-3 rounded-lg text-base font-medium transition-colors ${
-                          isActive ? 'bg-espresso-50 text-espresso-800' : 'text-stone-700 hover:bg-stone-50'
+                          isActive
+                            ? 'bg-espresso-50 text-espresso-800'
+                            : 'text-stone-700 hover:bg-stone-50'
                         }`
                       }
                     >
@@ -229,7 +268,9 @@ export function Navbar() {
                       onClick={() => setDrawerOpen(false)}
                       className={({ isActive }) =>
                         `px-3 py-3 rounded-lg text-base font-medium transition-colors ${
-                          isActive ? 'bg-espresso-50 text-espresso-800' : 'text-stone-700 hover:bg-stone-50'
+                          isActive
+                            ? 'bg-espresso-50 text-espresso-800'
+                            : 'text-stone-700 hover:bg-stone-50'
                         }`
                       }
                     >
@@ -241,7 +282,9 @@ export function Navbar() {
                         onClick={() => setDrawerOpen(false)}
                         className={({ isActive }) =>
                           `px-3 py-3 rounded-lg text-base font-medium transition-colors ${
-                            isActive ? 'bg-espresso-50 text-espresso-800' : 'text-stone-700 hover:bg-stone-50'
+                            isActive
+                              ? 'bg-espresso-50 text-espresso-800'
+                              : 'text-stone-700 hover:bg-stone-50'
                           }`
                         }
                       >

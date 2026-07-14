@@ -27,7 +27,11 @@ export function CartItem({ item }: { item: CartItemType }) {
       <Link to={`/products/${item.product.slug}`} className="shrink-0">
         <div className="w-20 h-20 rounded-lg overflow-hidden bg-espresso-50">
           {item.product.imageUrl ? (
-            <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
+            <img
+              src={item.product.imageUrl}
+              alt={item.product.name}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="font-serif text-xl text-espresso-200">R</span>
@@ -44,12 +48,11 @@ export function CartItem({ item }: { item: CartItemType }) {
         </Link>
         {item.variant && (
           <p className="text-xs text-stone-400 mt-0.5">
-            {item.variant.name}{item.variant.grind ? ` · ${item.variant.grind.replace('_', ' ')}` : ''}
+            {item.variant.name}
+            {item.variant.grind ? ` · ${item.variant.grind.replace('_', ' ')}` : ''}
           </p>
         )}
-        <p className="text-sm text-stone-500 mt-0.5">
-          {formatPrice(unitPrice)} each
-        </p>
+        <p className="text-sm text-stone-500 mt-0.5">{formatPrice(unitPrice)} each</p>
 
         <div className="flex items-center gap-3 mt-3">
           <div className="flex items-center border border-stone-200 rounded-lg overflow-hidden text-sm">

@@ -74,9 +74,7 @@ describe('Loyalty API', () => {
     });
 
     it('requires authentication', async () => {
-      const res = await request(app)
-        .post('/api/loyalty/redeem-preview')
-        .send({ points: 100 });
+      const res = await request(app).post('/api/loyalty/redeem-preview').send({ points: 100 });
       expect(res.status).toBe(401);
     });
   });

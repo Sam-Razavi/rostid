@@ -21,7 +21,11 @@ describe('Products API', () => {
     it('supports category filter', async () => {
       const res = await request(app).get('/api/products?category=test-category');
       expect(res.status).toBe(200);
-      expect(res.body.data.products.every((p: { category: { slug: string } }) => p.category.slug === 'test-category')).toBe(true);
+      expect(
+        res.body.data.products.every(
+          (p: { category: { slug: string } }) => p.category.slug === 'test-category'
+        )
+      ).toBe(true);
     });
 
     it('supports search filter', async () => {
@@ -50,17 +54,17 @@ describe('Products API', () => {
       });
       const res = await request(app).get('/api/products?minPrice=10000');
       expect(res.status).toBe(200);
-      expect(
-        res.body.data.products.every((p: { priceOre: number }) => p.priceOre >= 10000)
-      ).toBe(true);
+      expect(res.body.data.products.every((p: { priceOre: number }) => p.priceOre >= 10000)).toBe(
+        true
+      );
     });
 
     it('filters by maxPrice', async () => {
       const res = await request(app).get('/api/products?maxPrice=10000');
       expect(res.status).toBe(200);
-      expect(
-        res.body.data.products.every((p: { priceOre: number }) => p.priceOre <= 10000)
-      ).toBe(true);
+      expect(res.body.data.products.every((p: { priceOre: number }) => p.priceOre <= 10000)).toBe(
+        true
+      );
     });
 
     it('sorts by price ascending', async () => {
@@ -141,21 +145,27 @@ describe('Products API', () => {
     });
 
     it('category filter returns only matching products', async () => {
-      await prisma.category.create({ data: { name: 'Espresso', slug: 'espresso', description: 'Espresso beans' } }).then(async (cat) => {
-        await prisma.product.create({
-          data: {
-            name: 'Espresso Blend',
-            slug: 'espresso-blend',
-            description: 'Bold',
-            priceOre: 14900,
-            stock: 20,
-            categoryId: cat.id,
-          },
+      await prisma.category
+        .create({ data: { name: 'Espresso', slug: 'espresso', description: 'Espresso beans' } })
+        .then(async (cat) => {
+          await prisma.product.create({
+            data: {
+              name: 'Espresso Blend',
+              slug: 'espresso-blend',
+              description: 'Bold',
+              priceOre: 14900,
+              stock: 20,
+              categoryId: cat.id,
+            },
+          });
         });
-      });
       const res = await request(app).get('/api/products?category=test-category');
       expect(res.status).toBe(200);
-      expect(res.body.data.products.every((p: { category: { slug: string } }) => p.category.slug === 'test-category')).toBe(true);
+      expect(
+        res.body.data.products.every(
+          (p: { category: { slug: string } }) => p.category.slug === 'test-category'
+        )
+      ).toBe(true);
     });
   });
 

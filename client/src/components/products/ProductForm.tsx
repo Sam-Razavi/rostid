@@ -73,7 +73,9 @@ export function ProductForm({ initialData, onSubmit, submitLabel, isLoading }: P
         >
           <option value="">Select category</option>
           {categories?.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
           ))}
         </select>
       </div>

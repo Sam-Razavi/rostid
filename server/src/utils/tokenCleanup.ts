@@ -11,10 +11,14 @@ async function deleteExpiredTokens(): Promise<void> {
 }
 
 export function startTokenCleanup(): void {
-  deleteExpiredTokens().catch((err) => console.error('[tokenCleanup] Initial cleanup failed:', err));
+  deleteExpiredTokens().catch((err) =>
+    console.error('[tokenCleanup] Initial cleanup failed:', err)
+  );
 
   const INTERVAL_MS = 24 * 60 * 60 * 1000;
   setInterval(() => {
-    deleteExpiredTokens().catch((err) => console.error('[tokenCleanup] Scheduled cleanup failed:', err));
+    deleteExpiredTokens().catch((err) =>
+      console.error('[tokenCleanup] Scheduled cleanup failed:', err)
+    );
   }, INTERVAL_MS).unref();
 }

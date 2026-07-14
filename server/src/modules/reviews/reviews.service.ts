@@ -13,9 +13,7 @@ export async function listReviews(productSlug: string) {
   });
 
   const avgRating =
-    reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-      : null;
+    reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : null;
 
   return { reviews, avgRating, count: reviews.length };
 }

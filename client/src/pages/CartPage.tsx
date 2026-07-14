@@ -39,7 +39,10 @@ export default function CartPage() {
   const [redeemPoints, setRedeemPoints] = useState(0);
   const [giftCardCode, setGiftCardCode] = useState('');
   const [giftCardLoading, setGiftCardLoading] = useState(false);
-  const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; availableOre: number } | null>(null);
+  const [appliedGiftCard, setAppliedGiftCard] = useState<{
+    code: string;
+    availableOre: number;
+  } | null>(null);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   async function handleApplyDiscount() {
@@ -53,7 +56,9 @@ export default function CartPage() {
       setAppliedDiscount(data.data);
       toast.success(`Discount applied: -${formatPrice(data.data.discountOre)}`);
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Invalid discount code';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Invalid discount code';
       toast.error(message);
       setAppliedDiscount(null);
     } finally {
@@ -69,7 +74,9 @@ export default function CartPage() {
       setAppliedGiftCard(result);
       toast.success(`Gift card applied: up to ${formatPrice(result.availableOre)} off`);
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Invalid gift card';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Invalid gift card';
       toast.error(message);
       setAppliedGiftCard(null);
     } finally {
@@ -95,7 +102,9 @@ export default function CartPage() {
       );
       window.location.href = url;
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Checkout failed';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Checkout failed';
       toast.error(message);
       // Fall back to orders page if Stripe isn't configured (dev mode)
       if (message.includes('not configured')) navigate('/orders');
@@ -105,7 +114,10 @@ export default function CartPage() {
   }
 
   const items = cart?.items ?? [];
-  const subtotalOre = items.reduce((sum, item) => sum + (item.variant?.priceOre ?? item.product.priceOre) * item.quantity, 0);
+  const subtotalOre = items.reduce(
+    (sum, item) => sum + (item.variant?.priceOre ?? item.product.priceOre) * item.quantity,
+    0
+  );
   const discountOre = appliedDiscount?.discountOre ?? 0;
 
   const { data: shippingRates = [] } = useQuery({
@@ -126,12 +138,25 @@ export default function CartPage() {
     enabled: isAuthenticated && items.length > 0,
   });
 
-  const selectedRate = shippingRates.find((r: ShippingRate) => r.id === selectedRateId) ?? shippingRates[0] ?? null;
-  const selectedAddress = addresses.find((addr) => addr.id === selectedAddressId) ?? addresses.find((addr) => addr.isDefault) ?? addresses[0] ?? null;
+  const selectedRate =
+    shippingRates.find((r: ShippingRate) => r.id === selectedRateId) ?? shippingRates[0] ?? null;
+  const selectedAddress =
+    addresses.find((addr) => addr.id === selectedAddressId) ??
+    addresses.find((addr) => addr.isDefault) ??
+    addresses[0] ??
+    null;
   const shippingOre = selectedRate?.effectivePriceOre ?? 0;
   const loyaltyDiscountOre = redeemPoints >= 100 ? Math.floor(redeemPoints / 100) * 1000 : 0;
-  const giftCardDiscountOre = appliedGiftCard ? Math.min(appliedGiftCard.availableOre, subtotalOre - discountOre - loyaltyDiscountOre + shippingOre) : 0;
-  const totalOre = Math.max(0, subtotalOre - discountOre - loyaltyDiscountOre - giftCardDiscountOre + shippingOre);
+  const giftCardDiscountOre = appliedGiftCard
+    ? Math.min(
+        appliedGiftCard.availableOre,
+        subtotalOre - discountOre - loyaltyDiscountOre + shippingOre
+      )
+    : 0;
+  const totalOre = Math.max(
+    0,
+    subtotalOre - discountOre - loyaltyDiscountOre - giftCardDiscountOre + shippingOre
+  );
   const pointsEarned = Math.floor(totalOre / 1000);
 
   if (isLoading) {
@@ -153,7 +178,11 @@ export default function CartPage() {
         <EmptyState
           title="Your cart is empty"
           description="Looks like you haven't added anything yet."
-          action={<Link to="/products" className="btn-primary inline-flex">Browse coffee</Link>}
+          action={
+            <Link to="/products" className="btn-primary inline-flex">
+              Browse coffee
+            </Link>
+          }
         />
       </div>
     );
@@ -161,7 +190,9 @@ export default function CartPage() {
 
   return (
     <div className="container-page py-12">
-      <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-stone-900 mb-8 sm:mb-10">Your cart</h1>
+      <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-stone-900 mb-8 sm:mb-10">
+        Your cart
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
         <div className="lg:col-span-2">
@@ -197,7 +228,10 @@ export default function CartPage() {
                 <p className="text-sm font-medium text-stone-700 mb-2">Shipping</p>
                 <div className="space-y-2">
                   {shippingRates.map((rate: ShippingRate) => (
-                    <label key={rate.id} className="flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors border-stone-200 hover:border-espresso-400">
+                    <label
+                      key={rate.id}
+                      className="flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors border-stone-200 hover:border-espresso-400"
+                    >
                       <div className="flex items-center gap-2">
                         <input
                           type="radio"
@@ -209,11 +243,17 @@ export default function CartPage() {
                         />
                         <div>
                           <p className="text-sm font-medium text-stone-900">{rate.name}</p>
-                          {rate.estimatedDays && <p className="text-xs text-stone-500">{rate.estimatedDays}</p>}
+                          {rate.estimatedDays && (
+                            <p className="text-xs text-stone-500">{rate.estimatedDays}</p>
+                          )}
                         </div>
                       </div>
                       <span className="text-sm font-medium text-stone-900">
-                        {rate.isFree ? <span className="text-green-700">Free</span> : formatPrice(rate.priceOre)}
+                        {rate.isFree ? (
+                          <span className="text-green-700">Free</span>
+                        ) : (
+                          formatPrice(rate.priceOre)
+                        )}
                       </span>
                     </label>
                   ))}
@@ -232,7 +272,10 @@ export default function CartPage() {
               {addresses.length > 0 ? (
                 <div className="space-y-2">
                   {addresses.map((address) => (
-                    <label key={address.id} className="flex items-start gap-2 p-3 rounded-lg border border-stone-200 cursor-pointer hover:border-espresso-400">
+                    <label
+                      key={address.id}
+                      className="flex items-start gap-2 p-3 rounded-lg border border-stone-200 cursor-pointer hover:border-espresso-400"
+                    >
                       <input
                         type="radio"
                         name="shipping-address"
@@ -243,13 +286,18 @@ export default function CartPage() {
                       />
                       <span className="text-sm text-stone-600">
                         <span className="block font-medium text-stone-900">{address.name}</span>
-                        <span>{address.line1}, {address.postalCode} {address.city}</span>
+                        <span>
+                          {address.line1}, {address.postalCode} {address.city}
+                        </span>
                       </span>
                     </label>
                   ))}
                 </div>
               ) : (
-                <Link to="/profile" className="block p-3 rounded-lg border border-dashed border-stone-300 text-sm text-stone-500 hover:border-espresso-400 hover:text-stone-700">
+                <Link
+                  to="/profile"
+                  className="block p-3 rounded-lg border border-dashed border-stone-300 text-sm text-stone-500 hover:border-espresso-400 hover:text-stone-700"
+                >
                   Add a shipping address
                 </Link>
               )}
@@ -280,7 +328,8 @@ export default function CartPage() {
               </div>
               {appliedDiscount && (
                 <p className="text-xs text-green-700 mt-1.5">
-                  Code <strong>{appliedDiscount.code}</strong> applied — saving {formatPrice(appliedDiscount.discountOre)}
+                  Code <strong>{appliedDiscount.code}</strong> applied — saving{' '}
+                  {formatPrice(appliedDiscount.discountOre)}
                 </p>
               )}
             </div>
@@ -310,7 +359,8 @@ export default function CartPage() {
               </div>
               {appliedGiftCard && (
                 <p className="text-xs text-green-700 mt-1.5">
-                  Gift card <strong>{appliedGiftCard.code}</strong> applied — up to {formatPrice(appliedGiftCard.availableOre)} off
+                  Gift card <strong>{appliedGiftCard.code}</strong> applied — up to{' '}
+                  {formatPrice(appliedGiftCard.availableOre)} off
                 </p>
               )}
             </div>
@@ -319,9 +369,13 @@ export default function CartPage() {
             {loyaltyData && loyaltyData.points >= 100 && (
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-sm font-medium text-stone-700">Loyalty points ({loyaltyData.points} pts)</p>
+                  <p className="text-sm font-medium text-stone-700">
+                    Loyalty points ({loyaltyData.points} pts)
+                  </p>
                   {loyaltyDiscountOre > 0 && (
-                    <span className="text-xs text-green-700 font-medium">-{formatPrice(loyaltyDiscountOre)}</span>
+                    <span className="text-xs text-green-700 font-medium">
+                      -{formatPrice(loyaltyDiscountOre)}
+                    </span>
                   )}
                 </div>
                 <input
@@ -334,7 +388,9 @@ export default function CartPage() {
                   className="w-full accent-espresso-700"
                 />
                 <p className="text-xs text-stone-500 mt-1">
-                  {redeemPoints > 0 ? `Redeeming ${redeemPoints} pts for -${formatPrice(loyaltyDiscountOre)}` : 'Slide to redeem points'}
+                  {redeemPoints > 0
+                    ? `Redeeming ${redeemPoints} pts for -${formatPrice(loyaltyDiscountOre)}`
+                    : 'Slide to redeem points'}
                 </p>
               </div>
             )}
@@ -366,17 +422,13 @@ export default function CartPage() {
               )}
               {selectedRate?.freeThresholdOre && subtotalOre < selectedRate.freeThresholdOre && (
                 <p className="text-xs text-stone-500">
-                  Add {formatPrice(selectedRate.freeThresholdOre - subtotalOre)} more for free standard shipping
+                  Add {formatPrice(selectedRate.freeThresholdOre - subtotalOre)} more for free
+                  standard shipping
                 </p>
               )}
             </div>
 
-            <Button
-              onClick={handleCheckout}
-              loading={checkingOut}
-              size="lg"
-              className="w-full"
-            >
+            <Button onClick={handleCheckout} loading={checkingOut} size="lg" className="w-full">
               Proceed to checkout
             </Button>
 
@@ -386,7 +438,10 @@ export default function CartPage() {
               </p>
             )}
 
-            <Link to="/products" className="block text-center text-sm text-stone-500 hover:text-stone-700 mt-4 transition-colors">
+            <Link
+              to="/products"
+              className="block text-center text-sm text-stone-500 hover:text-stone-700 mt-4 transition-colors"
+            >
               Continue shopping
             </Link>
           </div>

@@ -3,7 +3,11 @@ import { z } from 'zod';
 export const createProductSchema = z.object({
   body: z.object({
     name: z.string().min(1).max(200),
-    slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/),
+    slug: z
+      .string()
+      .min(1)
+      .max(200)
+      .regex(/^[a-z0-9-]+$/),
     description: z.string().min(1),
     priceOre: z.number().int().positive(),
     categoryId: z.string().cuid(),
@@ -75,7 +79,10 @@ export const updateCustomerNoteSchema = z.object({
 
 export const adjustLoyaltySchema = z.object({
   body: z.object({
-    delta: z.number().int().refine((n) => n !== 0, { message: 'delta must be non-zero' }),
+    delta: z
+      .number()
+      .int()
+      .refine((n) => n !== 0, { message: 'delta must be non-zero' }),
     reason: z.string().min(1).max(200),
   }),
 });

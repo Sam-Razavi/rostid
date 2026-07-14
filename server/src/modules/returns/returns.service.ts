@@ -1,9 +1,22 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
 
-type ReturnRecord = { id: string; orderId: string; userId: string; reason: string; status: string; refundOre: number | null; stripeRefundId: string | null; createdAt: Date };
-type ReturnWithItems = ReturnRecord & { items: { id: string; returnId: string; orderItemId: string; quantity: number }[] };
-type AdminReturnRecord = ReturnRecord & { items: { id: string; orderItemId: string; quantity: number }[] };
+type ReturnRecord = {
+  id: string;
+  orderId: string;
+  userId: string;
+  reason: string;
+  status: string;
+  refundOre: number | null;
+  stripeRefundId: string | null;
+  createdAt: Date;
+};
+type ReturnWithItems = ReturnRecord & {
+  items: { id: string; returnId: string; orderItemId: string; quantity: number }[];
+};
+type AdminReturnRecord = ReturnRecord & {
+  items: { id: string; orderItemId: string; quantity: number }[];
+};
 
 type ReturnPrisma = {
   return: {
@@ -28,12 +41,14 @@ export async function submitReturn(
   });
 
   if (!order || order.userId !== userId) throw AppError.notFound('Order not found');
-  if (order.status !== 'delivered') throw AppError.badRequest('Only delivered orders can be returned');
+  if (order.status !== 'delivered')
+    throw AppError.badRequest('Only delivered orders can be returned');
 
   const orderAny = order as unknown as { fulfilledAt?: Date | null };
   if (orderAny.fulfilledAt) {
     const daysSinceDelivery = (Date.now() - orderAny.fulfilledAt.getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSinceDelivery > 30) throw AppError.badRequest('Returns must be submitted within 30 days of delivery');
+    if (daysSinceDelivery > 30)
+      throw AppError.badRequest('Returns must be submitted within 30 days of delivery');
   }
 
   const existingReturn = await returnDb.return.findFirst({ where: { orderId, userId } });
@@ -67,7 +82,10 @@ export async function adminListReturns() {
   });
 }
 
-export async function adminUpdateReturn(returnId: string, data: { status: string; refundOre?: number; stripeRefundId?: string }) {
+export async function adminUpdateReturn(
+  returnId: string,
+  data: { status: string; refundOre?: number; stripeRefundId?: string }
+) {
   const ret = await returnDb.return.findFirst({ where: { id: returnId } });
   if (!ret) throw AppError.notFound('Return not found');
   return returnDb.return.update({ where: { id: returnId }, data });

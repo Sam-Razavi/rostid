@@ -4,7 +4,8 @@ import { AppError } from '../../utils/AppError';
 import type { ListProductsQuery } from './products.schema';
 
 export async function listProducts(query: ListProductsQuery) {
-  const { category, roast, search, minPrice, maxPrice, page, limit, sort, exclude, inStock } = query;
+  const { category, roast, search, minPrice, maxPrice, page, limit, sort, exclude, inStock } =
+    query;
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
@@ -60,16 +61,18 @@ export async function listProducts(query: ListProductsQuery) {
 }
 
 export async function getProductBySlug(slug: string) {
-  const product = await (prisma.product.findUnique as unknown as (a: unknown) => Promise<unknown>)({
-    where: { slug },
-    include: {
-      category: { select: { id: true, name: true, slug: true } },
-      variants: {
-        where: { isActive: true },
-        orderBy: { priceOre: 'asc' },
+  const product = (await (prisma.product.findUnique as unknown as (a: unknown) => Promise<unknown>)(
+    {
+      where: { slug },
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        variants: {
+          where: { isActive: true },
+          orderBy: { priceOre: 'asc' },
+        },
       },
-    },
-  }) as (Awaited<ReturnType<typeof prisma.product.findUnique>> & { variants: unknown[] }) | null;
+    }
+  )) as (Awaited<ReturnType<typeof prisma.product.findUnique>> & { variants: unknown[] }) | null;
 
   if (!product || !product.isActive) {
     throw AppError.notFound('Product not found');

@@ -1,12 +1,27 @@
 import { prisma } from '../../config/prisma';
 
-type LoyaltyAccountRecord = { id: string; userId: string; points: number; lifetimeEarned: number; createdAt: Date };
-type LoyaltyTxRecord = { id: string; accountId: string; orderId: string | null; delta: number; reason: string; createdAt: Date };
+type LoyaltyAccountRecord = {
+  id: string;
+  userId: string;
+  points: number;
+  lifetimeEarned: number;
+  createdAt: Date;
+};
+type LoyaltyTxRecord = {
+  id: string;
+  accountId: string;
+  orderId: string | null;
+  delta: number;
+  reason: string;
+  createdAt: Date;
+};
 
 type LoyaltyPrisma = {
   loyaltyAccount: {
     upsert: (a: unknown) => Promise<LoyaltyAccountRecord>;
-    findUnique: (a: unknown) => Promise<(LoyaltyAccountRecord & { transactions: LoyaltyTxRecord[] }) | null>;
+    findUnique: (
+      a: unknown
+    ) => Promise<(LoyaltyAccountRecord & { transactions: LoyaltyTxRecord[] }) | null>;
     update: (a: unknown) => Promise<LoyaltyAccountRecord>;
   };
   loyaltyTransaction: {

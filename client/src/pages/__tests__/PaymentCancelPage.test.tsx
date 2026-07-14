@@ -29,6 +29,9 @@ describe('PaymentCancelPage', () => {
 
   it('renders link to continue shopping', () => {
     renderPage();
-    expect(screen.getByRole('link', { name: /continue shopping/i })).toHaveAttribute('href', '/products');
+    expect(screen.getByRole('link', { name: /continue shopping/i })).toHaveAttribute(
+      'href',
+      '/products'
+    );
   });
 });

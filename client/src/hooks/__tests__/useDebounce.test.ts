@@ -29,7 +29,9 @@ describe('useDebounce', () => {
       initialProps: { value: 'first' },
     });
     rerender({ value: 'second' });
-    act(() => { vi.advanceTimersByTime(300); });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
     expect(result.current).toBe('second');
   });
 
@@ -38,11 +40,17 @@ describe('useDebounce', () => {
       initialProps: { value: 'a' },
     });
     rerender({ value: 'b' });
-    act(() => { vi.advanceTimersByTime(100); });
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
     rerender({ value: 'c' });
-    act(() => { vi.advanceTimersByTime(100); });
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
     expect(result.current).toBe('a');
-    act(() => { vi.advanceTimersByTime(300); });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
     expect(result.current).toBe('c');
   });
 
@@ -51,9 +59,13 @@ describe('useDebounce', () => {
       initialProps: { value: 'start' },
     });
     rerender({ value: 'end' });
-    act(() => { vi.advanceTimersByTime(299); });
+    act(() => {
+      vi.advanceTimersByTime(299);
+    });
     expect(result.current).toBe('start');
-    act(() => { vi.advanceTimersByTime(1); });
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
     expect(result.current).toBe('end');
   });
 
@@ -62,7 +74,9 @@ describe('useDebounce', () => {
       initialProps: { value: 0 },
     });
     rerender({ value: 42 });
-    act(() => { vi.advanceTimersByTime(200); });
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
     expect(result.current).toBe(42);
   });
 });

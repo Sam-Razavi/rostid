@@ -21,10 +21,18 @@ vi.mock('../../api/client', () => ({
 
 import apiClient from '../../api/client';
 
-const mockUser = { id: 'u1', email: 'test@test.com', name: 'Test User', role: 'customer' as const, createdAt: new Date().toISOString() };
+const mockUser = {
+  id: 'u1',
+  email: 'test@test.com',
+  name: 'Test User',
+  role: 'customer' as const,
+  createdAt: new Date().toISOString(),
+};
 
 function wrapper({ children }: { children: ReactNode }) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }
 
@@ -65,7 +73,9 @@ describe('useLogin', () => {
   });
 
   it('surfaces error when API call fails', async () => {
-    (apiClient.post as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Invalid credentials'));
+    (apiClient.post as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Invalid credentials')
+    );
 
     const { result } = renderHook(() => useLogin(), { wrapper });
     act(() => result.current.mutate({ email: 'bad@test.com', password: 'wrong' }));

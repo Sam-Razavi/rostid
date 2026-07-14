@@ -16,25 +16,19 @@ describe('authenticate middleware', () => {
   it('calls next with unauthorized error when no Authorization header', () => {
     const { req, res, next } = mockContext();
     authenticate(req, res, next);
-    expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 401 })
-    );
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
   });
 
   it('calls next with unauthorized error for non-Bearer scheme', () => {
     const { req, res, next } = mockContext('Basic dXNlcjpwYXNz');
     authenticate(req, res, next);
-    expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 401 })
-    );
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
   });
 
   it('calls next with unauthorized for invalid token', () => {
     const { req, res, next } = mockContext('Bearer not.a.token');
     authenticate(req, res, next);
-    expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 401 })
-    );
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
   });
 
   it('attaches user to req and calls next() without error for valid token', () => {

@@ -45,7 +45,7 @@ export default function ProductsPage() {
     next.delete('page');
     setSearchParams(next, { replace: true });
     setPage(1);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function ProductsPage() {
     next.delete('page');
     setSearchParams(next, { replace: true });
     setPage(1);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedMin]);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function ProductsPage() {
     next.delete('page');
     setSearchParams(next, { replace: true });
     setPage(1);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedMax]);
 
   function updateParam(key: string, value: string) {
@@ -91,8 +91,22 @@ export default function ProductsPage() {
   }
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['products', { category, roast, search: debouncedSearch, sort, page, minPriceVal, maxPriceVal, inStock }],
-    queryFn: () => fetchProducts({ category, roast, search: debouncedSearch, sort, page, limit: 12, minPrice: minPriceVal, maxPrice: maxPriceVal, inStock: inStock || undefined }),
+    queryKey: [
+      'products',
+      { category, roast, search: debouncedSearch, sort, page, minPriceVal, maxPriceVal, inStock },
+    ],
+    queryFn: () =>
+      fetchProducts({
+        category,
+        roast,
+        search: debouncedSearch,
+        sort,
+        page,
+        limit: 12,
+        minPrice: minPriceVal,
+        maxPrice: maxPriceVal,
+        inStock: inStock || undefined,
+      }),
     placeholderData: (prev) => prev,
   });
 
@@ -105,7 +119,10 @@ export default function ProductsPage() {
   const wishlistedIds = new Set(wishlistItems?.map((i) => i.productId) ?? []);
 
   async function handleAddToCart(product: { id: string }) {
-    if (!isAuthenticated) { navigate('/login'); return; }
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     setAddingId(product.id);
     try {
       await addToCart.mutateAsync({ productId: product.id, quantity: 1 });
@@ -118,7 +135,10 @@ export default function ProductsPage() {
     <div className="container-page py-10">
       <Helmet>
         <title>Coffee shop — Rostid</title>
-        <meta name="description" content="Specialty coffee roasted in Stockholm. Single origins, blends, and subscriptions — shipped fresh." />
+        <meta
+          name="description"
+          content="Specialty coffee roasted in Stockholm. Single origins, blends, and subscriptions — shipped fresh."
+        />
       </Helmet>
       <div className="mb-8">
         <h1 className="font-serif text-4xl font-semibold text-stone-900">Coffee shop</h1>

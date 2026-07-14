@@ -10,7 +10,11 @@ function formatPrice(ore: number | null | undefined) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('sv-SE', { year: 'numeric', month: 'short', day: 'numeric' });
+  return new Date(iso).toLocaleDateString('sv-SE', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 function defaultRefundOre(ret: AdminReturn) {
@@ -30,8 +34,15 @@ export default function AdminReturns() {
   });
 
   const update = useMutation({
-    mutationFn: ({ id, status, refundOre }: { id: string; status: 'approved' | 'rejected'; refundOre?: number }) =>
-      updateAdminReturn(id, { status, refundOre }),
+    mutationFn: ({
+      id,
+      status,
+      refundOre,
+    }: {
+      id: string;
+      status: 'approved' | 'rejected';
+      refundOre?: number;
+    }) => updateAdminReturn(id, { status, refundOre }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'returns'] });
       toast.success('Return updated');
@@ -42,7 +53,9 @@ export default function AdminReturns() {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-20 rounded-xl" />
+        ))}
       </div>
     );
   }
@@ -51,7 +64,9 @@ export default function AdminReturns() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-stone-900">Returns</h1>
-        <span className="text-sm text-stone-500">{returns.filter((ret) => ret.status === 'pending').length} pending</span>
+        <span className="text-sm text-stone-500">
+          {returns.filter((ret) => ret.status === 'pending').length} pending
+        </span>
       </div>
 
       <div className="bg-white rounded-xl shadow-soft border border-stone-100 overflow-hidden">
@@ -70,38 +85,62 @@ export default function AdminReturns() {
               {returns.map((ret) => (
                 <tr key={ret.id} className="hover:bg-stone-50">
                   <td className="px-6 py-4">
-                    <p className="font-mono text-xs text-stone-500">#{ret.id.slice(-8).toUpperCase()}</p>
-                    <Link to={`/admin/orders/${ret.orderId}`} className="text-xs text-espresso-700 hover:text-espresso-900">
+                    <p className="font-mono text-xs text-stone-500">
+                      #{ret.id.slice(-8).toUpperCase()}
+                    </p>
+                    <Link
+                      to={`/admin/orders/${ret.orderId}`}
+                      className="text-xs text-espresso-700 hover:text-espresso-900"
+                    >
                       Order #{ret.orderId.slice(-8).toUpperCase()}
                     </Link>
                     <p className="text-xs text-stone-400 mt-1">{formatDate(ret.createdAt)}</p>
-                    <p className="text-sm text-stone-700 mt-2 capitalize">{ret.reason.replace(/_/g, ' ')}</p>
+                    <p className="text-sm text-stone-700 mt-2 capitalize">
+                      {ret.reason.replace(/_/g, ' ')}
+                    </p>
                   </td>
                   <td className="px-4 py-4">
-                    <p className="font-medium text-stone-900">{ret.order?.user?.name ?? 'Unknown'}</p>
+                    <p className="font-medium text-stone-900">
+                      {ret.order?.user?.name ?? 'Unknown'}
+                    </p>
                     <p className="text-xs text-stone-500">{ret.order?.user?.email ?? ''}</p>
                   </td>
                   <td className="px-4 py-4 text-stone-600">
                     <p>{ret.items.reduce((sum, item) => sum + item.quantity, 0)} item(s)</p>
-                    <p className="text-xs text-stone-400">Refund estimate {formatPrice(defaultRefundOre(ret))}</p>
+                    <p className="text-xs text-stone-400">
+                      Refund estimate {formatPrice(defaultRefundOre(ret))}
+                    </p>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                      ret.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                      ret.status === 'refunded' ? 'bg-green-100 text-green-700' :
-                      ret.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                      'bg-stone-100 text-stone-600'
-                    }`}>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        ret.status === 'pending'
+                          ? 'bg-amber-100 text-amber-700'
+                          : ret.status === 'refunded'
+                            ? 'bg-green-100 text-green-700'
+                            : ret.status === 'rejected'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-stone-100 text-stone-600'
+                      }`}
+                    >
                       {ret.status}
                     </span>
-                    {ret.stripeRefundId && <p className="text-xs text-stone-400 mt-1">{ret.stripeRefundId}</p>}
+                    {ret.stripeRefundId && (
+                      <p className="text-xs text-stone-400 mt-1">{ret.stripeRefundId}</p>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-right">
                     {ret.status === 'pending' ? (
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           size="sm"
-                          onClick={() => update.mutate({ id: ret.id, status: 'approved', refundOre: defaultRefundOre(ret) })}
+                          onClick={() =>
+                            update.mutate({
+                              id: ret.id,
+                              status: 'approved',
+                              refundOre: defaultRefundOre(ret),
+                            })
+                          }
                           loading={update.isPending}
                         >
                           Approve
@@ -123,7 +162,9 @@ export default function AdminReturns() {
               ))}
               {returns.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-stone-400">No returns yet</td>
+                  <td colSpan={5} className="px-6 py-12 text-center text-stone-400">
+                    No returns yet
+                  </td>
                 </tr>
               )}
             </tbody>

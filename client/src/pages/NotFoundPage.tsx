@@ -43,7 +43,9 @@ export default function NotFoundPage() {
 
         {categories && categories.length > 0 && (
           <div className="mb-8">
-            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Browse categories</p>
+            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">
+              Browse categories
+            </p>
             <div className="flex flex-wrap gap-2 justify-center">
               {categories.map((cat) => (
                 <Link

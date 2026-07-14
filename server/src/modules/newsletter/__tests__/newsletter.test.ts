@@ -14,9 +14,7 @@ describe('Newsletter API', () => {
     });
 
     it('accepts re-subscription for existing email without error', async () => {
-      await request(app)
-        .post('/api/newsletter/subscribe')
-        .send({ email: 'dupe@test.com' });
+      await request(app).post('/api/newsletter/subscribe').send({ email: 'dupe@test.com' });
 
       const res = await request(app)
         .post('/api/newsletter/subscribe')
@@ -34,9 +32,7 @@ describe('Newsletter API', () => {
     });
 
     it('rejects missing email', async () => {
-      const res = await request(app)
-        .post('/api/newsletter/subscribe')
-        .send({});
+      const res = await request(app).post('/api/newsletter/subscribe').send({});
 
       expect(res.status).toBe(400);
     });
@@ -50,9 +46,7 @@ describe('Newsletter API', () => {
     });
 
     it('rejects empty string email', async () => {
-      const res = await request(app)
-        .post('/api/newsletter/subscribe')
-        .send({ email: '' });
+      const res = await request(app).post('/api/newsletter/subscribe').send({ email: '' });
 
       expect(res.status).toBe(400);
     });

@@ -13,7 +13,7 @@ export function NewsletterSignup() {
     try {
       await apiClient.post('/newsletter/subscribe', { email });
       setDone(true);
-      toast.success('You\'re subscribed!');
+      toast.success("You're subscribed!");
     } catch {
       toast.error('Something went wrong. Please try again.');
     } finally {
@@ -26,12 +26,24 @@ export function NewsletterSignup() {
       <div className="bg-espresso-950 py-16 text-center">
         <div className="container-page">
           <div className="w-12 h-12 bg-espresso-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
           <p className="font-serif text-xl text-white">You're on the list.</p>
-          <p className="text-espresso-300 mt-1 text-sm">Thank you for joining the Rostid community.</p>
+          <p className="text-espresso-300 mt-1 text-sm">
+            Thank you for joining the Rostid community.
+          </p>
         </div>
       </div>
     );
@@ -40,11 +52,10 @@ export function NewsletterSignup() {
   return (
     <section className="bg-espresso-950 py-20">
       <div className="container-page max-w-xl text-center">
-        <h2 className="font-serif text-3xl font-semibold text-white mb-3">
-          Fresh beans, first
-        </h2>
+        <h2 className="font-serif text-3xl font-semibold text-white mb-3">Fresh beans, first</h2>
         <p className="text-espresso-300 mb-8 text-sm leading-relaxed">
-          Get early access to new roasts, seasonal blends, and exclusive offers — delivered straight to your inbox.
+          Get early access to new roasts, seasonal blends, and exclusive offers — delivered straight
+          to your inbox.
         </p>
         <form onSubmit={handleSubmit} className="flex gap-3 max-w-sm mx-auto">
           <input

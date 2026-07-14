@@ -59,7 +59,9 @@ export function AddReviewForm({ slug, hasReviewed }: AddReviewFormProps) {
       setBody('');
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to submit review';
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Failed to submit review';
       toast.error(msg);
     },
   });
@@ -67,7 +69,10 @@ export function AddReviewForm({ slug, hasReviewed }: AddReviewFormProps) {
   if (!isAuthenticated) {
     return (
       <p className="text-sm text-stone-500">
-        <Link to="/login" className="text-espresso-700 font-medium hover:text-espresso-900 transition-colors">
+        <Link
+          to="/login"
+          className="text-espresso-700 font-medium hover:text-espresso-900 transition-colors"
+        >
           Sign in
         </Link>{' '}
         to leave a review.
@@ -85,7 +90,10 @@ export function AddReviewForm({ slug, hasReviewed }: AddReviewFormProps) {
 
   return (
     <form
-      onSubmit={(e) => { e.preventDefault(); if (rating > 0) submit.mutate(); }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (rating > 0) submit.mutate();
+      }}
       className="space-y-4"
     >
       <div>
@@ -108,12 +116,7 @@ export function AddReviewForm({ slug, hasReviewed }: AddReviewFormProps) {
         />
       </div>
 
-      <Button
-        type="submit"
-        disabled={rating === 0}
-        loading={submit.isPending}
-        size="sm"
-      >
+      <Button type="submit" disabled={rating === 0} loading={submit.isPending} size="sm">
         Submit review
       </Button>
     </form>

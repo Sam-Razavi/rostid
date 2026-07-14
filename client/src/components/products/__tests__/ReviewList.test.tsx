@@ -26,7 +26,9 @@ describe('ReviewList', () => {
   });
 
   it('renders review body text', () => {
-    render(<ReviewList reviews={[makeReview({ body: 'Fantastic roast' })]} avgRating={5} count={1} />);
+    render(
+      <ReviewList reviews={[makeReview({ body: 'Fantastic roast' })]} avgRating={5} count={1} />
+    );
     expect(screen.getByText('Fantastic roast')).toBeInTheDocument();
   });
 

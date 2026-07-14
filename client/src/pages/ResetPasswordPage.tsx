@@ -42,7 +42,9 @@ export default function ResetPasswordPage() {
       toast.success('Password updated!');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Invalid or expired reset link';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Invalid or expired reset link';
       setError(message);
     } finally {
       setLoading(false);
@@ -54,13 +56,26 @@ export default function ResetPasswordPage() {
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
           <h1 className="text-2xl font-semibold text-stone-900 mb-2">Password updated</h1>
           <p className="text-stone-500 mb-8">Redirecting you to sign in…</p>
-          <Link to="/login" className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors text-sm">
+          <Link
+            to="/login"
+            className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors text-sm"
+          >
             Sign in now
           </Link>
         </div>
@@ -72,7 +87,9 @@ export default function ResetPasswordPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">Rostid</Link>
+          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">
+            Rostid
+          </Link>
           <h1 className="text-xl font-semibold text-stone-900 mt-4">Choose a new password</h1>
           <p className="text-stone-500 mt-1 text-sm">Must be at least 8 characters</p>
         </div>
@@ -109,7 +126,10 @@ export default function ResetPasswordPage() {
         </div>
 
         <p className="text-center text-sm text-stone-500 mt-6">
-          <Link to="/login" className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors">
+          <Link
+            to="/login"
+            className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors"
+          >
             Back to sign in
           </Link>
         </p>

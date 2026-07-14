@@ -24,12 +24,7 @@ export default function Layout() {
 
       <Navbar />
 
-      <main
-        id="main-content"
-        ref={mainRef}
-        tabIndex={-1}
-        className="flex-1 outline-none"
-      >
+      <main id="main-content" ref={mainRef} tabIndex={-1} className="flex-1 outline-none">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}

@@ -49,9 +49,7 @@ export function useUpdateCartItem() {
         if (!old) return old;
         return {
           ...old,
-          items: old.items.map((item) =>
-            item.id === id ? { ...item, quantity } : item
-          ),
+          items: old.items.map((item) => (item.id === id ? { ...item, quantity } : item)),
         };
       });
 

@@ -23,14 +23,26 @@ interface OrderTimelineProps {
 
 export function OrderTimeline({ status, orientation = 'horizontal' }: OrderTimelineProps) {
   const isCancelled = status === 'cancelled';
-  const currentStep = isCancelled ? -1 : STATUS_STEPS.indexOf(status as (typeof STATUS_STEPS)[number]);
+  const currentStep = isCancelled
+    ? -1
+    : STATUS_STEPS.indexOf(status as (typeof STATUS_STEPS)[number]);
 
   if (isCancelled) {
     return (
       <div className="flex items-center gap-2 py-2">
         <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-          <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-4 h-4 text-red-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </div>
         <span className="text-sm font-medium text-red-600">Order cancelled</span>
@@ -58,18 +70,26 @@ export function OrderTimeline({ status, orientation = 'horizontal' }: OrderTimel
                 >
                   {done && !active ? (
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   ) : (
                     <span className="text-xs font-bold">{i + 1}</span>
                   )}
                 </div>
                 {!last && (
-                  <div className={`w-0.5 h-8 ${i < currentStep ? 'bg-espresso-600' : 'bg-stone-200'}`} />
+                  <div
+                    className={`w-0.5 h-8 ${i < currentStep ? 'bg-espresso-600' : 'bg-stone-200'}`}
+                  />
                 )}
               </div>
               <div className="pb-8 pt-1">
-                <span className={`text-sm font-medium ${done ? 'text-espresso-800' : 'text-stone-400'}`}>
+                <span
+                  className={`text-sm font-medium ${done ? 'text-espresso-800' : 'text-stone-400'}`}
+                >
                   {STEP_LABELS[step]}
                 </span>
               </div>
@@ -85,7 +105,9 @@ export function OrderTimeline({ status, orientation = 'horizontal' }: OrderTimel
       <div className="absolute left-0 right-0 top-4 h-0.5 bg-stone-200 -z-10" />
       <div
         className="absolute left-0 top-4 h-0.5 bg-espresso-600 -z-10 transition-all duration-500"
-        style={{ width: currentStep >= 0 ? `${(currentStep / (STATUS_STEPS.length - 1)) * 100}%` : '0%' }}
+        style={{
+          width: currentStep >= 0 ? `${(currentStep / (STATUS_STEPS.length - 1)) * 100}%` : '0%',
+        }}
       />
       {STATUS_STEPS.map((step, i) => {
         const done = i <= currentStep;
@@ -101,13 +123,19 @@ export function OrderTimeline({ status, orientation = 'horizontal' }: OrderTimel
             >
               {done && !active ? (
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               ) : (
                 <span className="text-xs font-bold">{i + 1}</span>
               )}
             </div>
-            <span className={`text-xs font-medium capitalize hidden sm:block ${done ? 'text-espresso-700' : 'text-stone-400'}`}>
+            <span
+              className={`text-xs font-medium capitalize hidden sm:block ${done ? 'text-espresso-700' : 'text-stone-400'}`}
+            >
               {STEP_LABELS[step]}
             </span>
           </div>

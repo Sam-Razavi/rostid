@@ -2,8 +2,14 @@ import { useState, FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
-  fetchAdminProducts, deleteProduct, createProduct, updateProduct,
-  fetchAdminVariants, createAdminVariant, deleteAdminVariant, bulkProductAction,
+  fetchAdminProducts,
+  deleteProduct,
+  createProduct,
+  updateProduct,
+  fetchAdminVariants,
+  createAdminVariant,
+  deleteAdminVariant,
+  bulkProductAction,
 } from '../../api/admin.api';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -28,7 +34,9 @@ function VariantManager({ product }: { product: Product }) {
     mutationFn: (v: Partial<ProductVariant>) => createAdminVariant(product.id, v),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'variants', product.id] });
-      setName(''); setPriceOre(''); setStock('');
+      setName('');
+      setPriceOre('');
+      setStock('');
       toast.success('Variant added');
     },
   });
@@ -44,7 +52,11 @@ function VariantManager({ product }: { product: Product }) {
   function handleAdd(e: FormEvent) {
     e.preventDefault();
     if (!name || !priceOre) return;
-    addVariant.mutate({ name, priceOre: Math.round(Number(priceOre) * 100), stock: Number(stock) || 0 });
+    addVariant.mutate({
+      name,
+      priceOre: Math.round(Number(priceOre) * 100),
+      stock: Number(stock) || 0,
+    });
   }
 
   return (
@@ -83,11 +95,32 @@ function VariantManager({ product }: { product: Product }) {
         </table>
       )}
       <form onSubmit={handleAdd} className="grid grid-cols-3 gap-2 pt-2 border-t border-stone-100">
-        <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="250g" required />
-        <Input label="Price (SEK)" type="number" value={priceOre} onChange={(e) => setPriceOre(e.target.value)} placeholder="149" required />
-        <Input label="Stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} placeholder="0" />
+        <Input
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="250g"
+          required
+        />
+        <Input
+          label="Price (SEK)"
+          type="number"
+          value={priceOre}
+          onChange={(e) => setPriceOre(e.target.value)}
+          placeholder="149"
+          required
+        />
+        <Input
+          label="Stock"
+          type="number"
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
+          placeholder="0"
+        />
         <div className="col-span-3 flex justify-end">
-          <Button type="submit" size="sm" loading={addVariant.isPending}>Add variant</Button>
+          <Button type="submit" size="sm" loading={addVariant.isPending}>
+            Add variant
+          </Button>
         </div>
       </form>
     </div>
@@ -141,7 +174,8 @@ export default function AdminProducts() {
   });
 
   const bulk = useMutation({
-    mutationFn: ({ ids, action }: { ids: string[]; action: 'activate' | 'deactivate' }) => bulkProductAction(ids, action),
+    mutationFn: ({ ids, action }: { ids: string[]; action: 'activate' | 'deactivate' }) =>
+      bulkProductAction(ids, action),
     onSuccess: (result, vars) => {
       qc.invalidateQueries({ queryKey: ['admin', 'products'] });
       setSelectedIds(new Set());
@@ -150,15 +184,17 @@ export default function AdminProducts() {
     onError: () => toast.error('Bulk action failed'),
   });
 
-  const filtered = products?.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = products?.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.category.name.toLowerCase().includes(search.toLowerCase())
   );
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
@@ -191,10 +227,21 @@ export default function AdminProducts() {
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-2 ml-4">
             <span className="text-sm text-stone-600">{selectedIds.size} selected</span>
-            <Button size="sm" variant="secondary" onClick={() => bulk.mutate({ ids: Array.from(selectedIds), action: 'activate' })} loading={bulk.isPending}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => bulk.mutate({ ids: Array.from(selectedIds), action: 'activate' })}
+              loading={bulk.isPending}
+            >
               Activate
             </Button>
-            <Button size="sm" variant="secondary" onClick={() => bulk.mutate({ ids: Array.from(selectedIds), action: 'deactivate' })} loading={bulk.isPending} className="text-red-600 hover:text-red-800">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => bulk.mutate({ ids: Array.from(selectedIds), action: 'deactivate' })}
+              loading={bulk.isPending}
+              className="text-red-600 hover:text-red-800"
+            >
               Deactivate
             </Button>
           </div>
@@ -207,7 +254,12 @@ export default function AdminProducts() {
             <thead>
               <tr className="border-b border-stone-100 text-xs text-stone-500 uppercase tracking-wide">
                 <th className="px-4 py-3 w-10">
-                  <input type="checkbox" onChange={toggleAll} checked={selectedIds.size > 0 && selectedIds.size === filtered?.length} className="accent-espresso-700" />
+                  <input
+                    type="checkbox"
+                    onChange={toggleAll}
+                    checked={selectedIds.size > 0 && selectedIds.size === filtered?.length}
+                    className="accent-espresso-700"
+                  />
                 </th>
                 <th className="text-left px-6 py-3 font-medium">Product</th>
                 <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Category</th>
@@ -222,26 +274,51 @@ export default function AdminProducts() {
               {isLoading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
-                      <td className="px-4 py-4"><Skeleton className="h-4 w-4" /></td>
-                      <td className="px-6 py-4"><Skeleton className="h-4 w-40" /></td>
-                      <td className="px-4 py-4 hidden md:table-cell"><Skeleton className="h-4 w-24" /></td>
-                      <td className="px-4 py-4 hidden lg:table-cell"><Skeleton className="h-4 w-16" /></td>
-                      <td className="px-4 py-4 text-right"><Skeleton className="h-4 w-16 ml-auto" /></td>
-                      <td className="px-4 py-4 hidden sm:table-cell text-right"><Skeleton className="h-4 w-10 ml-auto" /></td>
-                      <td className="px-4 py-4 text-right"><Skeleton className="h-5 w-14 ml-auto rounded-full" /></td>
-                      <td className="px-6 py-4"><Skeleton className="h-8 w-20 ml-auto rounded-lg" /></td>
+                      <td className="px-4 py-4">
+                        <Skeleton className="h-4 w-4" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-4 w-40" />
+                      </td>
+                      <td className="px-4 py-4 hidden md:table-cell">
+                        <Skeleton className="h-4 w-24" />
+                      </td>
+                      <td className="px-4 py-4 hidden lg:table-cell">
+                        <Skeleton className="h-4 w-16" />
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <Skeleton className="h-4 w-16 ml-auto" />
+                      </td>
+                      <td className="px-4 py-4 hidden sm:table-cell text-right">
+                        <Skeleton className="h-4 w-10 ml-auto" />
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <Skeleton className="h-5 w-14 ml-auto rounded-full" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-8 w-20 ml-auto rounded-lg" />
+                      </td>
                     </tr>
                   ))
                 : filtered?.map((product) => (
                     <tr key={product.id} className="hover:bg-stone-50 transition-colors">
                       <td className="px-4 py-4">
-                        <input type="checkbox" checked={selectedIds.has(product.id)} onChange={() => toggleSelect(product.id)} className="accent-espresso-700" />
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(product.id)}
+                          onChange={() => toggleSelect(product.id)}
+                          className="accent-espresso-700"
+                        />
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-espresso-50 overflow-hidden shrink-0">
                             {product.imageUrl ? (
-                              <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                              <img
+                                src={product.imageUrl}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <span className="font-serif text-sm text-espresso-200">R</span>
@@ -320,7 +397,9 @@ export default function AdminProducts() {
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="New product" size="lg">
         <ProductForm
-          onSubmit={(data) => create.mutateAsync(data as Parameters<typeof createProduct>[0]).then(() => undefined)}
+          onSubmit={(data) =>
+            create.mutateAsync(data as Parameters<typeof createProduct>[0]).then(() => undefined)
+          }
           submitLabel="Create product"
           isLoading={create.isPending}
         />
@@ -335,7 +414,11 @@ export default function AdminProducts() {
         {editingProduct && (
           <ProductForm
             initialData={editingProduct}
-            onSubmit={(data) => edit.mutateAsync({ id: editingProduct.id, data: data as Partial<Product> }).then(() => undefined)}
+            onSubmit={(data) =>
+              edit
+                .mutateAsync({ id: editingProduct.id, data: data as Partial<Product> })
+                .then(() => undefined)
+            }
             submitLabel="Save changes"
             isLoading={edit.isPending}
           />

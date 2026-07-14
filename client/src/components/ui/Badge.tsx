@@ -44,19 +44,21 @@ const statusLabels: Record<OrderStatus, string> = {
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
-  return (
-    <Badge variant={statusVariants[status]}>
-      {statusLabels[status]}
-    </Badge>
-  );
+  return <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>;
 }
 
 const roastLabels = { light: 'Light Roast', medium: 'Medium Roast', dark: 'Dark Roast' };
-const roastVariants = { light: 'bg-amber-50 text-amber-700', medium: 'bg-orange-50 text-orange-700', dark: 'bg-stone-100 text-stone-700' };
+const roastVariants = {
+  light: 'bg-amber-50 text-amber-700',
+  medium: 'bg-orange-50 text-orange-700',
+  dark: 'bg-stone-100 text-stone-700',
+};
 
 export function RoastBadge({ level }: { level: 'light' | 'medium' | 'dark' }) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roastVariants[level]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roastVariants[level]}`}
+    >
       {roastLabels[level]}
     </span>
   );

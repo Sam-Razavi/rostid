@@ -14,7 +14,10 @@ import apiClient from '../../../api/client';
 import toast from 'react-hot-toast';
 
 const mockPost = apiClient.post as ReturnType<typeof vi.fn>;
-const mockToast = toast as unknown as { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
+const mockToast = toast as unknown as {
+  success: ReturnType<typeof vi.fn>;
+  error: ReturnType<typeof vi.fn>;
+};
 
 describe('NewsletterSignup', () => {
   beforeEach(() => {

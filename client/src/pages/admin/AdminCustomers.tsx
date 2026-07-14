@@ -9,7 +9,11 @@ function formatPrice(ore: number) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-SE', { year: 'numeric', month: 'short', day: 'numeric' });
+  return new Date(iso).toLocaleDateString('en-SE', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 export default function AdminCustomers() {
@@ -57,7 +61,9 @@ export default function AdminCustomers() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-stone-900">Customers</h1>
-        <span className="text-stone-500 text-sm">{filtered?.length ?? 0} of {customers?.length ?? 0}</span>
+        <span className="text-stone-500 text-sm">
+          {filtered?.length ?? 0} of {customers?.length ?? 0}
+        </span>
       </div>
 
       <div className="mb-5">
@@ -100,7 +106,9 @@ export default function AdminCustomers() {
                       <td className="px-4 py-3 font-medium text-stone-900">{c.name}</td>
                       <td className="px-4 py-3 text-stone-600">{c.email}</td>
                       <td className="px-4 py-3 text-stone-500">{formatDate(c.createdAt)}</td>
-                      <td className="px-4 py-3 text-right text-stone-700 tabular-nums">{c.orderCount}</td>
+                      <td className="px-4 py-3 text-right text-stone-700 tabular-nums">
+                        {c.orderCount}
+                      </td>
                       <td className="px-4 py-3 text-right font-medium text-espresso-800 tabular-nums">
                         {formatPrice(c.totalSpendOre)}
                       </td>
@@ -114,24 +122,41 @@ export default function AdminCustomers() {
                               className="input-field text-xs py-1 flex-1"
                               autoFocus
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') noteMutation.mutate({ id: c.id, note: noteValue });
+                                if (e.key === 'Enter')
+                                  noteMutation.mutate({ id: c.id, note: noteValue });
                                 if (e.key === 'Escape') setEditingNoteId(null);
                               }}
                             />
-                            <button onClick={() => noteMutation.mutate({ id: c.id, note: noteValue })} className="text-xs text-espresso-700 font-medium cursor-pointer hover:text-espresso-900">Save</button>
+                            <button
+                              onClick={() => noteMutation.mutate({ id: c.id, note: noteValue })}
+                              className="text-xs text-espresso-700 font-medium cursor-pointer hover:text-espresso-900"
+                            >
+                              Save
+                            </button>
                           </div>
                         ) : (
                           <button
-                            onClick={() => { setEditingNoteId(c.id); setNoteValue((c as unknown as { adminNote?: string }).adminNote ?? ''); }}
+                            onClick={() => {
+                              setEditingNoteId(c.id);
+                              setNoteValue(
+                                (c as unknown as { adminNote?: string }).adminNote ?? ''
+                              );
+                            }}
                             className="text-xs text-stone-500 hover:text-stone-800 cursor-pointer truncate max-w-full text-left"
                           >
-                            {(c as unknown as { adminNote?: string }).adminNote || <span className="text-stone-300">+ Add note</span>}
+                            {(c as unknown as { adminNote?: string }).adminNote || (
+                              <span className="text-stone-300">+ Add note</span>
+                            )}
                           </button>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => { setLoyaltyModalId(c.id); setLoyaltyDelta(''); setLoyaltyReason(''); }}
+                          onClick={() => {
+                            setLoyaltyModalId(c.id);
+                            setLoyaltyDelta('');
+                            setLoyaltyReason('');
+                          }}
                           className="text-xs text-espresso-700 hover:text-espresso-900 font-medium cursor-pointer"
                         >
                           Adjust pts
@@ -148,10 +173,14 @@ export default function AdminCustomers() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-lg">
             <h3 className="text-lg font-semibold text-stone-900 mb-1">Adjust loyalty points</h3>
-            <p className="text-sm text-stone-500 mb-5">Use a positive number to credit, negative to debit.</p>
+            <p className="text-sm text-stone-500 mb-5">
+              Use a positive number to credit, negative to debit.
+            </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Points (e.g. 100 or -50)</label>
+                <label className="block text-sm font-medium text-stone-700 mb-1">
+                  Points (e.g. 100 or -50)
+                </label>
                 <input
                   type="number"
                   value={loyaltyDelta}
@@ -183,7 +212,11 @@ export default function AdminCustomers() {
                 onClick={() => {
                   const delta = parseInt(loyaltyDelta, 10);
                   if (!delta || !loyaltyReason.trim()) return;
-                  loyaltyMutation.mutate({ id: loyaltyModalId, delta, reason: loyaltyReason.trim() });
+                  loyaltyMutation.mutate({
+                    id: loyaltyModalId,
+                    delta,
+                    reason: loyaltyReason.trim(),
+                  });
                 }}
                 disabled={loyaltyMutation.isPending || !loyaltyDelta || !loyaltyReason.trim()}
                 className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"

@@ -48,9 +48,7 @@ describe('Users API', () => {
     });
 
     it('requires authentication', async () => {
-      const res = await request(app)
-        .patch('/api/users/me')
-        .send({ name: 'Unauthorized' });
+      const res = await request(app).patch('/api/users/me').send({ name: 'Unauthorized' });
 
       expect(res.status).toBe(401);
     });

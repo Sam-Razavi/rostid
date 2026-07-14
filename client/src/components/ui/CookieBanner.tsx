@@ -31,13 +31,11 @@ export function CookieBanner() {
           <div className="bg-white rounded-2xl shadow-warm border border-stone-200 p-5">
             <p className="text-sm text-stone-700 font-medium mb-1">We use cookies</p>
             <p className="text-xs text-stone-500 mb-4 leading-relaxed">
-              We use cookies to improve your experience. By continuing, you agree to our use of cookies.
+              We use cookies to improve your experience. By continuing, you agree to our use of
+              cookies.
             </p>
             <div className="flex items-center gap-2">
-              <button
-                onClick={accept}
-                className="flex-1 btn-primary text-xs py-2 rounded-lg"
-              >
+              <button onClick={accept} className="flex-1 btn-primary text-xs py-2 rounded-lg">
                 Accept all
               </button>
               <button

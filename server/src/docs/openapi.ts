@@ -28,16 +28,15 @@ export const openApiSpec: OpenAPIV3.Document = {
     contact: { name: 'Sam Sahbaei Razavi', url: 'https://github.com/Sam-Razavi/rostid' },
     license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
   },
-  servers: [
-    { url: 'http://localhost:4000/api', description: 'Local development' },
-  ],
+  servers: [{ url: 'http://localhost:4000/api', description: 'Local development' }],
   components: {
     securitySchemes: {
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Access token obtained from POST /auth/login or /auth/register. Expires in 15 minutes; use POST /auth/refresh to renew.',
+        description:
+          'Access token obtained from POST /auth/login or /auth/register. Expires in 15 minutes; use POST /auth/refresh to renew.',
       },
     },
     schemas: {
@@ -82,7 +81,11 @@ export const openApiSpec: OpenAPIV3.Document = {
         properties: {
           id: { type: 'string', format: 'cuid' },
           name: { type: 'string', description: 'e.g. "250g", "500g / Whole Bean"' },
-          priceOre: { type: 'integer', nullable: true, description: 'Override price in öre, or null to use product price' },
+          priceOre: {
+            type: 'integer',
+            nullable: true,
+            description: 'Override price in öre, or null to use product price',
+          },
           stock: { type: 'integer' },
         },
       },
@@ -127,7 +130,8 @@ export const openApiSpec: OpenAPIV3.Document = {
       get: {
         tags: ['System'],
         summary: 'Health check',
-        description: 'Returns API and database status. Use this to confirm the server is reachable before making other requests.',
+        description:
+          'Returns API and database status. Use this to confirm the server is reachable before making other requests.',
         responses: {
           '200': {
             description: 'Service healthy',
@@ -214,7 +218,8 @@ export const openApiSpec: OpenAPIV3.Document = {
       post: {
         tags: ['Auth'],
         summary: 'Log in',
-        description: 'Returns an access token and sets an httpOnly refresh cookie. Rate-limited to 10 requests per 15 minutes.',
+        description:
+          'Returns an access token and sets an httpOnly refresh cookie. Rate-limited to 10 requests per 15 minutes.',
         requestBody: {
           required: true,
           content: {
@@ -261,7 +266,8 @@ export const openApiSpec: OpenAPIV3.Document = {
       post: {
         tags: ['Auth'],
         summary: 'Refresh access token',
-        description: 'Reads the httpOnly `refreshToken` cookie and returns a fresh access token. No request body needed.',
+        description:
+          'Reads the httpOnly `refreshToken` cookie and returns a fresh access token. No request body needed.',
         responses: {
           '200': {
             description: 'New access token issued',
@@ -326,15 +332,48 @@ export const openApiSpec: OpenAPIV3.Document = {
         summary: 'List products',
         description: 'Paginated, filterable product catalogue. All query params are optional.',
         parameters: [
-          { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Category slug' },
-          { name: 'roast', in: 'query', schema: { type: 'string', enum: ['light', 'medium', 'dark'] } },
-          { name: 'search', in: 'query', schema: { type: 'string' }, description: 'Full-text search on name and description' },
-          { name: 'minPrice', in: 'query', schema: { type: 'integer' }, description: 'Minimum price in öre' },
-          { name: 'maxPrice', in: 'query', schema: { type: 'integer' }, description: 'Maximum price in öre' },
-          { name: 'sort', in: 'query', schema: { type: 'string', enum: ['newest', 'price_asc', 'price_desc', 'name_asc'] } },
+          {
+            name: 'category',
+            in: 'query',
+            schema: { type: 'string' },
+            description: 'Category slug',
+          },
+          {
+            name: 'roast',
+            in: 'query',
+            schema: { type: 'string', enum: ['light', 'medium', 'dark'] },
+          },
+          {
+            name: 'search',
+            in: 'query',
+            schema: { type: 'string' },
+            description: 'Full-text search on name and description',
+          },
+          {
+            name: 'minPrice',
+            in: 'query',
+            schema: { type: 'integer' },
+            description: 'Minimum price in öre',
+          },
+          {
+            name: 'maxPrice',
+            in: 'query',
+            schema: { type: 'integer' },
+            description: 'Maximum price in öre',
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            schema: { type: 'string', enum: ['newest', 'price_asc', 'price_desc', 'name_asc'] },
+          },
           { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
           { name: 'limit', in: 'query', schema: { type: 'integer', default: 12, maximum: 50 } },
-          { name: 'inStock', in: 'query', schema: { type: 'boolean' }, description: 'Filter to in-stock products only' },
+          {
+            name: 'inStock',
+            in: 'query',
+            schema: { type: 'boolean' },
+            description: 'Filter to in-stock products only',
+          },
         ],
         responses: {
           '200': {
@@ -347,7 +386,10 @@ export const openApiSpec: OpenAPIV3.Document = {
                     data: {
                       type: 'object',
                       properties: {
-                        products: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
+                        products: {
+                          type: 'array',
+                          items: { $ref: '#/components/schemas/Product' },
+                        },
                         total: { type: 'integer' },
                         page: { type: 'integer' },
                         totalPages: { type: 'integer' },
@@ -367,7 +409,13 @@ export const openApiSpec: OpenAPIV3.Document = {
         tags: ['Products'],
         summary: 'Get product by slug',
         parameters: [
-          { name: 'slug', in: 'path', required: true, schema: { type: 'string' }, example: 'yirgacheffe-natural' },
+          {
+            name: 'slug',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            example: 'yirgacheffe-natural',
+          },
         ],
         responses: {
           '200': {
@@ -559,7 +607,11 @@ export const openApiSpec: OpenAPIV3.Document = {
               schema: {
                 type: 'object',
                 properties: {
-                  shippingRate: { type: 'string', enum: ['standard', 'express'], default: 'standard' },
+                  shippingRate: {
+                    type: 'string',
+                    enum: ['standard', 'express'],
+                    default: 'standard',
+                  },
                   discountCode: { type: 'string', nullable: true },
                   giftCardCode: { type: 'string', nullable: true },
                   redeemLoyalty: { type: 'boolean', default: false },

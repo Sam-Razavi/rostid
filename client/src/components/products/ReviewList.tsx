@@ -26,7 +26,15 @@ function formatDate(iso: string) {
   });
 }
 
-export function ReviewList({ reviews, avgRating, count }: { reviews: Review[]; avgRating: number | null; count: number }) {
+export function ReviewList({
+  reviews,
+  avgRating,
+  count,
+}: {
+  reviews: Review[];
+  avgRating: number | null;
+  count: number;
+}) {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -42,7 +50,9 @@ export function ReviewList({ reviews, avgRating, count }: { reviews: Review[]; a
       </div>
 
       {count === 0 ? (
-        <p className="text-stone-500 text-sm">No reviews yet. Be the first to share your thoughts.</p>
+        <p className="text-stone-500 text-sm">
+          No reviews yet. Be the first to share your thoughts.
+        </p>
       ) : (
         <div className="space-y-6">
           {reviews.map((review) => (

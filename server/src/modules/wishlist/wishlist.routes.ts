@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { authenticate } from '../../middleware/authenticate';
-import { getWishlistHandler, addToWishlistHandler, removeFromWishlistHandler } from './wishlist.controller';
+import {
+  getWishlistHandler,
+  addToWishlistHandler,
+  removeFromWishlistHandler,
+} from './wishlist.controller';
 
 const router = Router();
 

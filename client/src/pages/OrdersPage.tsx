@@ -22,7 +22,11 @@ export default function OrdersPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
 
-  const { data: orders, isLoading, isError } = useQuery({
+  const {
+    data: orders,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['orders'],
     queryFn: fetchOrders,
   });
@@ -58,7 +62,9 @@ export default function OrdersPage() {
 
       {isLoading ? (
         <div className="space-y-4 max-w-2xl">
-          {[1, 2, 3].map((i) => <OrderCardSkeleton key={i} />)}
+          {[1, 2, 3].map((i) => (
+            <OrderCardSkeleton key={i} />
+          ))}
         </div>
       ) : isError ? (
         <div className="text-center py-16">
@@ -68,7 +74,11 @@ export default function OrdersPage() {
         <EmptyState
           title="No orders yet"
           description="Your order history will appear here once you make a purchase."
-          action={<Link to="/products" className="btn-primary inline-flex">Shop coffee</Link>}
+          action={
+            <Link to="/products" className="btn-primary inline-flex">
+              Shop coffee
+            </Link>
+          }
         />
       ) : filtered?.length === 0 ? (
         <EmptyState

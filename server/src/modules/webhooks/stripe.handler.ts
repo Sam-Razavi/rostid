@@ -23,7 +23,14 @@ type OrderResult = { id: string };
 
 type SubPrisma = {
   subscription: {
-    findUnique: (a: unknown) => Promise<{ id: string; userId: string; productId: string; variantId: string | null; intervalDays: number; product: { name: string; priceOre: number } } | null>;
+    findUnique: (a: unknown) => Promise<{
+      id: string;
+      userId: string;
+      productId: string;
+      variantId: string | null;
+      intervalDays: number;
+      product: { name: string; priceOre: number };
+    } | null>;
   };
 };
 
@@ -50,7 +57,7 @@ async function fulfillSubscription(session: any) {
   });
   if (!sub) return;
 
-  const amountPaid = session.amount_total as number ?? Math.round(sub.product.priceOre * 0.9);
+  const amountPaid = (session.amount_total as number) ?? Math.round(sub.product.priceOre * 0.9);
   const subtotalOre = sub.product.priceOre;
 
   await (prisma.order.create as unknown as (a: unknown) => Promise<OrderResult>)({
@@ -62,12 +69,14 @@ async function fulfillSubscription(session: any) {
       status: 'processing',
       ...(session.id ? { stripeSessionId: session.id } : {}),
       items: {
-        create: [{
-          productId: sub.productId,
-          variantId: sub.variantId ?? undefined,
-          quantity: 1,
-          unitPriceOre: amountPaid,
-        }],
+        create: [
+          {
+            productId: sub.productId,
+            variantId: sub.variantId ?? undefined,
+            quantity: 1,
+            unitPriceOre: amountPaid,
+          },
+        ],
       },
     },
   });
@@ -85,7 +94,9 @@ async function fulfillOrder(session: any) {
   const customerNote = session.metadata?.customerNote as string | undefined;
   if (!userId || !cartId) return;
 
-  const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<CartWithVariants | null>)({
+  const cart = await (
+    prisma.cart.findUnique as unknown as (a: unknown) => Promise<CartWithVariants | null>
+  )({
     where: { id: cartId },
     include: {
       items: {
@@ -108,7 +119,10 @@ async function fulfillOrder(session: any) {
   const discountOre = metaInt(session.metadata?.discountOre);
   const loyaltyDiscountOre = metaInt(session.metadata?.loyaltyDiscountOre);
   const giftCardOre = metaInt(session.metadata?.giftCardOre);
-  const totalOre = metaInt(session.amount_total, Math.max(0, subtotalOre + shippingOre - discountOre - loyaltyDiscountOre - giftCardOre));
+  const totalOre = metaInt(
+    session.amount_total,
+    Math.max(0, subtotalOre + shippingOre - discountOre - loyaltyDiscountOre - giftCardOre)
+  );
 
   let createdOrderId: string | null = null;
 

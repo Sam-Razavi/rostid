@@ -11,7 +11,12 @@ interface RelatedProductsProps {
   addingId?: string | null;
 }
 
-export function RelatedProducts({ categorySlug, excludeId, onAddToCart, addingId }: RelatedProductsProps) {
+export function RelatedProducts({
+  categorySlug,
+  excludeId,
+  onAddToCart,
+  addingId,
+}: RelatedProductsProps) {
   const { data, isLoading } = useQuery({
     queryKey: ['products', 'related', categorySlug, excludeId],
     queryFn: () => fetchProducts({ category: categorySlug, exclude: excludeId, limit: 4 }),

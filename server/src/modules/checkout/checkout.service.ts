@@ -5,7 +5,12 @@ import { validateDiscount } from '../discounts/discounts.service';
 
 type ShippingRatePrisma = {
   shippingRate: {
-    findUnique: (a: unknown) => Promise<{ id: string; name: string; priceOre: number; freeThresholdOre: number | null } | null>;
+    findUnique: (a: unknown) => Promise<{
+      id: string;
+      name: string;
+      priceOre: number;
+      freeThresholdOre: number | null;
+    } | null>;
   };
   shippingAddress: {
     findFirst: (a: unknown) => Promise<{ id: string } | null>;
@@ -23,21 +28,25 @@ export async function createCheckoutSession(
   shippingAddressId?: string | null,
   customerNote?: string | null
 ) {
-  const cart = await (prisma.cart.findUnique as unknown as (a: unknown) => Promise<{
-    id: string;
-    items: Array<{
-      productId: string;
-      variantId: string | null;
-      quantity: number;
-      product: { id: string; name: string; priceOre: number; stock: number; isActive: boolean };
-      variant: { id: string; name: string; priceOre: number } | null;
-    }>;
-  } | null>)({
+  const cart = await (
+    prisma.cart.findUnique as unknown as (a: unknown) => Promise<{
+      id: string;
+      items: Array<{
+        productId: string;
+        variantId: string | null;
+        quantity: number;
+        product: { id: string; name: string; priceOre: number; stock: number; isActive: boolean };
+        variant: { id: string; name: string; priceOre: number } | null;
+      }>;
+    } | null>
+  )({
     where: { userId },
     include: {
       items: {
         include: {
-          product: { select: { id: true, name: true, priceOre: true, stock: true, isActive: true } },
+          product: {
+            select: { id: true, name: true, priceOre: true, stock: true, isActive: true },
+          },
           variant: { select: { id: true, name: true, priceOre: true } },
         },
       },
@@ -55,7 +64,7 @@ export async function createCheckoutSession(
       throw AppError.badRequest(`${item.product.name} is no longer available`);
     }
     const availableStock = item.variant
-      ? (item.variant as unknown as { stock?: number }).stock ?? item.product.stock
+      ? ((item.variant as unknown as { stock?: number }).stock ?? item.product.stock)
       : item.product.stock;
     if (item.quantity > availableStock) {
       throw AppError.badRequest(`Not enough stock for ${item.product.name}`);
@@ -96,12 +105,19 @@ export async function createCheckoutSession(
   // Shipping
   let shippingOre = 0;
   if (shippingRateId) {
-    const rate = await (prisma as unknown as ShippingRatePrisma).shippingRate.findUnique({ where: { id: shippingRateId } });
+    const rate = await (prisma as unknown as ShippingRatePrisma).shippingRate.findUnique({
+      where: { id: shippingRateId },
+    });
     if (rate) {
-      shippingOre = rate.freeThresholdOre && subtotalOre >= rate.freeThresholdOre ? 0 : rate.priceOre;
+      shippingOre =
+        rate.freeThresholdOre && subtotalOre >= rate.freeThresholdOre ? 0 : rate.priceOre;
       if (shippingOre > 0) {
         lineItems.push({
-          price_data: { currency: 'sek', product_data: { name: `Shipping (${rate.name})` }, unit_amount: shippingOre },
+          price_data: {
+            currency: 'sek',
+            product_data: { name: `Shipping (${rate.name})` },
+            unit_amount: shippingOre,
+          },
           quantity: 1,
         });
       }
@@ -112,7 +128,7 @@ export async function createCheckoutSession(
   let loyaltyDiscountOre = 0;
   if (loyaltyPoints && loyaltyPoints >= 100) {
     const { getBalance } = await import('../loyalty/loyalty.service');
-    const balance = await getBalance(userId) as { points: number };
+    const balance = (await getBalance(userId)) as { points: number };
     const redeemablePoints = Math.min(balance.points, loyaltyPoints);
     loyaltyDiscountOre = Math.floor(redeemablePoints / 100) * 1000;
   }
@@ -150,16 +166,21 @@ export async function createCheckoutSession(
     subtotalOre + shippingOre
   );
 
-  const discounts = combinedDiscountOre > 0
-    ? [{
-        coupon: (await stripe.coupons.create({
-          amount_off: combinedDiscountOre,
-          currency: 'sek',
-          duration: 'once',
-          name: 'Rostid checkout discount',
-        })).id,
-      }]
-    : undefined;
+  const discounts =
+    combinedDiscountOre > 0
+      ? [
+          {
+            coupon: (
+              await stripe.coupons.create({
+                amount_off: combinedDiscountOre,
+                currency: 'sek',
+                duration: 'once',
+                name: 'Rostid checkout discount',
+              })
+            ).id,
+          },
+        ]
+      : undefined;
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -169,7 +190,8 @@ export async function createCheckoutSession(
     success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancelUrl,
     metadata: {
-      userId, cartId: cart.id,
+      userId,
+      cartId: cart.id,
       ...(appliedCode ? { discountCode: appliedCode } : {}),
       ...(shippingRateId ? { shippingRateId } : {}),
       ...(verifiedShippingAddressId ? { shippingAddressId: verifiedShippingAddressId } : {}),

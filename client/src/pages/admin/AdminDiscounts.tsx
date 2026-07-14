@@ -7,7 +7,11 @@ import { Input } from '../../components/ui/Input';
 import { Skeleton } from '../../components/ui/Skeleton';
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-SE', { year: 'numeric', month: 'short', day: 'numeric' });
+  return new Date(iso).toLocaleDateString('en-SE', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 export default function AdminDiscounts() {
@@ -31,10 +35,16 @@ export default function AdminDiscounts() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'discounts'] });
       toast.success('Discount code created');
       setShowForm(false);
-      setCode(''); setValue(''); setMinOrder(''); setMaxUses(''); setExpiresAt('');
+      setCode('');
+      setValue('');
+      setMinOrder('');
+      setMaxUses('');
+      setExpiresAt('');
     },
     onError: (err: unknown) => {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to create code';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Failed to create code';
       toast.error(message);
     },
   });
@@ -72,7 +82,13 @@ export default function AdminDiscounts() {
         <div className="card p-6 mb-8">
           <h2 className="font-semibold text-stone-900 mb-5">New discount code</h2>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="Code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} required placeholder="SUMMER20" />
+            <Input
+              label="Code"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              required
+              placeholder="SUMMER20"
+            />
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1.5">Type</label>
               <select
@@ -93,11 +109,30 @@ export default function AdminDiscounts() {
               min={1}
               placeholder={type === 'percentage' ? '20' : '50'}
             />
-            <Input label="Min order (SEK, optional)" type="number" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} placeholder="200" />
-            <Input label="Max uses (optional)" type="number" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} placeholder="100" />
-            <Input label="Expires at (optional)" type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
+            <Input
+              label="Min order (SEK, optional)"
+              type="number"
+              value={minOrder}
+              onChange={(e) => setMinOrder(e.target.value)}
+              placeholder="200"
+            />
+            <Input
+              label="Max uses (optional)"
+              type="number"
+              value={maxUses}
+              onChange={(e) => setMaxUses(e.target.value)}
+              placeholder="100"
+            />
+            <Input
+              label="Expires at (optional)"
+              type="date"
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+            />
             <div className="sm:col-span-2 flex justify-end">
-              <Button type="submit" loading={createMutation.isPending}>Create code</Button>
+              <Button type="submit" loading={createMutation.isPending}>
+                Create code
+              </Button>
             </div>
           </form>
         </div>
@@ -122,7 +157,9 @@ export default function AdminDiscounts() {
                 ? [...Array(3)].map((_, i) => (
                     <tr key={i}>
                       {[...Array(7)].map((__, j) => (
-                        <td key={j} className="px-4 py-3"><Skeleton className="h-4 w-16 rounded" /></td>
+                        <td key={j} className="px-4 py-3">
+                          <Skeleton className="h-4 w-16 rounded" />
+                        </td>
                       ))}
                     </tr>
                   ))
@@ -134,13 +171,16 @@ export default function AdminDiscounts() {
                         {d.type === 'percentage' ? `${d.value}%` : `${d.value / 100} kr`}
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums text-stone-600">
-                        {d.usedCount}{d.maxUses ? `/${d.maxUses}` : ''}
+                        {d.usedCount}
+                        {d.maxUses ? `/${d.maxUses}` : ''}
                       </td>
                       <td className="px-4 py-3 text-stone-500">
                         {d.expiresAt ? formatDate(d.expiresAt) : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${d.isActive ? 'bg-green-100 text-green-700' : 'bg-stone-100 text-stone-500'}`}>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${d.isActive ? 'bg-green-100 text-green-700' : 'bg-stone-100 text-stone-500'}`}
+                        >
                           {d.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>

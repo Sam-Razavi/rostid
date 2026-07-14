@@ -27,9 +27,7 @@ describe('errorHandler', () => {
     const { res, json, status } = mockRes();
     errorHandler(zodErr!, req, res, next);
     expect(status).toHaveBeenCalledWith(400);
-    expect(json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'VALIDATION_ERROR' })
-    );
+    expect(json).toHaveBeenCalledWith(expect.objectContaining({ error: 'VALIDATION_ERROR' }));
   });
 
   it('includes field-level error map in ZodError response', () => {
@@ -42,7 +40,7 @@ describe('errorHandler', () => {
     }
     const { res, json } = mockRes();
     errorHandler(zodErr!, req, res, next);
-    const body = (json.mock.calls[0][0] as { fields: Record<string, string> });
+    const body = json.mock.calls[0][0] as { fields: Record<string, string> };
     expect(body.fields).toBeDefined();
     expect(body.fields).toHaveProperty('email');
     expect(body.fields).toHaveProperty('age');
@@ -59,7 +57,7 @@ describe('errorHandler', () => {
     }
     const { res, json } = mockRes();
     errorHandler(zodErr!, req, res, next);
-    const body = (json.mock.calls[0][0] as { fields: Record<string, string> });
+    const body = json.mock.calls[0][0] as { fields: Record<string, string> };
     expect(body.fields).toHaveProperty('address.zip');
   });
 
@@ -73,8 +71,8 @@ describe('errorHandler', () => {
     }
     const { res, json } = mockRes();
     errorHandler(zodErr!, req, res, next);
-    const body = (json.mock.calls[0][0] as { fields: Record<string, string> });
-    expect(Object.keys(body.fields).filter(k => k === 'name')).toHaveLength(1);
+    const body = json.mock.calls[0][0] as { fields: Record<string, string> };
+    expect(Object.keys(body.fields).filter((k) => k === 'name')).toHaveLength(1);
   });
 
   it('handles AppError with its statusCode and code', () => {
@@ -92,9 +90,7 @@ describe('errorHandler', () => {
     const { res, json, status } = mockRes();
     errorHandler(err, req, res, next);
     expect(status).toHaveBeenCalledWith(422);
-    expect(json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'ERROR' })
-    );
+    expect(json).toHaveBeenCalledWith(expect.objectContaining({ error: 'ERROR' }));
   });
 
   it('handles generic Error with 500 in test env', () => {
@@ -102,17 +98,13 @@ describe('errorHandler', () => {
     const { res, json, status } = mockRes();
     errorHandler(err, req, res, next);
     expect(status).toHaveBeenCalledWith(500);
-    expect(json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'INTERNAL_ERROR' })
-    );
+    expect(json).toHaveBeenCalledWith(expect.objectContaining({ error: 'INTERNAL_ERROR' }));
   });
 
   it('handles unknown thrown value with 500', () => {
     const { res, json, status } = mockRes();
     errorHandler('string error', req, res, next);
     expect(status).toHaveBeenCalledWith(500);
-    expect(json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'INTERNAL_ERROR' })
-    );
+    expect(json).toHaveBeenCalledWith(expect.objectContaining({ error: 'INTERNAL_ERROR' }));
   });
 });

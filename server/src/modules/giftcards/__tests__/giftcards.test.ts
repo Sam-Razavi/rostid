@@ -15,26 +15,20 @@ describe('Gift Cards API', () => {
   describe('POST /api/giftcards/validate', () => {
     it('validates a valid gift card', async () => {
       const card = await adminCreateGiftCard(5000);
-      const res = await request(app)
-        .post('/api/giftcards/validate')
-        .send({ code: card.code });
+      const res = await request(app).post('/api/giftcards/validate').send({ code: card.code });
       expect(res.status).toBe(200);
       expect(res.body.data.availableOre).toBe(5000);
       expect(res.body.data.code).toBe(card.code);
     });
 
     it('returns 400 for unknown gift card code', async () => {
-      const res = await request(app)
-        .post('/api/giftcards/validate')
-        .send({ code: 'DOESNOTEXIST' });
+      const res = await request(app).post('/api/giftcards/validate').send({ code: 'DOESNOTEXIST' });
       expect(res.status).toBe(400);
     });
 
     it('returns 400 for expired gift card', async () => {
       const card = await adminCreateGiftCard(5000, new Date('2020-01-01'));
-      const res = await request(app)
-        .post('/api/giftcards/validate')
-        .send({ code: card.code });
+      const res = await request(app).post('/api/giftcards/validate').send({ code: card.code });
       expect(res.status).toBe(400);
     });
 
@@ -42,9 +36,7 @@ describe('Gift Cards API', () => {
       const card = await adminCreateGiftCard(1000);
       const { useGiftCard } = await import('../giftcards.service');
       await useGiftCard(card.code, 1000);
-      const res = await request(app)
-        .post('/api/giftcards/validate')
-        .send({ code: card.code });
+      const res = await request(app).post('/api/giftcards/validate').send({ code: card.code });
       expect(res.status).toBe(400);
     });
 

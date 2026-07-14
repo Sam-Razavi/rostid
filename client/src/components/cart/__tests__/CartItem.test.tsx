@@ -71,6 +71,6 @@ describe('CartItem', () => {
   it('links to product page', () => {
     renderItem();
     const links = screen.getAllByRole('link');
-    expect(links.some(l => l.getAttribute('href') === '/products/test-coffee')).toBe(true);
+    expect(links.some((l) => l.getAttribute('href') === '/products/test-coffee')).toBe(true);
   });
 });

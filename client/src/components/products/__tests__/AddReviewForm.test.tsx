@@ -18,7 +18,10 @@ function renderForm(props: { slug?: string; hasReviewed?: boolean } = {}) {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter>
-        <AddReviewForm slug={props.slug ?? 'test-coffee'} hasReviewed={props.hasReviewed ?? false} />
+        <AddReviewForm
+          slug={props.slug ?? 'test-coffee'}
+          hasReviewed={props.hasReviewed ?? false}
+        />
       </MemoryRouter>
     </QueryClientProvider>
   );
@@ -153,8 +156,6 @@ describe('AddReviewForm', () => {
       target: { value: 'Great beans!' },
     });
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }));
-    await waitFor(() =>
-      expect(createReview).toHaveBeenCalledWith('my-coffee', 5, 'Great beans!')
-    );
+    await waitFor(() => expect(createReview).toHaveBeenCalledWith('my-coffee', 5, 'Great beans!'));
   });
 });

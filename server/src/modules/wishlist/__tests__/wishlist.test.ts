@@ -35,7 +35,9 @@ describe('Wishlist API', () => {
         .send({ productId: testProductId });
       expect(res.status).toBe(201);
 
-      const getRes = await request(app).get('/api/wishlist').set('Authorization', `Bearer ${token}`);
+      const getRes = await request(app)
+        .get('/api/wishlist')
+        .set('Authorization', `Bearer ${token}`);
       expect(getRes.body.data).toHaveLength(1);
       expect(getRes.body.data[0].product.id).toBe(testProductId);
     });
@@ -51,14 +53,14 @@ describe('Wishlist API', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ productId: testProductId });
 
-      const getRes = await request(app).get('/api/wishlist').set('Authorization', `Bearer ${token}`);
+      const getRes = await request(app)
+        .get('/api/wishlist')
+        .set('Authorization', `Bearer ${token}`);
       expect(getRes.body.data).toHaveLength(1);
     });
 
     it('requires authentication', async () => {
-      const res = await request(app)
-        .post('/api/wishlist')
-        .send({ productId: testProductId });
+      const res = await request(app).post('/api/wishlist').send({ productId: testProductId });
       expect(res.status).toBe(401);
     });
   });
@@ -76,7 +78,9 @@ describe('Wishlist API', () => {
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
 
-      const getRes = await request(app).get('/api/wishlist').set('Authorization', `Bearer ${token}`);
+      const getRes = await request(app)
+        .get('/api/wishlist')
+        .set('Authorization', `Bearer ${token}`);
       expect(getRes.body.data).toHaveLength(0);
     });
 

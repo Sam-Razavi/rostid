@@ -28,7 +28,9 @@ export async function createSubscription(payload: {
   intervalDays: number;
   variantId?: string | null;
 }): Promise<{ subscription: Subscription; checkoutUrl: string | null }> {
-  const { data } = await apiClient.post<ApiResponse<{ subscription: Subscription; checkoutUrl: string | null }>>('/subscriptions', payload);
+  const { data } = await apiClient.post<
+    ApiResponse<{ subscription: Subscription; checkoutUrl: string | null }>
+  >('/subscriptions', payload);
   return data.data;
 }
 
@@ -36,6 +38,9 @@ export async function updateSubscription(
   id: string,
   payload: { status?: string; intervalDays?: number }
 ): Promise<Subscription> {
-  const { data } = await apiClient.patch<ApiResponse<Subscription>>(`/subscriptions/${id}`, payload);
+  const { data } = await apiClient.patch<ApiResponse<Subscription>>(
+    `/subscriptions/${id}`,
+    payload
+  );
   return data.data;
 }

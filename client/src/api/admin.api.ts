@@ -16,8 +16,13 @@ export async function fetchAdminStats(): Promise<AdminStats> {
   return data.data;
 }
 
-export async function fetchRevenueTimeSeries(granularity: 'daily' | 'weekly' | 'monthly' = 'weekly'): Promise<Array<{ date: string; revenueOre: number }>> {
-  const { data } = await apiClient.get<ApiResponse<Array<{ date: string; revenueOre: number }>>>('/admin/stats/revenue', { params: { granularity } });
+export async function fetchRevenueTimeSeries(
+  granularity: 'daily' | 'weekly' | 'monthly' = 'weekly'
+): Promise<Array<{ date: string; revenueOre: number }>> {
+  const { data } = await apiClient.get<ApiResponse<Array<{ date: string; revenueOre: number }>>>(
+    '/admin/stats/revenue',
+    { params: { granularity } }
+  );
   return data.data;
 }
 
@@ -41,13 +46,22 @@ export async function fetchAdminProducts(): Promise<Product[]> {
   return data.data;
 }
 
-export async function bulkProductAction(ids: string[], action: 'activate' | 'deactivate'): Promise<{ updated: number }> {
-  const { data } = await apiClient.post<ApiResponse<{ updated: number }>>('/admin/products/bulk', { ids, action });
+export async function bulkProductAction(
+  ids: string[],
+  action: 'activate' | 'deactivate'
+): Promise<{ updated: number }> {
+  const { data } = await apiClient.post<ApiResponse<{ updated: number }>>('/admin/products/bulk', {
+    ids,
+    action,
+  });
   return data.data;
 }
 
 export async function updateCustomerNote(customerId: string, adminNote: string): Promise<unknown> {
-  const { data } = await apiClient.patch<ApiResponse<unknown>>(`/admin/customers/${customerId}/note`, { adminNote });
+  const { data } = await apiClient.patch<ApiResponse<unknown>>(
+    `/admin/customers/${customerId}/note`,
+    { adminNote }
+  );
   return data.data;
 }
 
@@ -79,7 +93,10 @@ export interface AdminOrder extends Order {
   returns?: AdminReturn[];
 }
 
-export async function fetchAdminOrders(params?: { from?: string; to?: string }): Promise<AdminOrder[]> {
+export async function fetchAdminOrders(params?: {
+  from?: string;
+  to?: string;
+}): Promise<AdminOrder[]> {
   const { data } = await apiClient.get<ApiResponse<AdminOrder[]>>('/admin/orders', { params });
   return data.data;
 }
@@ -94,7 +111,10 @@ export async function updateOrderStatus(
   status: string,
   extras?: { trackingNumber?: string | null; carrier?: string | null }
 ): Promise<AdminOrder> {
-  const { data } = await apiClient.patch<ApiResponse<AdminOrder>>(`/admin/orders/${id}/status`, { status, ...extras });
+  const { data } = await apiClient.patch<ApiResponse<AdminOrder>>(`/admin/orders/${id}/status`, {
+    status,
+    ...extras,
+  });
   return data.data;
 }
 
@@ -157,8 +177,12 @@ export async function fetchAdminDiscounts(): Promise<DiscountCode[]> {
 }
 
 export async function createAdminDiscount(payload: {
-  code: string; type: string; value: number;
-  minOrderOre?: number; maxUses?: number; expiresAt?: string;
+  code: string;
+  type: string;
+  value: number;
+  minOrderOre?: number;
+  maxUses?: number;
+  expiresAt?: string;
 }): Promise<DiscountCode> {
   const { data } = await apiClient.post<ApiResponse<DiscountCode>>('/admin/discounts', payload);
   return data.data;
@@ -169,17 +193,32 @@ export async function deleteAdminDiscount(id: string): Promise<void> {
 }
 
 export async function fetchAdminVariants(productId: string): Promise<ProductVariant[]> {
-  const { data } = await apiClient.get<ApiResponse<ProductVariant[]>>(`/admin/products/${productId}/variants`);
+  const { data } = await apiClient.get<ApiResponse<ProductVariant[]>>(
+    `/admin/products/${productId}/variants`
+  );
   return data.data;
 }
 
-export async function createAdminVariant(productId: string, payload: Partial<ProductVariant>): Promise<ProductVariant> {
-  const { data } = await apiClient.post<ApiResponse<ProductVariant>>(`/admin/products/${productId}/variants`, payload);
+export async function createAdminVariant(
+  productId: string,
+  payload: Partial<ProductVariant>
+): Promise<ProductVariant> {
+  const { data } = await apiClient.post<ApiResponse<ProductVariant>>(
+    `/admin/products/${productId}/variants`,
+    payload
+  );
   return data.data;
 }
 
-export async function updateAdminVariant(productId: string, variantId: string, payload: Partial<ProductVariant>): Promise<ProductVariant> {
-  const { data } = await apiClient.patch<ApiResponse<ProductVariant>>(`/admin/products/${productId}/variants/${variantId}`, payload);
+export async function updateAdminVariant(
+  productId: string,
+  variantId: string,
+  payload: Partial<ProductVariant>
+): Promise<ProductVariant> {
+  const { data } = await apiClient.patch<ApiResponse<ProductVariant>>(
+    `/admin/products/${productId}/variants/${variantId}`,
+    payload
+  );
   return data.data;
 }
 
@@ -187,7 +226,14 @@ export async function deleteAdminVariant(productId: string, variantId: string): 
   await apiClient.delete(`/admin/products/${productId}/variants/${variantId}`);
 }
 
-export async function adminAdjustLoyalty(customerId: string, delta: number, reason: string): Promise<{ points: number; delta: number }> {
-  const { data } = await apiClient.post<ApiResponse<{ points: number; delta: number }>>(`/admin/customers/${customerId}/loyalty`, { delta, reason });
+export async function adminAdjustLoyalty(
+  customerId: string,
+  delta: number,
+  reason: string
+): Promise<{ points: number; delta: number }> {
+  const { data } = await apiClient.post<ApiResponse<{ points: number; delta: number }>>(
+    `/admin/customers/${customerId}/loyalty`,
+    { delta, reason }
+  );
   return data.data;
 }

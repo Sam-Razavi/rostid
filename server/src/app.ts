@@ -56,7 +56,10 @@ const reviewLimiter = rateLimit({
   skip: () => isTest,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'TOO_MANY_REQUESTS', message: 'Too many review submissions, please try again later' },
+  message: {
+    error: 'TOO_MANY_REQUESTS',
+    message: 'Too many review submissions, please try again later',
+  },
 });
 
 const newsletterLimiter = rateLimit({
@@ -65,7 +68,10 @@ const newsletterLimiter = rateLimit({
   skip: () => isTest,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'TOO_MANY_REQUESTS', message: 'Too many subscription attempts, please try again later' },
+  message: {
+    error: 'TOO_MANY_REQUESTS',
+    message: 'Too many subscription attempts, please try again later',
+  },
 });
 
 app.use(requestId);
@@ -96,7 +102,9 @@ app.get('/api/health', async (_req, res) => {
     await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok', db: 'connected', timestamp: new Date().toISOString() });
   } catch {
-    res.status(503).json({ status: 'degraded', db: 'unreachable', timestamp: new Date().toISOString() });
+    res
+      .status(503)
+      .json({ status: 'degraded', db: 'unreachable', timestamp: new Date().toISOString() });
   }
 });
 
@@ -130,7 +138,11 @@ app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/giftcards', giftcardsRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/webhooks', webhooksRoutes);
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, { customSiteTitle: 'Rostid API Docs' }));
+app.use(
+  '/api/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(openApiSpec, { customSiteTitle: 'Rostid API Docs' })
+);
 
 app.get('/sitemap.xml', async (_req, res) => {
   try {
@@ -149,14 +161,20 @@ app.get('/sitemap.xml', async (_req, res) => {
     const clientUrl = (await import('./config/env')).env.CLIENT_URL;
     const urls: string[] = [];
 
-    urls.push(`  <url><loc>${clientUrl}/products</loc><changefreq>daily</changefreq><priority>0.9</priority></url>`);
+    urls.push(
+      `  <url><loc>${clientUrl}/products</loc><changefreq>daily</changefreq><priority>0.9</priority></url>`
+    );
 
     for (const cat of categories) {
-      urls.push(`  <url><loc>${clientUrl}/products?category=${cat.slug}</loc><lastmod>${cat.updatedAt.toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
+      urls.push(
+        `  <url><loc>${clientUrl}/products?category=${cat.slug}</loc><lastmod>${cat.updatedAt.toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`
+      );
     }
 
     for (const p of products) {
-      urls.push(`  <url><loc>${clientUrl}/products/${p.slug}</loc><lastmod>${p.updatedAt.toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`);
+      urls.push(
+        `  <url><loc>${clientUrl}/products/${p.slug}</loc><lastmod>${p.updatedAt.toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
+      );
     }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;

@@ -81,7 +81,10 @@ describe('Returns API', () => {
     it('rejects duplicate return request for same order', async () => {
       const token = await loginCustomer();
       const order = await createDeliveredOrder(testCustomerId);
-      const payload = { reason: 'damaged', items: [{ orderItemId: order.items[0].id, quantity: 1 }] };
+      const payload = {
+        reason: 'damaged',
+        items: [{ orderItemId: order.items[0].id, quantity: 1 }],
+      };
 
       await request(app)
         .post(`/api/orders/${order.id}/return`)
@@ -96,7 +99,7 @@ describe('Returns API', () => {
       expect(res.status).toBe(400);
     });
 
-    it('returns 404 for another user\'s order', async () => {
+    it("returns 404 for another user's order", async () => {
       const token = await loginCustomer();
       const order = await createDeliveredOrder(testAdminId);
 

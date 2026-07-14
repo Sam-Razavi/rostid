@@ -27,7 +27,9 @@ export default function LoginPage() {
       toast.success('Welcome back!');
       navigate(from, { replace: true });
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Invalid email or password';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Invalid email or password';
       setError(message);
       toast.error(message);
     } finally {
@@ -39,7 +41,9 @@ export default function LoginPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">Rostid</Link>
+          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">
+            Rostid
+          </Link>
           <h1 className="text-xl font-semibold text-stone-900 mt-4">Welcome back</h1>
           <p className="text-stone-500 mt-1 text-sm">Sign in to your account</p>
         </div>
@@ -58,7 +62,10 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium text-stone-700">Password</span>
-                <Link to="/forgot-password" className="text-xs text-espresso-700 hover:text-espresso-900 transition-colors">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-espresso-700 hover:text-espresso-900 transition-colors"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -84,7 +91,10 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-stone-500 mt-6">
           Don't have an account?{' '}
-          <Link to="/register" className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors">
+          <Link
+            to="/register"
+            className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors"
+          >
             Create one
           </Link>
         </p>

@@ -1,6 +1,14 @@
 import { Request, Response } from 'express';
 import { registerSchema, loginSchema } from './auth.schema';
-import { registerUser, loginUser, refreshTokens, logoutUser, forgotPassword, resetPassword, REFRESH_COOKIE_OPTIONS } from './auth.service';
+import {
+  registerUser,
+  loginUser,
+  refreshTokens,
+  logoutUser,
+  forgotPassword,
+  resetPassword,
+  REFRESH_COOKIE_OPTIONS,
+} from './auth.service';
 import { prisma } from '../../config/prisma';
 
 export async function register(req: Request, res: Response): Promise<void> {
@@ -75,7 +83,11 @@ export async function forgotPasswordHandler(req: Request, res: Response): Promis
 }
 
 export async function resetPasswordHandler(req: Request, res: Response): Promise<void> {
-  const { userId, token, password } = req.body as { userId?: string; token?: string; password?: string };
+  const { userId, token, password } = req.body as {
+    userId?: string;
+    token?: string;
+    password?: string;
+  };
   if (!userId || !token || !password) {
     res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Missing required fields' });
     return;

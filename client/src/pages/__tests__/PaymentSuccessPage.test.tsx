@@ -37,11 +37,17 @@ describe('PaymentSuccessPage', () => {
 
   it('renders link to orders page', () => {
     renderPage();
-    expect(screen.getByRole('link', { name: /view your orders/i })).toHaveAttribute('href', '/orders');
+    expect(screen.getByRole('link', { name: /view your orders/i })).toHaveAttribute(
+      'href',
+      '/orders'
+    );
   });
 
   it('renders link to continue shopping', () => {
     renderPage();
-    expect(screen.getByRole('link', { name: /continue shopping/i })).toHaveAttribute('href', '/products');
+    expect(screen.getByRole('link', { name: /continue shopping/i })).toHaveAttribute(
+      'href',
+      '/products'
+    );
   });
 });

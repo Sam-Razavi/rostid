@@ -19,7 +19,9 @@ export function OrderCard({ order }: { order: Order }) {
     <div className="card p-6">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
-          <p className="text-xs text-stone-500 font-mono mb-1">#{order.id.slice(-8).toUpperCase()}</p>
+          <p className="text-xs text-stone-500 font-mono mb-1">
+            #{order.id.slice(-8).toUpperCase()}
+          </p>
           <p className="text-sm text-stone-600">{formatDate(order.createdAt)}</p>
         </div>
         <div className="text-right">
@@ -41,7 +43,11 @@ export function OrderCard({ order }: { order: Order }) {
           <div key={item.id} className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden bg-espresso-50 shrink-0">
               {item.product.imageUrl ? (
-                <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
+                <img
+                  src={item.product.imageUrl}
+                  alt={item.product.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <span className="font-serif text-sm text-espresso-200">R</span>

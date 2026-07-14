@@ -24,8 +24,10 @@ const NEW_THRESHOLD_DAYS = 14;
 function getProductBadge(product: Product): { label: string; className: string } | null {
   const ageMs = Date.now() - new Date(product.createdAt).getTime();
   const ageDays = ageMs / (1000 * 60 * 60 * 24);
-  if (ageDays < NEW_THRESHOLD_DAYS) return { label: 'New', className: 'bg-espresso-100 text-espresso-800 border-espresso-200' };
-  if (product.avgRating != null && product.avgRating >= 4.5) return { label: 'Popular', className: 'bg-amber-50 text-amber-700 border-amber-200' };
+  if (ageDays < NEW_THRESHOLD_DAYS)
+    return { label: 'New', className: 'bg-espresso-100 text-espresso-800 border-espresso-200' };
+  if (product.avgRating != null && product.avgRating >= 4.5)
+    return { label: 'Popular', className: 'bg-amber-50 text-amber-700 border-amber-200' };
   return null;
 }
 
@@ -65,14 +67,19 @@ export function ProductCard({ product, onAddToCart, addingId, wishlisted }: Prod
           )}
           {product.stock > 5 && badge && (
             <div className="absolute top-2 left-2 z-10">
-              <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full ${badge.className}`}>
+              <span
+                className={`text-xs font-semibold border px-2 py-0.5 rounded-full ${badge.className}`}
+              >
                 {badge.label}
               </span>
             </div>
           )}
           {isAuthenticated && (
             <button
-              onClick={(e) => { e.preventDefault(); wishlistMutation.mutate(); }}
+              onClick={(e) => {
+                e.preventDefault();
+                wishlistMutation.mutate();
+              }}
               aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
               className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
             >
@@ -82,7 +89,12 @@ export function ProductCard({ product, onAddToCart, addingId, wishlisted }: Prod
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
               </svg>
             </button>
           )}

@@ -26,7 +26,8 @@ export default function AdminSubscriptions() {
   const { data: subscriptions = [], isLoading } = useQuery({
     queryKey: ['admin-subscriptions'],
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiResponse<AdminSubscription[]>>('/admin/subscriptions');
+      const { data } =
+        await apiClient.get<ApiResponse<AdminSubscription[]>>('/admin/subscriptions');
       return data.data;
     },
   });
@@ -40,7 +41,9 @@ export default function AdminSubscriptions() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-stone-100 animate-pulse rounded-xl" />)}
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-16 bg-stone-100 animate-pulse rounded-xl" />
+        ))}
       </div>
     );
   }
@@ -51,7 +54,9 @@ export default function AdminSubscriptions() {
         <h1 className="text-2xl font-semibold text-stone-900">Subscriptions</h1>
         <div className="text-right">
           <p className="text-xs text-stone-500 uppercase tracking-wide">MRR</p>
-          <p className="font-serif text-xl font-semibold text-espresso-800">{formatPrice(mrrOre)}</p>
+          <p className="font-serif text-xl font-semibold text-espresso-800">
+            {formatPrice(mrrOre)}
+          </p>
         </div>
       </div>
 
@@ -77,11 +82,15 @@ export default function AdminSubscriptions() {
                 <td className="px-4 py-3 text-stone-700">{sub.product.name}</td>
                 <td className="px-4 py-3 text-stone-600">Every {sub.intervalDays} days</td>
                 <td className="px-4 py-3">
-                  <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
-                    sub.status === 'active' ? 'bg-green-100 text-green-700' :
-                    sub.status === 'paused' ? 'bg-amber-100 text-amber-700' :
-                    'bg-stone-100 text-stone-500'
-                  }`}>
+                  <span
+                    className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
+                      sub.status === 'active'
+                        ? 'bg-green-100 text-green-700'
+                        : sub.status === 'paused'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-stone-100 text-stone-500'
+                    }`}
+                  >
                     {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                   </span>
                 </td>
@@ -93,7 +102,9 @@ export default function AdminSubscriptions() {
             ))}
             {subscriptions.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-stone-400">No subscriptions yet</td>
+                <td colSpan={6} className="px-4 py-12 text-center text-stone-400">
+                  No subscriptions yet
+                </td>
               </tr>
             )}
           </tbody>

@@ -30,7 +30,10 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-stone-100">
-      <aside className="w-64 bg-espresso-950 text-stone-300 flex flex-col" aria-label="Admin navigation">
+      <aside
+        className="w-64 bg-espresso-950 text-stone-300 flex flex-col"
+        aria-label="Admin navigation"
+      >
         <div className="px-6 py-5 border-b border-stone-800">
           <Link to="/" className="font-serif text-xl font-semibold text-white">
             Rostid

@@ -1,7 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, LineChart, Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  LineChart,
+  Line,
 } from 'recharts';
 import { fetchAdminStats, fetchAdminProducts, fetchRevenueTimeSeries } from '../../api/admin.api';
 import { OrderStatusBadge } from '../../components/ui/Badge';
@@ -41,7 +52,9 @@ export default function AdminDashboard() {
     queryFn: () => fetchRevenueTimeSeries('weekly'),
   });
 
-  const lowStockProducts = (allProducts ?? []).filter((p) => p.isActive && p.stock > 0 && p.stock <= 5);
+  const lowStockProducts = (allProducts ?? []).filter(
+    (p) => p.isActive && p.stock > 0 && p.stock <= 5
+  );
 
   const statsAny = stats as Record<string, unknown> | undefined;
   const statCards = [
@@ -50,7 +63,11 @@ export default function AdminDashboard() {
     { label: 'Products', value: stats?.totalProducts ?? 0, format: (v: number) => v.toString() },
     { label: 'Customers', value: stats?.totalCustomers ?? 0, format: (v: number) => v.toString() },
     { label: 'MRR', value: (statsAny?.mrrOre as number) ?? 0, format: formatPrice },
-    { label: 'Active subs', value: (statsAny?.activeSubscriptions as number) ?? 0, format: (v: number) => v.toString() },
+    {
+      label: 'Active subs',
+      value: (statsAny?.activeSubscriptions as number) ?? 0,
+      format: (v: number) => v.toString(),
+    },
   ];
 
   const pieData = (stats?.ordersByStatus ?? []).map((s) => ({
@@ -74,7 +91,10 @@ export default function AdminDashboard() {
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
         {statCards.map((card) => (
-          <div key={card.label} className="bg-white rounded-xl p-6 shadow-soft border border-stone-100">
+          <div
+            key={card.label}
+            className="bg-white rounded-xl p-6 shadow-soft border border-stone-100"
+          >
             <p className="text-sm text-stone-500 font-medium">{card.label}</p>
             {isLoading ? (
               <Skeleton className="h-8 w-24 mt-2" />
@@ -104,7 +124,11 @@ export default function AdminDashboard() {
                 <YAxis tick={{ fontSize: 11, fill: '#78716c' }} />
                 <Tooltip
                   formatter={(value) => [`${value} kr`, 'Revenue']}
-                  contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }}
+                  contentStyle={{
+                    borderRadius: '0.5rem',
+                    border: '1px solid #e7e5e4',
+                    fontSize: 12,
+                  }}
                 />
                 <Bar dataKey="revenue" fill="#5E3516" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -137,7 +161,11 @@ export default function AdminDashboard() {
                 </Pie>
                 <Tooltip
                   formatter={(value, name) => [value, name]}
-                  contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }}
+                  contentStyle={{
+                    borderRadius: '0.5rem',
+                    border: '1px solid #e7e5e4',
+                    fontSize: 12,
+                  }}
                 />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
               </PieChart>
@@ -189,12 +217,27 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-soft border border-stone-100 p-6 mb-6 mt-6">
           <h2 className="font-semibold text-stone-900 mb-6">Weekly revenue trend</h2>
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={weeklyRevenue.map((d) => ({ week: d.date, revenue: Math.round(d.revenueOre / 100) }))} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+            <LineChart
+              data={weeklyRevenue.map((d) => ({
+                week: d.date,
+                revenue: Math.round(d.revenueOre / 100),
+              }))}
+              margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" />
               <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#78716c' }} />
               <YAxis tick={{ fontSize: 11, fill: '#78716c' }} />
-              <Tooltip formatter={(v) => [`${v} kr`, 'Revenue']} contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }} />
-              <Line type="monotone" dataKey="revenue" stroke="#5E3516" strokeWidth={2} dot={{ r: 3, fill: '#5E3516' }} />
+              <Tooltip
+                formatter={(v) => [`${v} kr`, 'Revenue']}
+                contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e7e5e4', fontSize: 12 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#5E3516"
+                strokeWidth={2}
+                dot={{ r: 3, fill: '#5E3516' }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -218,7 +261,10 @@ export default function AdminDashboard() {
                 dataKey="value"
               >
                 {stats.revenueByProduct.map((_, i) => (
-                  <Cell key={i} fill={['#5E3516', '#7c4a22', '#a0622f', '#c47a3c', '#d4956a', '#e8bfa0'][i % 6]} />
+                  <Cell
+                    key={i}
+                    fill={['#5E3516', '#7c4a22', '#a0622f', '#c47a3c', '#d4956a', '#e8bfa0'][i % 6]}
+                  />
                 ))}
               </Pie>
               <Tooltip

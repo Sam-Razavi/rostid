@@ -3,7 +3,15 @@ import { AppError } from '../../utils/AppError';
 import { sendOrderStatusUpdate } from '../../utils/emails/orderStatusUpdate';
 import { sendShippingConfirmation } from '../../utils/emails/shippingConfirmation';
 import { sendEmail } from '../../utils/email';
-import type { CreateProductInput, UpdateProductInput, UpdateOrderStatusInput, CreateVariantInput, UpdateVariantInput, BulkProductActionInput, AdjustLoyaltyInput } from './admin.schema';
+import type {
+  CreateProductInput,
+  UpdateProductInput,
+  UpdateOrderStatusInput,
+  CreateVariantInput,
+  UpdateVariantInput,
+  BulkProductActionInput,
+  AdjustLoyaltyInput,
+} from './admin.schema';
 
 type VariantPrisma = {
   productVariant: {
@@ -16,7 +24,17 @@ type VariantPrisma = {
 };
 const variantDb = prisma as unknown as VariantPrisma;
 
-type AdminSubRecord = { id: string; userId: string; productId: string; intervalDays: number; status: string; nextBillingDate: Date; createdAt: Date; user: { name: string; email: string }; product: { name: string; priceOre: number } };
+type AdminSubRecord = {
+  id: string;
+  userId: string;
+  productId: string;
+  intervalDays: number;
+  status: string;
+  nextBillingDate: Date;
+  createdAt: Date;
+  user: { name: string; email: string };
+  product: { name: string; priceOre: number };
+};
 type AdminSubPrisma = {
   subscription: {
     findMany: (a: unknown) => Promise<AdminSubRecord[]>;
@@ -38,7 +56,10 @@ const newsletterDb = prisma as unknown as NewsletterPrisma;
 const LOW_STOCK_THRESHOLD = 5;
 
 export async function adminListVariants(productId: string) {
-  return variantDb.productVariant.findMany({ where: { productId }, orderBy: { createdAt: 'asc' } } as unknown as never);
+  return variantDb.productVariant.findMany({
+    where: { productId },
+    orderBy: { createdAt: 'asc' },
+  } as unknown as never);
 }
 
 export async function adminCreateVariant(productId: string, data: CreateVariantInput) {
@@ -47,14 +68,22 @@ export async function adminCreateVariant(productId: string, data: CreateVariantI
   return variantDb.productVariant.create({ data: { ...data, productId } } as unknown as never);
 }
 
-export async function adminUpdateVariant(productId: string, variantId: string, data: UpdateVariantInput) {
-  const variant = await variantDb.productVariant.findFirst({ where: { id: variantId, productId } } as unknown as never);
+export async function adminUpdateVariant(
+  productId: string,
+  variantId: string,
+  data: UpdateVariantInput
+) {
+  const variant = await variantDb.productVariant.findFirst({
+    where: { id: variantId, productId },
+  } as unknown as never);
   if (!variant) throw AppError.notFound('Variant not found');
   return variantDb.productVariant.update({ where: { id: variantId }, data } as unknown as never);
 }
 
 export async function adminDeleteVariant(productId: string, variantId: string) {
-  const variant = await variantDb.productVariant.findFirst({ where: { id: variantId, productId } } as unknown as never);
+  const variant = await variantDb.productVariant.findFirst({
+    where: { id: variantId, productId },
+  } as unknown as never);
   if (!variant) throw AppError.notFound('Variant not found');
   return variantDb.productVariant.delete({ where: { id: variantId } } as unknown as never);
 }
@@ -119,12 +148,15 @@ export async function adminDeleteProduct(id: string) {
 }
 
 export async function adminListOrders(from?: string, to?: string) {
-  const where = (from || to) ? {
-    createdAt: {
-      ...(from ? { gte: new Date(from) } : {}),
-      ...(to ? { lte: new Date(to) } : {}),
-    },
-  } : undefined;
+  const where =
+    from || to
+      ? {
+          createdAt: {
+            ...(from ? { gte: new Date(from) } : {}),
+            ...(to ? { lte: new Date(to) } : {}),
+          },
+        }
+      : undefined;
 
   return (prisma.order.findMany as unknown as (args: unknown) => Promise<unknown[]>)({
     where,
@@ -142,7 +174,9 @@ export async function adminListOrders(from?: string, to?: string) {
 }
 
 export async function adminGetOrder(id: string) {
-  const order = await (prisma.order.findUnique as unknown as (args: unknown) => Promise<unknown | null>)({
+  const order = await (
+    prisma.order.findUnique as unknown as (args: unknown) => Promise<unknown | null>
+  )({
     where: { id },
     include: {
       user: { select: { id: true, email: true, name: true } },
@@ -171,13 +205,15 @@ export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatus
     ...(data.status === 'delivered' ? { fulfilledAt: new Date() } : {}),
   };
 
-  const updated = await (prisma.order.update as unknown as (args: unknown) => Promise<{
-    id: string;
-    status: string;
-    totalOre: number;
-    user: { id: string; email: string; name: string };
-    items: Array<{ product: { name: string }; quantity: number; unitPriceOre: number }>;
-  }>)({
+  const updated = await (
+    prisma.order.update as unknown as (args: unknown) => Promise<{
+      id: string;
+      status: string;
+      totalOre: number;
+      user: { id: string; email: string; name: string };
+      items: Array<{ product: { name: string }; quantity: number; unitPriceOre: number }>;
+    }>
+  )({
     where: { id },
     data: updateData,
     include: {
@@ -191,20 +227,27 @@ export async function adminUpdateOrderStatus(id: string, data: UpdateOrderStatus
   });
 
   // Fire-and-forget status change email
-  sendOrderStatusUpdate(updated.user.email, updated.user.name, id, data.status)
-    .catch((err) => console.error('[email] order status update failed:', err));
+  sendOrderStatusUpdate(updated.user.email, updated.user.name, id, data.status).catch((err) =>
+    console.error('[email] order status update failed:', err)
+  );
 
   // Send shipping confirmation when tracking number is added
   if (data.trackingNumber) {
-    sendShippingConfirmation(updated.user.email, updated.user.name, id, data.trackingNumber, data.carrier ?? null)
-      .catch((err) => console.error('[email] shipping confirmation failed:', err));
+    sendShippingConfirmation(
+      updated.user.email,
+      updated.user.name,
+      id,
+      data.trackingNumber,
+      data.carrier ?? null
+    ).catch((err) => console.error('[email] shipping confirmation failed:', err));
   }
 
   // Award loyalty points when order is delivered
   if (data.status === 'delivered') {
     import('../loyalty/loyalty.service').then(({ earnPoints }) => {
-      earnPoints(updated.user.id, id, updated.totalOre)
-        .catch((err) => console.error('[loyalty] earn points failed:', err));
+      earnPoints(updated.user.id, id, updated.totalOre).catch((err) =>
+        console.error('[loyalty] earn points failed:', err)
+      );
     });
   }
 
@@ -238,7 +281,11 @@ export async function adminListCustomers() {
 export async function adminUpdateCustomerNote(userId: string, adminNote: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw AppError.notFound('Customer not found');
-  return prisma.user.update({ where: { id: userId }, data: { adminNote }, select: { id: true, email: true, name: true, adminNote: true } });
+  return prisma.user.update({
+    where: { id: userId },
+    data: { adminNote },
+    select: { id: true, email: true, name: true, adminNote: true },
+  });
 }
 
 type LoyaltyAdjustPrisma = {
@@ -258,7 +305,11 @@ export async function adminAdjustLoyalty(userId: string, data: AdjustLoyaltyInpu
 
   const account = await loyaltyDb.loyaltyAccount.upsert({
     where: { userId },
-    create: { userId, points: Math.max(0, data.delta), lifetimeEarned: data.delta > 0 ? data.delta : 0 },
+    create: {
+      userId,
+      points: Math.max(0, data.delta),
+      lifetimeEarned: data.delta > 0 ? data.delta : 0,
+    },
     update: {
       points: { increment: data.delta },
       ...(data.delta > 0 ? { lifetimeEarned: { increment: data.delta } } : {}),
@@ -281,11 +332,19 @@ export async function adminBulkProductAction(data: BulkProductActionInput) {
   return { updated: result.count };
 }
 
-export async function adminGetRevenueTimeSeries(granularity: 'daily' | 'weekly' | 'monthly', from?: string, to?: string) {
+export async function adminGetRevenueTimeSeries(
+  granularity: 'daily' | 'weekly' | 'monthly',
+  from?: string,
+  to?: string
+) {
   const startDate = from ? new Date(from) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
   const endDate = to ? new Date(to) : new Date();
 
-  const orders = await (prisma.order.findMany as unknown as (args: unknown) => Promise<{ createdAt: Date; totalOre: number }[]>)({
+  const orders = await (
+    prisma.order.findMany as unknown as (
+      args: unknown
+    ) => Promise<{ createdAt: Date; totalOre: number }[]>
+  )({
     where: { createdAt: { gte: startDate, lte: endDate } },
     select: { createdAt: true, totalOre: true },
     orderBy: { createdAt: 'asc' },
@@ -319,8 +378,11 @@ export async function adminListNewsletterSubscribers() {
 }
 
 export async function adminDeleteNewsletterSubscriber(id: string) {
-  const subscriber = await newsletterDb.newsletterSubscriber.findMany({ where: { id } } as unknown as never);
-  if (!subscriber || (subscriber as unknown as unknown[]).length === 0) throw AppError.notFound('Subscriber not found');
+  const subscriber = await newsletterDb.newsletterSubscriber.findMany({
+    where: { id },
+  } as unknown as never);
+  if (!subscriber || (subscriber as unknown as unknown[]).length === 0)
+    throw AppError.notFound('Subscriber not found');
   return newsletterDb.newsletterSubscriber.delete({ where: { id } });
 }
 

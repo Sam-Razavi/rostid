@@ -21,7 +21,12 @@ export async function fetchLoyaltyBalance(): Promise<LoyaltyBalance> {
   return data.data;
 }
 
-export async function fetchRedeemPreview(points: number): Promise<{ points: number; discountOre: number }> {
-  const { data } = await apiClient.post<ApiResponse<{ points: number; discountOre: number }>>('/loyalty/redeem-preview', { points });
+export async function fetchRedeemPreview(
+  points: number
+): Promise<{ points: number; discountOre: number }> {
+  const { data } = await apiClient.post<ApiResponse<{ points: number; discountOre: number }>>(
+    '/loyalty/redeem-preview',
+    { points }
+  );
   return data.data;
 }

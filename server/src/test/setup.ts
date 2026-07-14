@@ -78,7 +78,12 @@ beforeEach(async () => {
   testAdminId = admin.id;
 
   const customer = await prisma.user.create({
-    data: { email: 'customer@test.com', name: 'Customer', passwordHash: hash, role: 'customer' as const },
+    data: {
+      email: 'customer@test.com',
+      name: 'Customer',
+      passwordHash: hash,
+      role: 'customer' as const,
+    },
   });
   testCustomerId = customer.id;
 });

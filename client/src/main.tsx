@@ -25,7 +25,11 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Sentry.ErrorBoundary fallback={<p className="p-8 text-stone-500">Something went wrong. Please refresh the page.</p>}>
+    <Sentry.ErrorBoundary
+      fallback={
+        <p className="p-8 text-stone-500">Something went wrong. Please refresh the page.</p>
+      }
+    >
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
           <App />

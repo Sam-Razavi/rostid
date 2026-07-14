@@ -83,9 +83,7 @@ describe('Auth API', () => {
       });
       const token = loginRes.body.data.accessToken;
 
-      const res = await request(app)
-        .get('/api/auth/me')
-        .set('Authorization', `Bearer ${token}`);
+      const res = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data.user.email).toBe('customer@test.com');
     });
@@ -146,9 +144,7 @@ describe('Auth API', () => {
         .send({ userId: testCustomerId, token: rawToken, password: 'newpassword456' });
       expect(res.status).toBe(200);
 
-      const refreshRes = await request(app)
-        .post('/api/auth/refresh')
-        .set('Cookie', refreshCookie);
+      const refreshRes = await request(app).post('/api/auth/refresh').set('Cookie', refreshCookie);
       expect(refreshRes.status).toBe(401);
     });
   });
@@ -161,9 +157,7 @@ describe('Auth API', () => {
       });
       const cookies = loginRes.headers['set-cookie'];
 
-      const res = await request(app)
-        .post('/api/auth/logout')
-        .set('Cookie', cookies);
+      const res = await request(app).post('/api/auth/logout').set('Cookie', cookies);
       expect(res.status).toBe(200);
     });
   });

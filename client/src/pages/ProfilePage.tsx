@@ -6,7 +6,13 @@ import { useAuthStore } from '../store/authStore';
 import apiClient from '../api/client';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { fetchAddresses, createAddress, deleteAddress, updateAddress, type ShippingAddress } from '../api/shipping.api';
+import {
+  fetchAddresses,
+  createAddress,
+  deleteAddress,
+  updateAddress,
+  type ShippingAddress,
+} from '../api/shipping.api';
 import { fetchLoyaltyBalance } from '../api/loyalty.api';
 import { checkPasswordStrength } from '../utils/passwordStrength';
 import type { ApiResponse, User } from '../types';
@@ -33,14 +39,21 @@ function AddressBook() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['addresses'] });
       setShowForm(false);
-      setName(''); setLine1(''); setCity(''); setPostalCode('');
+      setName('');
+      setLine1('');
+      setCity('');
+      setPostalCode('');
       toast.success('Address added');
     },
   });
 
   const remove = useMutation({
     mutationFn: deleteAddress,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['addresses'] }); toast.success('Address removed'); setConfirmDeleteId(null); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['addresses'] });
+      toast.success('Address removed');
+      setConfirmDeleteId(null);
+    },
   });
 
   const setDefault = useMutation({
@@ -63,20 +76,38 @@ function AddressBook() {
 
       <div className="space-y-3 mb-4">
         {addresses.map((addr) => (
-          <div key={addr.id} className="flex items-start justify-between p-4 rounded-lg border border-stone-100 bg-stone-50">
+          <div
+            key={addr.id}
+            className="flex items-start justify-between p-4 rounded-lg border border-stone-100 bg-stone-50"
+          >
             <div>
               <p className="text-sm font-medium text-stone-900">{addr.name}</p>
-              <p className="text-sm text-stone-500">{addr.line1}{addr.line2 ? `, ${addr.line2}` : ''}</p>
-              <p className="text-sm text-stone-500">{addr.postalCode} {addr.city}</p>
-              {addr.isDefault && <span className="text-xs text-espresso-700 font-medium mt-1 inline-block">Default</span>}
+              <p className="text-sm text-stone-500">
+                {addr.line1}
+                {addr.line2 ? `, ${addr.line2}` : ''}
+              </p>
+              <p className="text-sm text-stone-500">
+                {addr.postalCode} {addr.city}
+              </p>
+              {addr.isDefault && (
+                <span className="text-xs text-espresso-700 font-medium mt-1 inline-block">
+                  Default
+                </span>
+              )}
             </div>
             <div className="flex gap-2">
               {!addr.isDefault && (
-                <button onClick={() => setDefault.mutate(addr.id)} className="text-xs text-stone-500 hover:text-stone-900 cursor-pointer">
+                <button
+                  onClick={() => setDefault.mutate(addr.id)}
+                  className="text-xs text-stone-500 hover:text-stone-900 cursor-pointer"
+                >
                   Set default
                 </button>
               )}
-              <button onClick={() => setConfirmDeleteId(addr.id)} className="text-xs text-red-500 hover:text-red-700 cursor-pointer">
+              <button
+                onClick={() => setConfirmDeleteId(addr.id)}
+                className="text-xs text-red-500 hover:text-red-700 cursor-pointer"
+              >
                 Remove
               </button>
             </div>
@@ -85,14 +116,48 @@ function AddressBook() {
       </div>
 
       {showForm && (
-        <form onSubmit={(e) => { e.preventDefault(); add.mutate({ name, line1, city, postalCode, country: 'SE', isDefault: false, line2: null }); }}
-          className="grid grid-cols-2 gap-3 pt-4 border-t border-stone-100">
-          <div className="col-span-2"><Input label="Full name" value={name} onChange={(e) => setName(e.target.value)} required /></div>
-          <div className="col-span-2"><Input label="Address" value={line1} onChange={(e) => setLine1(e.target.value)} required /></div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            add.mutate({
+              name,
+              line1,
+              city,
+              postalCode,
+              country: 'SE',
+              isDefault: false,
+              line2: null,
+            });
+          }}
+          className="grid grid-cols-2 gap-3 pt-4 border-t border-stone-100"
+        >
+          <div className="col-span-2">
+            <Input
+              label="Full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="col-span-2">
+            <Input
+              label="Address"
+              value={line1}
+              onChange={(e) => setLine1(e.target.value)}
+              required
+            />
+          </div>
           <Input label="City" value={city} onChange={(e) => setCity(e.target.value)} required />
-          <Input label="Postal code" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required />
+          <Input
+            label="Postal code"
+            value={postalCode}
+            onChange={(e) => setPostalCode(e.target.value)}
+            required
+          />
           <div className="col-span-2 flex justify-end">
-            <Button type="submit" size="sm" loading={add.isPending}>Save address</Button>
+            <Button type="submit" size="sm" loading={add.isPending}>
+              Save address
+            </Button>
           </div>
         </form>
       )}
@@ -147,11 +212,16 @@ export default function ProfilePage() {
     e.preventDefault();
     setProfileLoading(true);
     try {
-      const { data } = await apiClient.patch<ApiResponse<{ user: User }>>('/users/me', { name, email });
+      const { data } = await apiClient.patch<ApiResponse<{ user: User }>>('/users/me', {
+        name,
+        email,
+      });
       setAuth(data.data.user, accessToken!);
       toast.success('Profile updated');
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to update profile';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Failed to update profile';
       toast.error(message);
     } finally {
       setProfileLoading(false);
@@ -173,7 +243,9 @@ export default function ProfilePage() {
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to change password';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Failed to change password';
       setPasswordError(message);
     } finally {
       setPasswordLoading(false);
@@ -243,31 +315,53 @@ export default function ProfilePage() {
       <AddressBook />
 
       {/* Loyalty points history */}
-      {loyalty && (loyalty as unknown as { transactions?: Array<{ id: string; delta: number; reason: string; createdAt: string }> }).transactions && (
-        <div className="card p-8 mb-6">
-          <h2 className="text-lg font-semibold text-stone-900 mb-1">Loyalty points</h2>
-          <p className="text-sm text-stone-500 mb-5">
-            You have <span className="font-semibold text-espresso-800">{loyalty.points} pts</span> — lifetime earned: {(loyalty as unknown as { lifetimeEarned?: number }).lifetimeEarned ?? 0} pts
-          </p>
-          {((loyalty as unknown as { transactions?: unknown[] }).transactions?.length ?? 0) === 0 ? (
-            <p className="text-sm text-stone-400 text-center py-4">No transactions yet.</p>
-          ) : (
-            <div className="divide-y divide-stone-100">
-              {(loyalty as unknown as { transactions: Array<{ id: string; delta: number; reason: string; createdAt: string }> }).transactions.map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between py-3 text-sm">
-                  <div>
-                    <p className="text-stone-700">{REASON_LABELS[tx.reason] ?? tx.reason}</p>
-                    <p className="text-xs text-stone-400">{new Date(tx.createdAt).toLocaleDateString('sv-SE')}</p>
+      {loyalty &&
+        (
+          loyalty as unknown as {
+            transactions?: Array<{ id: string; delta: number; reason: string; createdAt: string }>;
+          }
+        ).transactions && (
+          <div className="card p-8 mb-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-1">Loyalty points</h2>
+            <p className="text-sm text-stone-500 mb-5">
+              You have <span className="font-semibold text-espresso-800">{loyalty.points} pts</span>{' '}
+              — lifetime earned:{' '}
+              {(loyalty as unknown as { lifetimeEarned?: number }).lifetimeEarned ?? 0} pts
+            </p>
+            {((loyalty as unknown as { transactions?: unknown[] }).transactions?.length ?? 0) ===
+            0 ? (
+              <p className="text-sm text-stone-400 text-center py-4">No transactions yet.</p>
+            ) : (
+              <div className="divide-y divide-stone-100">
+                {(
+                  loyalty as unknown as {
+                    transactions: Array<{
+                      id: string;
+                      delta: number;
+                      reason: string;
+                      createdAt: string;
+                    }>;
+                  }
+                ).transactions.map((tx) => (
+                  <div key={tx.id} className="flex items-center justify-between py-3 text-sm">
+                    <div>
+                      <p className="text-stone-700">{REASON_LABELS[tx.reason] ?? tx.reason}</p>
+                      <p className="text-xs text-stone-400">
+                        {new Date(tx.createdAt).toLocaleDateString('sv-SE')}
+                      </p>
+                    </div>
+                    <span
+                      className={`font-semibold tabular-nums ${tx.delta > 0 ? 'text-green-600' : 'text-red-500'}`}
+                    >
+                      {tx.delta > 0 ? '+' : ''}
+                      {tx.delta} pts
+                    </span>
                   </div>
-                  <span className={`font-semibold tabular-nums ${tx.delta > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {tx.delta > 0 ? '+' : ''}{tx.delta} pts
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
       {/* Password section */}
       <div className="card p-8 mb-6">
@@ -291,19 +385,23 @@ export default function ProfilePage() {
               required
               autoComplete="new-password"
             />
-            {newPassword.length > 0 && (() => {
-              const s = checkPasswordStrength(newPassword);
-              return (
-                <div className="mt-2">
-                  <div className="flex gap-1 mb-1">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`} />
-                    ))}
+            {newPassword.length > 0 &&
+              (() => {
+                const s = checkPasswordStrength(newPassword);
+                return (
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xs text-stone-500">{s.label}</p>
                   </div>
-                  <p className="text-xs text-stone-500">{s.label}</p>
-                </div>
-              );
-            })()}
+                );
+              })()}
           </div>
           <Input
             label="Confirm new password"
@@ -328,7 +426,8 @@ export default function ProfilePage() {
       <div className="card p-8 border border-red-100">
         <h2 className="text-lg font-semibold text-stone-900 mb-2">Delete account</h2>
         <p className="text-sm text-stone-500 mb-5">
-          Permanently anonymise your account and cancel active subscriptions. Order history is retained for legal purposes. This cannot be undone.
+          Permanently anonymise your account and cancel active subscriptions. Order history is
+          retained for legal purposes. This cannot be undone.
         </p>
         <button
           onClick={() => setShowDeleteModal(true)}
@@ -343,7 +442,8 @@ export default function ProfilePage() {
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-lg">
             <h3 className="text-lg font-semibold text-stone-900 mb-2">Are you sure?</h3>
             <p className="text-sm text-stone-500 mb-5">
-              Type <strong>DELETE</strong> to confirm. This will anonymise your account and cannot be undone.
+              Type <strong>DELETE</strong> to confirm. This will anonymise your account and cannot
+              be undone.
             </p>
             <Input
               label=""
@@ -354,7 +454,10 @@ export default function ProfilePage() {
             />
             <div className="flex gap-3 justify-end mt-6">
               <button
-                onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }}
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmText('');
+                }}
                 className="text-sm font-medium text-stone-600 hover:text-stone-900 cursor-pointer px-4 min-h-[44px]"
               >
                 Cancel

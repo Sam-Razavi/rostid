@@ -15,12 +15,25 @@ export default function PaymentCancelPage() {
           variants={fadeUp}
           className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-6"
         >
-          <svg className="w-8 h-8 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-8 h-8 text-stone-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </motion.div>
 
-        <motion.h1 variants={fadeUp} className="font-serif text-3xl font-semibold text-stone-900 mb-3">
+        <motion.h1
+          variants={fadeUp}
+          className="font-serif text-3xl font-semibold text-stone-900 mb-3"
+        >
           Payment cancelled
         </motion.h1>
 

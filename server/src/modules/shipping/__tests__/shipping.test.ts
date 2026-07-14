@@ -63,7 +63,9 @@ describe('Shipping API', () => {
   describe('GET /api/shipping/addresses', () => {
     it('returns empty address list for new user', async () => {
       const token = await loginCustomer();
-      const res = await request(app).get('/api/shipping/addresses').set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .get('/api/shipping/addresses')
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data.addresses).toEqual([]);
     });
@@ -96,7 +98,13 @@ describe('Shipping API', () => {
       const res = await request(app)
         .post('/api/shipping/addresses')
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'Work', line1: 'Kungsgatan 5', city: 'Stockholm', postalCode: '11143', isDefault: true });
+        .send({
+          name: 'Work',
+          line1: 'Kungsgatan 5',
+          city: 'Stockholm',
+          postalCode: '11143',
+          isDefault: true,
+        });
       expect(res.status).toBe(201);
       expect(res.body.data.address.isDefault).toBe(true);
     });
@@ -117,7 +125,7 @@ describe('Shipping API', () => {
       expect(res.status).toBe(200);
     });
 
-    it('returns 404 when deleting another user\'s address', async () => {
+    it("returns 404 when deleting another user's address", async () => {
       const customerToken = await loginCustomer();
       const createRes = await request(app)
         .post('/api/shipping/addresses')
@@ -125,7 +133,9 @@ describe('Shipping API', () => {
         .send({ name: 'Mine', line1: 'Hej 1', city: 'Malmö', postalCode: '21100' });
       const addressId = createRes.body.data.address.id;
 
-      const adminLogin = await request(app).post('/api/auth/login').send({ email: 'admin@test.com', password: 'password123' });
+      const adminLogin = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'admin@test.com', password: 'password123' });
       const adminTok = adminLogin.body.data.accessToken;
 
       const res = await request(app)

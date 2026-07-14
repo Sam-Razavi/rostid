@@ -15,7 +15,9 @@ describe('Subscriptions API', () => {
   describe('GET /api/subscriptions', () => {
     it('returns empty list for new user', async () => {
       const token = await loginCustomer();
-      const res = await request(app).get('/api/subscriptions').set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .get('/api/subscriptions')
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data.subscriptions).toEqual([]);
     });

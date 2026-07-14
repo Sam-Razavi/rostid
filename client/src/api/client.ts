@@ -28,7 +28,9 @@ apiClient.interceptors.response.use(
 
     if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
       const networkError = new Error('Network error. Please check your connection.');
-      (networkError as unknown as { response: unknown }).response = { data: { message: 'Network error. Please check your connection.' } };
+      (networkError as unknown as { response: unknown }).response = {
+        data: { message: 'Network error. Please check your connection.' },
+      };
       return Promise.reject(networkError);
     }
 

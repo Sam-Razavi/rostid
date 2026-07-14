@@ -4,9 +4,16 @@ import { AppError } from '../../utils/AppError';
 type DiscountPrisma = {
   discountCode: {
     findUnique: (a: unknown) => Promise<{
-      id: string; code: string; type: string; value: number;
-      minOrderOre: number | null; maxUses: number | null; usedCount: number;
-      isActive: boolean; expiresAt: Date | null; createdAt: Date;
+      id: string;
+      code: string;
+      type: string;
+      value: number;
+      minOrderOre: number | null;
+      maxUses: number | null;
+      usedCount: number;
+      isActive: boolean;
+      expiresAt: Date | null;
+      createdAt: Date;
     } | null>;
     findMany: (a: unknown) => Promise<unknown[]>;
     create: (a: unknown) => Promise<unknown>;
@@ -61,8 +68,12 @@ export async function listDiscounts() {
 }
 
 export async function createDiscount(data: {
-  code: string; type: string; value: number;
-  minOrderOre?: number; maxUses?: number; expiresAt?: string;
+  code: string;
+  type: string;
+  value: number;
+  minOrderOre?: number;
+  maxUses?: number;
+  expiresAt?: string;
 }) {
   return db.discountCode.create({
     data: {

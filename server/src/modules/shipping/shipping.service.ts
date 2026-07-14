@@ -21,20 +21,37 @@ export async function listAddresses(userId: string) {
   return db.shippingAddress.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } });
 }
 
-export async function createAddress(userId: string, data: {
-  name: string; line1: string; line2?: string | null;
-  city: string; postalCode: string; country?: string; isDefault?: boolean;
-}) {
+export async function createAddress(
+  userId: string,
+  data: {
+    name: string;
+    line1: string;
+    line2?: string | null;
+    city: string;
+    postalCode: string;
+    country?: string;
+    isDefault?: boolean;
+  }
+) {
   if (data.isDefault) {
     await db.shippingAddress.updateMany({ where: { userId }, data: { isDefault: false } });
   }
   return db.shippingAddress.create({ data: { ...data, userId } });
 }
 
-export async function updateAddress(userId: string, addressId: string, data: {
-  name?: string; line1?: string; line2?: string | null;
-  city?: string; postalCode?: string; country?: string; isDefault?: boolean;
-}) {
+export async function updateAddress(
+  userId: string,
+  addressId: string,
+  data: {
+    name?: string;
+    line1?: string;
+    line2?: string | null;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+    isDefault?: boolean;
+  }
+) {
   const address = await db.shippingAddress.findFirst({ where: { id: addressId, userId } });
   if (!address) throw AppError.notFound('Address not found');
 
@@ -51,13 +68,19 @@ export async function deleteAddress(userId: string, addressId: string) {
 }
 
 export async function listShippingRates(totalOre: number) {
-  const rates = await db.shippingRate.findMany({ where: { isActive: true } }) as Array<{
-    id: string; name: string; priceOre: number; freeThresholdOre: number | null; estimatedDays: string | null; isActive: boolean;
+  const rates = (await db.shippingRate.findMany({ where: { isActive: true } })) as Array<{
+    id: string;
+    name: string;
+    priceOre: number;
+    freeThresholdOre: number | null;
+    estimatedDays: string | null;
+    isActive: boolean;
   }>;
 
   return rates.map((rate) => ({
     ...rate,
-    effectivePriceOre: rate.freeThresholdOre && totalOre >= rate.freeThresholdOre ? 0 : rate.priceOre,
+    effectivePriceOre:
+      rate.freeThresholdOre && totalOre >= rate.freeThresholdOre ? 0 : rate.priceOre,
     isFree: !!(rate.freeThresholdOre && totalOre >= rate.freeThresholdOre),
   }));
 }

@@ -17,8 +17,10 @@ function formatPrice(ore: number) {
 
 function getTrackingUrl(carrier: string | null | undefined, trackingNumber: string): string | null {
   const c = (carrier ?? '').toLowerCase();
-  if (c.includes('postnord') || c.includes('post nord')) return `https://tracking.postnord.com/en/?id=${trackingNumber}`;
-  if (c.includes('dhl')) return `https://www.dhl.com/se-en/home/tracking.html?tracking-id=${trackingNumber}`;
+  if (c.includes('postnord') || c.includes('post nord'))
+    return `https://tracking.postnord.com/en/?id=${trackingNumber}`;
+  if (c.includes('dhl'))
+    return `https://www.dhl.com/se-en/home/tracking.html?tracking-id=${trackingNumber}`;
   if (c.includes('budbee')) return `https://tracking.budbee.com/?packageId=${trackingNumber}`;
   if (c.includes('gls')) return `https://gls-group.com/track/${trackingNumber}`;
   return null;
@@ -42,7 +44,12 @@ export default function OrderDetailPage() {
   const [selectedItems, setSelectedItems] = useState<Record<string, number>>({});
   const queryClient = useQueryClient();
 
-  const { data: order, isLoading, isError, refetch } = useQuery({
+  const {
+    data: order,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['order', id],
     queryFn: () => fetchOrder(id!),
     enabled: !!id,
@@ -57,25 +64,30 @@ export default function OrderDetailPage() {
       setShowConfirm(false);
     },
     onError: (err: unknown) => {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to cancel order';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Failed to cancel order';
       toast.error(message);
       setShowConfirm(false);
     },
   });
 
   const returnMutation = useMutation({
-    mutationFn: () => apiClient.post(`/orders/${id}/return`, {
-      reason: returnReason,
-      items: Object.entries(selectedItems)
-        .filter(([, qty]) => qty > 0)
-        .map(([orderItemId, quantity]) => ({ orderItemId, quantity })),
-    }),
+    mutationFn: () =>
+      apiClient.post(`/orders/${id}/return`, {
+        reason: returnReason,
+        items: Object.entries(selectedItems)
+          .filter(([, qty]) => qty > 0)
+          .map(([orderItemId, quantity]) => ({ orderItemId, quantity })),
+      }),
     onSuccess: () => {
       toast.success('Return request submitted');
       setShowReturn(false);
     },
     onError: (err: unknown) => {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to submit return';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Failed to submit return';
       toast.error(message);
     },
   });
@@ -83,13 +95,26 @@ export default function OrderDetailPage() {
   const canCancel = order && (order.status === 'pending' || order.status === 'confirmed');
   const canReturn = order && order.status === 'delivered';
 
-  if (isLoading) return <div className="container-page py-16"><OrderCardSkeleton /></div>;
-  if (isError || !order) return <div className="container-page py-16"><ErrorMessage onRetry={refetch} /></div>;
+  if (isLoading)
+    return (
+      <div className="container-page py-16">
+        <OrderCardSkeleton />
+      </div>
+    );
+  if (isError || !order)
+    return (
+      <div className="container-page py-16">
+        <ErrorMessage onRetry={refetch} />
+      </div>
+    );
 
   return (
     <div className="container-page py-12 max-w-3xl">
       <div className="flex items-center gap-3 mb-8">
-        <Link to="/orders" className="text-stone-500 hover:text-stone-700 transition-colors text-sm">
+        <Link
+          to="/orders"
+          className="text-stone-500 hover:text-stone-700 transition-colors text-sm"
+        >
           ← Orders
         </Link>
         <span className="text-stone-300">/</span>
@@ -106,7 +131,9 @@ export default function OrderDetailPage() {
 
       {/* Status timeline */}
       <div className="card p-6 mb-8">
-        <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-6">Status</h2>
+        <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-6">
+          Status
+        </h2>
         <OrderTimeline status={order.status} />
       </div>
 
@@ -115,11 +142,18 @@ export default function OrderDetailPage() {
         <div className="card p-6 mb-6">
           {order.trackingNumber && (
             <div className="mb-4 last:mb-0">
-              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Tracking number</p>
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">
+                Tracking number
+              </p>
               {(() => {
                 const url = getTrackingUrl(order.carrier, order.trackingNumber!);
                 return url ? (
-                  <a href={url} target="_blank" rel="noopener noreferrer" className="font-mono text-espresso-700 hover:text-espresso-900 text-sm underline underline-offset-2">
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-espresso-700 hover:text-espresso-900 text-sm underline underline-offset-2"
+                  >
                     {order.trackingNumber}
                   </a>
                 ) : (
@@ -133,7 +167,9 @@ export default function OrderDetailPage() {
           )}
           {order.customerNote && (
             <div>
-              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Your note</p>
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">
+                Your note
+              </p>
               <p className="text-stone-700 text-sm">{order.customerNote}</p>
             </div>
           )}
@@ -142,7 +178,9 @@ export default function OrderDetailPage() {
 
       {/* Items */}
       <div className="card p-6 mb-6">
-        <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-5">Items</h2>
+        <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-5">
+          Items
+        </h2>
         <div className="divide-y divide-stone-100">
           {order.items.map((item) => (
             <div key={item.id} className="flex items-center justify-between py-4 gap-4">
@@ -155,7 +193,11 @@ export default function OrderDetailPage() {
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-lg bg-espresso-50 flex-shrink-0 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-espresso-300" fill="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5 text-espresso-300"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path d="M2 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272" />
                     </svg>
                   </div>
@@ -169,10 +211,13 @@ export default function OrderDetailPage() {
                   </Link>
                   {item.variant && (
                     <p className="text-xs text-stone-400">
-                      {item.variant.name}{item.variant.grind ? ` · ${item.variant.grind.replace('_', ' ')}` : ''}
+                      {item.variant.name}
+                      {item.variant.grind ? ` · ${item.variant.grind.replace('_', ' ')}` : ''}
                     </p>
                   )}
-                  <p className="text-stone-500 text-xs">Qty {item.quantity} × {formatPrice(item.unitPriceOre)}</p>
+                  <p className="text-stone-500 text-xs">
+                    Qty {item.quantity} × {formatPrice(item.unitPriceOre)}
+                  </p>
                 </div>
               </div>
               <span className="font-medium text-stone-900 text-sm tabular-nums flex-shrink-0">
@@ -196,7 +241,12 @@ export default function OrderDetailPage() {
           className="btn-secondary text-sm flex items-center gap-1.5 cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+            />
           </svg>
           Print
         </button>
@@ -232,13 +282,17 @@ export default function OrderDetailPage() {
             <div className="space-y-3 mb-4">
               {order!.items.map((item) => (
                 <div key={item.id} className="flex items-center justify-between text-sm">
-                  <span className="text-stone-700">{item.product.name} (qty {item.quantity})</span>
+                  <span className="text-stone-700">
+                    {item.product.name} (qty {item.quantity})
+                  </span>
                   <input
                     type="number"
                     min={0}
                     max={item.quantity}
                     value={selectedItems[item.id] ?? 0}
-                    onChange={(e) => setSelectedItems((prev) => ({ ...prev, [item.id]: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setSelectedItems((prev) => ({ ...prev, [item.id]: Number(e.target.value) }))
+                    }
                     className="w-16 px-2 py-1 border border-stone-300 rounded text-center"
                   />
                 </div>
@@ -282,7 +336,9 @@ export default function OrderDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-warm">
             <h3 className="text-lg font-semibold text-stone-900 mb-2">Cancel this order?</h3>
-            <p className="text-stone-500 text-sm mb-6">Stock will be restored. This cannot be undone.</p>
+            <p className="text-stone-500 text-sm mb-6">
+              Stock will be restored. This cannot be undone.
+            </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowConfirm(false)}

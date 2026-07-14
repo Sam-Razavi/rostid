@@ -28,7 +28,9 @@ describe('Admin API', () => {
 
     it('blocks customer role', async () => {
       const token = await customerToken();
-      const res = await request(app).get('/api/admin/stats').set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .get('/api/admin/stats')
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(403);
     });
   });
@@ -36,7 +38,9 @@ describe('Admin API', () => {
   describe('GET /api/admin/stats', () => {
     it('returns dashboard stats', async () => {
       const token = await adminToken();
-      const res = await request(app).get('/api/admin/stats').set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .get('/api/admin/stats')
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveProperty('totalOrders');
       expect(res.body.data).toHaveProperty('totalRevenueOre');
@@ -98,7 +102,9 @@ describe('Admin API', () => {
   describe('Order management', () => {
     it('lists all orders', async () => {
       const token = await adminToken();
-      const res = await request(app).get('/api/admin/orders').set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .get('/api/admin/orders')
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data).toBeInstanceOf(Array);
     });

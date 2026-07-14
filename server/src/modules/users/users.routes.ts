@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { authenticate } from '../../middleware/authenticate';
-import { updateProfileHandler, changePasswordHandler, deleteAccountHandler } from './users.controller';
+import {
+  updateProfileHandler,
+  changePasswordHandler,
+  deleteAccountHandler,
+} from './users.controller';
 
 const router = Router();
 

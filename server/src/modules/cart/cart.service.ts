@@ -60,17 +60,22 @@ export async function addItem(userId: string, data: AddItemInput) {
   // Determine stock limit from variant or product
   let stockLimit = product.stock;
   if (data.variantId) {
-    const variant = await (prisma as unknown as { productVariant: { findUnique: (a: unknown) => Promise<{ stock: number; isActive: boolean } | null> } })
-      .productVariant.findUnique({ where: { id: data.variantId } });
+    const variant = await (
+      prisma as unknown as {
+        productVariant: {
+          findUnique: (a: unknown) => Promise<{ stock: number; isActive: boolean } | null>;
+        };
+      }
+    ).productVariant.findUnique({ where: { id: data.variantId } });
     if (!variant || !variant.isActive) throw AppError.notFound('Product variant not found');
     stockLimit = variant.stock;
   }
 
   const cart = await getOrCreateCart(userId);
 
-  const existing = await cartDb.cartItem.findFirst({
+  const existing = (await cartDb.cartItem.findFirst({
     where: { cartId: cart.id, productId: data.productId, variantId: data.variantId ?? null },
-  }) as ({ id: string; quantity: number } | null);
+  })) as { id: string; quantity: number } | null;
 
   if (existing) {
     const newQty = existing.quantity + data.quantity;
@@ -79,7 +84,12 @@ export async function addItem(userId: string, data: AddItemInput) {
   } else {
     if (data.quantity > stockLimit) throw AppError.badRequest(`Only ${stockLimit} in stock`);
     await cartDb.cartItem.create({
-      data: { cartId: cart.id, productId: data.productId, variantId: data.variantId ?? null, quantity: data.quantity },
+      data: {
+        cartId: cart.id,
+        productId: data.productId,
+        variantId: data.variantId ?? null,
+        quantity: data.quantity,
+      },
     });
   }
 
@@ -90,12 +100,14 @@ export async function updateItem(userId: string, itemId: string, data: UpdateIte
   const cart = await prisma.cart.findUnique({ where: { userId } });
   if (!cart) throw AppError.notFound('Cart not found');
 
-  const item = await (prisma.cartItem.findFirst as unknown as (a: unknown) => Promise<{
-    id: string;
-    variantId: string | null;
-    product: { stock: number };
-    variant: { stock: number } | null;
-  } | null>)({
+  const item = await (
+    prisma.cartItem.findFirst as unknown as (a: unknown) => Promise<{
+      id: string;
+      variantId: string | null;
+      product: { stock: number };
+      variant: { stock: number } | null;
+    } | null>
+  )({
     where: { id: itemId, cartId: cart.id },
     include: {
       product: { select: { stock: true } },

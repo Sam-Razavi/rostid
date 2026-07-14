@@ -59,7 +59,9 @@ export default function AdminGiftCards() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => <div key={i} className="h-14 bg-stone-100 animate-pulse rounded-xl" />)}
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-14 bg-stone-100 animate-pulse rounded-xl" />
+        ))}
       </div>
     );
   }
@@ -93,7 +95,11 @@ export default function AdminGiftCards() {
             />
           </div>
           <div className="flex justify-end mt-4">
-            <Button onClick={() => create.mutate()} loading={create.isPending} disabled={!balanceSek}>
+            <Button
+              onClick={() => create.mutate()}
+              loading={create.isPending}
+              disabled={!balanceSek}
+            >
               Generate
             </Button>
           </div>
@@ -116,22 +122,38 @@ export default function AdminGiftCards() {
             {cards.map((card) => (
               <tr key={card.id} className="hover:bg-stone-50">
                 <td className="px-4 py-3 font-mono font-semibold text-stone-900">{card.code}</td>
-                <td className="px-4 py-3 text-right text-stone-700">{formatPrice(card.balanceOre)}</td>
+                <td className="px-4 py-3 text-right text-stone-700">
+                  {formatPrice(card.balanceOre)}
+                </td>
                 <td className="px-4 py-3 text-right text-stone-500">{formatPrice(card.usedOre)}</td>
-                <td className="px-4 py-3 text-right font-medium text-stone-900">{formatPrice(card.balanceOre - card.usedOre)}</td>
-                <td className="px-4 py-3 text-stone-600">{card.expiresAt ? formatDate(card.expiresAt) : '—'}</td>
+                <td className="px-4 py-3 text-right font-medium text-stone-900">
+                  {formatPrice(card.balanceOre - card.usedOre)}
+                </td>
+                <td className="px-4 py-3 text-stone-600">
+                  {card.expiresAt ? formatDate(card.expiresAt) : '—'}
+                </td>
                 <td className="px-4 py-3">
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    card.isActive && card.balanceOre > card.usedOre ? 'bg-green-100 text-green-700' : 'bg-stone-100 text-stone-500'
-                  }`}>
-                    {!card.isActive ? 'Inactive' : card.balanceOre <= card.usedOre ? 'Used up' : 'Active'}
+                  <span
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                      card.isActive && card.balanceOre > card.usedOre
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-stone-100 text-stone-500'
+                    }`}
+                  >
+                    {!card.isActive
+                      ? 'Inactive'
+                      : card.balanceOre <= card.usedOre
+                        ? 'Used up'
+                        : 'Active'}
                   </span>
                 </td>
               </tr>
             ))}
             {cards.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-stone-400">No gift cards yet</td>
+                <td colSpan={6} className="px-4 py-12 text-center text-stone-400">
+                  No gift cards yet
+                </td>
               </tr>
             )}
           </tbody>

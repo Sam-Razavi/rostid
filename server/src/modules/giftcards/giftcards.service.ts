@@ -2,7 +2,15 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../utils/AppError';
 import crypto from 'crypto';
 
-type GiftCardRecord = { id: string; code: string; balanceOre: number; usedOre: number; isActive: boolean; expiresAt: Date | null; createdAt: Date };
+type GiftCardRecord = {
+  id: string;
+  code: string;
+  balanceOre: number;
+  usedOre: number;
+  isActive: boolean;
+  expiresAt: Date | null;
+  createdAt: Date;
+};
 
 type GiftCardPrisma = {
   giftCard: {
@@ -31,7 +39,8 @@ export async function adminListGiftCards() {
 export async function validateGiftCard(code: string) {
   const card = await gcDb.giftCard.findUnique({ where: { code } });
   if (!card || !card.isActive) throw AppError.badRequest('Invalid gift card');
-  if (card.expiresAt && card.expiresAt < new Date()) throw AppError.badRequest('Gift card has expired');
+  if (card.expiresAt && card.expiresAt < new Date())
+    throw AppError.badRequest('Gift card has expired');
   const available = card.balanceOre - card.usedOre;
   if (available <= 0) throw AppError.badRequest('Gift card has no remaining balance');
   return { code: card.code, availableOre: available };

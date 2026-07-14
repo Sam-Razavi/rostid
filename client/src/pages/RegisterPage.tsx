@@ -31,7 +31,9 @@ export default function RegisterPage() {
       toast.success('Account created! Welcome to Rostid.');
       navigate('/');
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Registration failed';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Registration failed';
       setError(message);
       toast.error(message);
     } finally {
@@ -43,7 +45,9 @@ export default function RegisterPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">Rostid</Link>
+          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">
+            Rostid
+          </Link>
           <h1 className="text-xl font-semibold text-stone-900 mt-4">Create your account</h1>
           <p className="text-stone-500 mt-1 text-sm">Start your coffee journey</p>
         </div>
@@ -78,19 +82,23 @@ export default function RegisterPage() {
                 required
                 autoComplete="new-password"
               />
-              {password.length > 0 && (() => {
-                const s = checkPasswordStrength(password);
-                return (
-                  <div className="mt-2">
-                    <div className="flex gap-1 mb-1">
-                      {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`} />
-                      ))}
+              {password.length > 0 &&
+                (() => {
+                  const s = checkPasswordStrength(password);
+                  return (
+                    <div className="mt-2">
+                      <div className="flex gap-1 mb-1">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-xs text-stone-500">{s.label}</p>
                     </div>
-                    <p className="text-xs text-stone-500">{s.label}</p>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
             </div>
 
             {error && (
@@ -105,7 +113,10 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-stone-500 mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors">
+          <Link
+            to="/login"
+            className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors"
+          >
             Sign in
           </Link>
         </p>

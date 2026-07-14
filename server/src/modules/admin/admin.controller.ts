@@ -106,18 +106,23 @@ export async function exportOrdersCsvHandler(_req: Request, res: Response): Prom
 
   const rows = [
     ['Order ID', 'Date', 'Customer Name', 'Customer Email', 'Status', 'Total (SEK)'].join(','),
-    ...orders.map((o) => [
-      o.id,
-      o.createdAt.toISOString(),
-      `"${o.user.name.replace(/"/g, '""')}"`,
-      o.user.email,
-      o.status,
-      (o.totalOre / 100).toFixed(2),
-    ].join(',')),
+    ...orders.map((o) =>
+      [
+        o.id,
+        o.createdAt.toISOString(),
+        `"${o.user.name.replace(/"/g, '""')}"`,
+        o.user.email,
+        o.status,
+        (o.totalOre / 100).toFixed(2),
+      ].join(',')
+    ),
   ];
 
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', `attachment; filename="orders-${new Date().toISOString().split('T')[0]}.csv"`);
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="orders-${new Date().toISOString().split('T')[0]}.csv"`
+  );
   res.send(rows.join('\n'));
 }
 
@@ -150,21 +155,30 @@ export async function bulkProductActionHandler(req: Request, res: Response): Pro
 }
 
 export async function getRevenueTimeSeriesHandler(req: Request, res: Response): Promise<void> {
-  const granularity = (req.query.granularity as string) === 'daily' ? 'daily'
-    : (req.query.granularity as string) === 'monthly' ? 'monthly'
-    : 'weekly';
+  const granularity =
+    (req.query.granularity as string) === 'daily'
+      ? 'daily'
+      : (req.query.granularity as string) === 'monthly'
+        ? 'monthly'
+        : 'weekly';
   const from = req.query.from as string | undefined;
   const to = req.query.to as string | undefined;
   const data = await adminGetRevenueTimeSeries(granularity, from, to);
   res.json({ data, message: 'Revenue time series retrieved' });
 }
 
-export async function listNewsletterSubscribersHandler(_req: Request, res: Response): Promise<void> {
+export async function listNewsletterSubscribersHandler(
+  _req: Request,
+  res: Response
+): Promise<void> {
   const subscribers = await adminListNewsletterSubscribers();
   res.json({ data: subscribers, message: 'Subscribers retrieved' });
 }
 
-export async function deleteNewsletterSubscriberHandler(req: Request, res: Response): Promise<void> {
+export async function deleteNewsletterSubscriberHandler(
+  req: Request,
+  res: Response
+): Promise<void> {
   await adminDeleteNewsletterSubscriber(req.params.id);
   res.json({ data: null, message: 'Subscriber removed' });
 }
@@ -176,7 +190,10 @@ export async function exportNewsletterCsvHandler(_req: Request, res: Response): 
     ...subscribers.map((s) => [s.email, s.createdAt.toISOString()].join(',')),
   ];
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', `attachment; filename="newsletter-${new Date().toISOString().split('T')[0]}.csv"`);
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="newsletter-${new Date().toISOString().split('T')[0]}.csv"`
+  );
   res.send(rows.join('\n'));
 }
 
@@ -202,7 +219,11 @@ export async function updateAdminReturnHandler(req: Request, res: Response): Pro
 
   if (status === 'approved' && refundOre && stripe) {
     // Find the order's Stripe session to get payment_intent
-    const returnRecord = await (prisma as unknown as { return: { findFirst: (a: unknown) => Promise<{ orderId: string } | null> } }).return.findFirst({ where: { id: req.params.id } });
+    const returnRecord = await (
+      prisma as unknown as {
+        return: { findFirst: (a: unknown) => Promise<{ orderId: string } | null> };
+      }
+    ).return.findFirst({ where: { id: req.params.id } });
     if (returnRecord) {
       const order = await prisma.order.findUnique({ where: { id: returnRecord.orderId } });
       const orderAny = order as unknown as { stripeSessionId?: string } | null;
@@ -220,7 +241,11 @@ export async function updateAdminReturnHandler(req: Request, res: Response): Pro
   }
 
   const finalStatus = status === 'approved' && stripeRefundId ? 'refunded' : status;
-  const result = await adminUpdateReturn(req.params.id, { status: finalStatus, refundOre, stripeRefundId });
+  const result = await adminUpdateReturn(req.params.id, {
+    status: finalStatus,
+    refundOre,
+    stripeRefundId,
+  });
   res.json({ data: result, message: 'Return updated' });
 }
 
@@ -233,7 +258,10 @@ export async function listAdminGiftCardsHandler(_req: Request, res: Response): P
 export async function createAdminGiftCardHandler(req: Request, res: Response): Promise<void> {
   const { adminCreateGiftCard } = await import('../giftcards/giftcards.service');
   const { body } = createGiftCardSchema.parse({ body: req.body });
-  const card = await adminCreateGiftCard(body.balanceOre, body.expiresAt ? new Date(body.expiresAt) : null);
+  const card = await adminCreateGiftCard(
+    body.balanceOre,
+    body.expiresAt ? new Date(body.expiresAt) : null
+  );
   res.status(201).json({ data: { card }, message: 'Gift card created' });
 }
 

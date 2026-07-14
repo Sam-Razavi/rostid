@@ -15,7 +15,12 @@ function formatPrice(ore: number) {
 export default function WishlistPage() {
   const queryClient = useQueryClient();
 
-  const { data: items, isLoading, isError, refetch } = useQuery({
+  const {
+    data: items,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['wishlist'],
     queryFn: fetchWishlist,
   });
@@ -57,13 +62,20 @@ export default function WishlistPage() {
       <div className="container-page py-12">
         <h1 className="text-2xl font-semibold text-stone-900 mb-8">Wishlist</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)}
+          {[...Array(4)].map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
         </div>
       </div>
     );
   }
 
-  if (isError) return <div className="container-page py-16"><ErrorMessage onRetry={refetch} /></div>;
+  if (isError)
+    return (
+      <div className="container-page py-16">
+        <ErrorMessage onRetry={refetch} />
+      </div>
+    );
 
   return (
     <div className="container-page py-12">
@@ -80,7 +92,11 @@ export default function WishlistPage() {
         <EmptyState
           title="Your wishlist is empty"
           description="Save products you love to your wishlist and find them here."
-          action={<Link to="/products" className="btn-primary inline-flex">Browse coffees</Link>}
+          action={
+            <Link to="/products" className="btn-primary inline-flex">
+              Browse coffees
+            </Link>
+          }
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

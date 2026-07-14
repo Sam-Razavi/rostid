@@ -43,7 +43,9 @@ export async function deleteAccount(userId: string) {
     });
 
     // Cancel active subscriptions
-    await (tx as unknown as { subscription: { updateMany: (a: unknown) => Promise<unknown> } }).subscription.updateMany({
+    await (
+      tx as unknown as { subscription: { updateMany: (a: unknown) => Promise<unknown> } }
+    ).subscription.updateMany({
       where: { userId, status: { in: ['active', 'paused'] } },
       data: { status: 'cancelled' },
     });

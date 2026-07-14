@@ -3,7 +3,11 @@ import toast from 'react-hot-toast';
 import { fetchNewsletterSubscribers, deleteNewsletterSubscriber } from '../../api/admin.api';
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-SE', { year: 'numeric', month: 'short', day: 'numeric' });
+  return new Date(iso).toLocaleDateString('en-SE', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 export default function AdminNewsletter() {
@@ -32,7 +36,9 @@ export default function AdminNewsletter() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-semibold text-stone-900">Newsletter</h1>
-          {subscribers && <p className="text-stone-500 text-sm mt-1">{subscribers.length} subscribers</p>}
+          {subscribers && (
+            <p className="text-stone-500 text-sm mt-1">{subscribers.length} subscribers</p>
+          )}
         </div>
         <button onClick={handleExport} className="btn-secondary text-sm">
           Export CSV
@@ -51,8 +57,12 @@ export default function AdminNewsletter() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-stone-100">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Email</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Subscribed</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                  Subscribed
+                </th>
                 <th className="px-6 py-3" />
               </tr>
             </thead>

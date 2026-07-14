@@ -59,7 +59,9 @@ export async function placeOrder(userId: string) {
   );
 
   const order = await prisma.$transaction(async (tx) => {
-    const newOrder = await (tx.order.create as unknown as (args: unknown) => Promise<OrderWithItemsForEmail>)({
+    const newOrder = await (
+      tx.order.create as unknown as (args: unknown) => Promise<OrderWithItemsForEmail>
+    )({
       data: {
         userId,
         subtotalOre: totalOre,
@@ -89,7 +91,10 @@ export async function placeOrder(userId: string) {
   });
 
   // Fire-and-forget confirmation email
-  const userInfo = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } });
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, name: true },
+  });
   if (userInfo) {
     sendOrderConfirmation({
       to: userInfo.email,

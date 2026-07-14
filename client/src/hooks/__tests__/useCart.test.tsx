@@ -32,11 +32,21 @@ import apiClient from '../../api/client';
 
 const mockCart = {
   id: 'cart-1',
-  items: [{ id: 'item-1', productId: 'p1', quantity: 2, product: { name: 'Coffee', priceOre: 10000, imageUrl: null, slug: 'coffee' }, variant: null }],
+  items: [
+    {
+      id: 'item-1',
+      productId: 'p1',
+      quantity: 2,
+      product: { name: 'Coffee', priceOre: 10000, imageUrl: null, slug: 'coffee' },
+      variant: null,
+    },
+  ],
 };
 
 function wrapper({ children }: { children: ReactNode }) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }
 

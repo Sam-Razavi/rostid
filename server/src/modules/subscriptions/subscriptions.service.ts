@@ -3,15 +3,28 @@ import { stripe } from '../../config/stripe';
 import { AppError } from '../../utils/AppError';
 import { env } from '../../config/env';
 
-type SubRecord = { id: string; userId: string; productId: string; variantId: string | null; intervalDays: number; status: string; nextBillingDate: Date; createdAt: Date };
-type SubWithProduct = SubRecord & { product: { id: string; name: string; priceOre: number; imageUrl: string | null } };
+type SubRecord = {
+  id: string;
+  userId: string;
+  productId: string;
+  variantId: string | null;
+  intervalDays: number;
+  status: string;
+  nextBillingDate: Date;
+  createdAt: Date;
+};
+type SubWithProduct = SubRecord & {
+  product: { id: string; name: string; priceOre: number; imageUrl: string | null };
+};
 
 type SubPrisma = {
   subscription: {
     create: (a: unknown) => Promise<SubRecord>;
     findMany: (a: unknown) => Promise<SubWithProduct[]>;
     findFirst: (a: unknown) => Promise<SubRecord | null>;
-    update: (a: unknown) => Promise<{ id: string; status: string; intervalDays: number; nextBillingDate: Date }>;
+    update: (
+      a: unknown
+    ) => Promise<{ id: string; status: string; intervalDays: number; nextBillingDate: Date }>;
     updateMany: (a: unknown) => Promise<{ count: number }>;
   };
 };
@@ -95,7 +108,10 @@ export async function processDueSubscriptions() {
     include: { product: { select: { id: true, name: true, priceOre: true, imageUrl: true } } },
   });
 
-  const results: { subscriptionId: string; status: 'skipped' | 'session_created' | 'order_created' }[] = [];
+  const results: {
+    subscriptionId: string;
+    status: 'skipped' | 'session_created' | 'order_created';
+  }[] = [];
 
   for (const sub of due) {
     const nextDate = new Date(sub.nextBillingDate);

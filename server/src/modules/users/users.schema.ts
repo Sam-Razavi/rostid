@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
 export const updateProfileSchema = z.object({
-  body: z.object({
-    name: z.string().min(1).max(100).optional(),
-    email: z.string().email().optional(),
-  }).refine((d) => d.name !== undefined || d.email !== undefined, {
-    message: 'At least one field (name or email) is required',
-  }),
+  body: z
+    .object({
+      name: z.string().min(1).max(100).optional(),
+      email: z.string().email().optional(),
+    })
+    .refine((d) => d.name !== undefined || d.email !== undefined, {
+      message: 'At least one field (name or email) is required',
+    }),
 });
 
 export const changePasswordSchema = z.object({

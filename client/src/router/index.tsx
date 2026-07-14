@@ -48,24 +48,129 @@ export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <S><HomePage /></S> },
-      { path: '/products', element: <S><ProductsPage /></S> },
-      { path: '/products/:slug', element: <S><ProductDetailPage /></S> },
-      { path: '/login', element: <S><LoginPage /></S> },
-      { path: '/register', element: <S><RegisterPage /></S> },
-      { path: '/forgot-password', element: <S><ForgotPasswordPage /></S> },
-      { path: '/reset-password', element: <S><ResetPasswordPage /></S> },
+      {
+        path: '/',
+        element: (
+          <S>
+            <HomePage />
+          </S>
+        ),
+      },
+      {
+        path: '/products',
+        element: (
+          <S>
+            <ProductsPage />
+          </S>
+        ),
+      },
+      {
+        path: '/products/:slug',
+        element: (
+          <S>
+            <ProductDetailPage />
+          </S>
+        ),
+      },
+      {
+        path: '/login',
+        element: (
+          <S>
+            <LoginPage />
+          </S>
+        ),
+      },
+      {
+        path: '/register',
+        element: (
+          <S>
+            <RegisterPage />
+          </S>
+        ),
+      },
+      {
+        path: '/forgot-password',
+        element: (
+          <S>
+            <ForgotPasswordPage />
+          </S>
+        ),
+      },
+      {
+        path: '/reset-password',
+        element: (
+          <S>
+            <ResetPasswordPage />
+          </S>
+        ),
+      },
       {
         element: <ProtectedRoute />,
         children: [
-          { path: '/profile', element: <S><ProfilePage /></S> },
-          { path: '/wishlist', element: <S><WishlistPage /></S> },
-          { path: '/cart', element: <S><CartPage /></S> },
-          { path: '/orders', element: <S><OrdersPage /></S> },
-          { path: '/orders/:id', element: <S><OrderDetailPage /></S> },
-          { path: '/subscriptions', element: <S><SubscriptionsPage /></S> },
-          { path: '/checkout/success', element: <S><PaymentSuccessPage /></S> },
-          { path: '/checkout/cancel', element: <S><PaymentCancelPage /></S> },
+          {
+            path: '/profile',
+            element: (
+              <S>
+                <ProfilePage />
+              </S>
+            ),
+          },
+          {
+            path: '/wishlist',
+            element: (
+              <S>
+                <WishlistPage />
+              </S>
+            ),
+          },
+          {
+            path: '/cart',
+            element: (
+              <S>
+                <CartPage />
+              </S>
+            ),
+          },
+          {
+            path: '/orders',
+            element: (
+              <S>
+                <OrdersPage />
+              </S>
+            ),
+          },
+          {
+            path: '/orders/:id',
+            element: (
+              <S>
+                <OrderDetailPage />
+              </S>
+            ),
+          },
+          {
+            path: '/subscriptions',
+            element: (
+              <S>
+                <SubscriptionsPage />
+              </S>
+            ),
+          },
+          {
+            path: '/checkout/success',
+            element: (
+              <S>
+                <PaymentSuccessPage />
+              </S>
+            ),
+          },
+          {
+            path: '/checkout/cancel',
+            element: (
+              <S>
+                <PaymentCancelPage />
+              </S>
+            ),
+          },
         ],
       },
     ],
@@ -76,19 +181,96 @@ export const router = createBrowserRouter([
       {
         element: <AdminLayout />,
         children: [
-          { path: '/admin', element: <S><AdminDashboard /></S> },
-          { path: '/admin/products', element: <S><AdminProducts /></S> },
-          { path: '/admin/orders', element: <S><AdminOrders /></S> },
-          { path: '/admin/orders/:id', element: <S><AdminOrderDetail /></S> },
-          { path: '/admin/customers', element: <S><AdminCustomers /></S> },
-          { path: '/admin/discounts', element: <S><AdminDiscounts /></S> },
-          { path: '/admin/subscriptions', element: <S><AdminSubscriptions /></S> },
-          { path: '/admin/returns', element: <S><AdminReturns /></S> },
-          { path: '/admin/gift-cards', element: <S><AdminGiftCards /></S> },
-          { path: '/admin/newsletter', element: <S><AdminNewsletter /></S> },
+          {
+            path: '/admin',
+            element: (
+              <S>
+                <AdminDashboard />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/products',
+            element: (
+              <S>
+                <AdminProducts />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/orders',
+            element: (
+              <S>
+                <AdminOrders />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/orders/:id',
+            element: (
+              <S>
+                <AdminOrderDetail />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/customers',
+            element: (
+              <S>
+                <AdminCustomers />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/discounts',
+            element: (
+              <S>
+                <AdminDiscounts />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/subscriptions',
+            element: (
+              <S>
+                <AdminSubscriptions />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/returns',
+            element: (
+              <S>
+                <AdminReturns />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/gift-cards',
+            element: (
+              <S>
+                <AdminGiftCards />
+              </S>
+            ),
+          },
+          {
+            path: '/admin/newsletter',
+            element: (
+              <S>
+                <AdminNewsletter />
+              </S>
+            ),
+          },
         ],
       },
     ],
   },
-  { path: '*', element: <S><NotFoundPage /></S> },
+  {
+    path: '*',
+    element: (
+      <S>
+        <NotFoundPage />
+      </S>
+    ),
+  },
 ]);

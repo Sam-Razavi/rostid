@@ -202,7 +202,7 @@ describe('Orders API', () => {
       expect(res.body.data.id).toBe(orderId);
     });
 
-    it('cannot access another user\'s order', async () => {
+    it("cannot access another user's order", async () => {
       const token = await loginCustomer();
       const orderRes = await addToCartAndCheckout(token);
       const orderId = orderRes.body.data.id;

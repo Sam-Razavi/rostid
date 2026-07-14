@@ -11,13 +11,16 @@ interface ModalProps {
 
 const sizeClasses = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg' };
 
-const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   const handleEscape = useCallback(
-    (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    },
     [onClose]
   );
 
@@ -73,14 +76,21 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
       >
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-            <h2 id="modal-title" className="text-lg font-semibold text-stone-900">{title}</h2>
+            <h2 id="modal-title" className="text-lg font-semibold text-stone-900">
+              {title}
+            </h2>
             <button
               onClick={onClose}
               className="min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 hover:text-stone-600 cursor-pointer transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-espresso-500"
               aria-label="Close dialog"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
