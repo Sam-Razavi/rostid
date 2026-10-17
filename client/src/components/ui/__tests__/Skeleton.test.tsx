@@ -3,10 +3,10 @@ import { render } from '@testing-library/react';
 import { Skeleton, ProductCardSkeleton, ProductGridSkeleton, OrderCardSkeleton } from '../Skeleton';
 
 describe('Skeleton', () => {
-  it('renders a div with animate-pulse', () => {
+  it('renders a div with the shimmer animation', () => {
     const { container } = render(<Skeleton />);
     const el = container.firstChild as HTMLElement;
-    expect(el.className).toContain('animate-pulse');
+    expect(el.className).toContain('skeleton-shimmer');
   });
 
   it('applies custom className', () => {
@@ -18,7 +18,7 @@ describe('Skeleton', () => {
 describe('ProductCardSkeleton', () => {
   it('renders multiple skeleton elements', () => {
     const { container } = render(<ProductCardSkeleton />);
-    const skeletons = container.querySelectorAll('.animate-pulse');
+    const skeletons = container.querySelectorAll('.skeleton-shimmer');
     expect(skeletons.length).toBeGreaterThan(1);
   });
 
@@ -51,7 +51,7 @@ describe('OrderCardSkeleton', () => {
 
   it('renders multiple skeleton elements', () => {
     const { container } = render(<OrderCardSkeleton />);
-    const skeletons = container.querySelectorAll('.animate-pulse');
+    const skeletons = container.querySelectorAll('.skeleton-shimmer');
     expect(skeletons.length).toBeGreaterThan(2);
   });
 });

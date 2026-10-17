@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { MotionConfig } from 'framer-motion';
 import { router } from './router';
 import { useAuthStore } from './store/authStore';
 import { refreshSession, fetchMe } from './api/auth.api';
@@ -33,7 +34,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <RouterProvider router={router} />
       <Toaster
         position="bottom-right"
@@ -56,6 +57,6 @@ export default function App() {
           },
         }}
       />
-    </>
+    </MotionConfig>
   );
 }

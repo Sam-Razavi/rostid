@@ -192,21 +192,26 @@ Base unit: **4px**. All spacing values are multiples of 4.
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `duration.fast` | 150ms | Button press, state changes |
-| `duration.base` | 250ms | Card hover, fade transitions |
-| `duration.slow` | 400ms | Page transitions, modals |
-| `duration.crawl` | 600ms | Hero entrance (first load only) |
-| `ease.enter` | `[0.0, 0.0, 0.2, 1]` | Elements entering viewport |
-| `ease.exit` | `[0.4, 0.0, 1, 1]` | Elements leaving |
-| `ease.spring` | `{ type: "spring", stiffness: 300, damping: 30 }` | Interactive press feedback |
-| `ease.springGentle` | `{ type: "spring", stiffness: 120, damping: 20 }` | Page/modal transitions |
-| `stagger.list` | 40ms per item | Product grids, lists |
-| `stagger.hero` | 80ms per word/line | Hero text reveal |
+| `duration.fast` | 180ms | Exits, button press, state changes |
+| `duration.base` | 350ms | Card hover, small UI transitions |
+| `duration.slow` | 600ms | Page transitions, section reveals |
+| `duration.crawl` | 900ms | Hero headline / image reveals (first load only) |
+| `ease.out` | `[0.16, 1, 0.3, 1]` | Elements entering (default) |
+| `ease.inOut` | `[0.65, 0, 0.35, 1]` | Clip-path wipes, drawn lines |
+| `ease.in` | `[0.4, 0, 1, 1]` | Elements leaving |
+| `spring.press` | `{ type: "spring", stiffness: 420, damping: 30 }` | Interactive press feedback, badge pops |
+| `spring.gentle` | `{ type: "spring", stiffness: 160, damping: 24 }` | Modals, banners |
+| `staggerContainer` | 60ms per item | Product grids, lists |
+| `staggerSlow` | 100ms per item | Hero and editorial blocks |
+
+All tokens and variants live in `client/src/animations/variants.ts` (`fadeUp`, `fadeIn`,
+`maskReveal`, `imageReveal`, `lineGrow`, `scaleIn`, …). Scroll reveals use the shared `inView`
+viewport config so sections trigger consistently.
 
 **Animation rules:**
 - Only animate `opacity` and `transform` (translateY, translateX, scale) — never `width`, `height`, `top`, `left`
 - Exit duration = 60–70% of enter duration
-- Always include `prefers-reduced-motion` fallback (disable translate, keep opacity)
+- `prefers-reduced-motion` is handled globally by `<MotionConfig reducedMotion="user">` in `App.tsx`; infinite loops (marquee, shimmer) are disabled explicitly
 - Interactive press: `scale: 0.97` on tap, spring back on release
 - Hover lift on cards: `y: -4px` + shadow level up, `duration.base`
 - Stagger grids: fade+translateY(16px) → (0, 0), 40ms stagger

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { duration, ease, spring } from '../../animations/variants';
 
 const STORAGE_KEY = 'rostid_cookie_consent';
 
@@ -20,10 +21,9 @@ export function CookieBanner() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ y: 32, opacity: 0 }}
+          animate={{ y: 0, opacity: 1, transition: { delay: 1, ...spring.gentle } }}
+          exit={{ y: 32, opacity: 0, transition: { duration: duration.fast, ease: ease.in } }}
           className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50"
           role="dialog"
           aria-label="Cookie consent"

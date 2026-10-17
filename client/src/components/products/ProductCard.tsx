@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { addToWishlist, removeFromWishlist } from '../../api/wishlist.api';
 import { useAuthStore } from '../../store/authStore';
 import type { Product } from '../../types';
-import { fadeUp } from '../../animations/variants';
+import { duration, ease, fadeUp, spring } from '../../animations/variants';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100)} kr`;
@@ -46,8 +46,8 @@ export function ProductCard({ product, onAddToCart, addingId, wishlisted }: Prod
   return (
     <motion.div
       variants={fadeUp}
-      whileHover={{ y: -4, transition: { duration: 0.2, ease: 'easeOut' } }}
-      className="card overflow-hidden group hover:shadow-card transition-shadow duration-200"
+      whileHover={{ y: -6, transition: { duration: duration.base, ease: ease.out } }}
+      className="card overflow-hidden group transition-shadow duration-500 ease-out hover:shadow-card"
     >
       <Link to={`/products/${product.slug}`} className="block">
         <div className="aspect-[4/3] bg-stone-100 overflow-hidden relative">
@@ -102,13 +102,15 @@ export function ProductCard({ product, onAddToCart, addingId, wishlisted }: Prod
             <img
               src={product.imageUrl}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-espresso-50">
               <span className="font-serif text-4xl text-espresso-200">R</span>
             </div>
           )}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-espresso-950/25 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         </div>
       </Link>
 
@@ -138,7 +140,7 @@ export function ProductCard({ product, onAddToCart, addingId, wishlisted }: Prod
           </p>
 
           {onAddToCart && (
-            <motion.div whileTap={{ scale: 0.95 }}>
+            <motion.div whileTap={{ scale: 0.96 }} transition={spring.press}>
               <Button
                 size="sm"
                 onClick={() => onAddToCart(product)}

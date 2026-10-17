@@ -3,7 +3,7 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className = '' }: SkeletonProps) {
-  return <div className={`bg-stone-200 animate-pulse rounded ${className}`} />;
+  return <div className={`skeleton-shimmer rounded ${className}`} />;
 }
 
 export function ProductCardSkeleton() {

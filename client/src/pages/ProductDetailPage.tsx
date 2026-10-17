@@ -10,7 +10,7 @@ import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useAddToCart } from '../hooks/useCart';
 import { useAuthStore } from '../store/authStore';
-import { fadeIn, fadeUp, staggerContainer } from '../animations/variants';
+import { fadeIn, fadeUp, imageReveal, spring, staggerContainer } from '../animations/variants';
 import { RelatedProducts } from '../components/products/RelatedProducts';
 import { ReviewList } from '../components/products/ReviewList';
 import { AddReviewForm } from '../components/products/AddReviewForm';
@@ -248,24 +248,26 @@ export default function ProductDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Product image */}
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            className="aspect-square rounded-xl overflow-hidden bg-espresso-50"
-          >
-            {product.imageUrl ? (
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="font-serif text-8xl text-espresso-200">R</span>
-              </div>
-            )}
-          </motion.div>
+          <div className="group aspect-square rounded-2xl overflow-hidden bg-espresso-50">
+            <motion.div
+              variants={product.imageUrl ? imageReveal : fadeIn}
+              initial="hidden"
+              animate="visible"
+              className="w-full h-full"
+            >
+              {product.imageUrl ? (
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="font-serif text-8xl text-espresso-200">R</span>
+                </div>
+              )}
+            </motion.div>
+          </div>
 
           {/* Product info */}
           <motion.div
@@ -449,7 +451,7 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
-              <motion.div className="flex-1" whileTap={{ scale: 0.97 }}>
+              <motion.div className="flex-1" whileTap={{ scale: 0.97 }} transition={spring.press}>
                 {purchaseMode === 'one-time' ? (
                   <Button
                     onClick={handleAddToCart}

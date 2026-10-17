@@ -17,6 +17,8 @@ import {
 import { fetchAdminStats, fetchAdminProducts, fetchRevenueTimeSeries } from '../../api/admin.api';
 import { OrderStatusBadge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { motion } from 'framer-motion';
+import { duration, ease, fadeUp, staggerContainer } from '../../animations/variants';
 
 function formatPrice(ore: number) {
   return `${Math.round(ore / 100).toLocaleString('sv-SE')} kr`;
@@ -85,15 +87,22 @@ export default function AdminDashboard() {
     }));
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-stone-900 mb-8">Dashboard</h1>
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+      <motion.h1 variants={fadeUp} className="text-2xl font-semibold text-stone-900 mb-8">
+        Dashboard
+      </motion.h1>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
+      <motion.div
+        variants={staggerContainer}
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-10"
+      >
         {statCards.map((card) => (
-          <div
+          <motion.div
             key={card.label}
-            className="bg-white rounded-xl p-6 shadow-soft border border-stone-100"
+            variants={fadeUp}
+            whileHover={{ y: -3, transition: { duration: duration.base, ease: ease.out } }}
+            className="bg-white rounded-xl p-6 shadow-soft border border-stone-100 transition-shadow duration-300 hover:shadow-card"
           >
             <p className="text-sm text-stone-500 font-medium">{card.label}</p>
             {isLoading ? (
@@ -103,12 +112,12 @@ export default function AdminDashboard() {
                 {card.format(card.value)}
               </p>
             )}
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+      <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
         {/* Revenue bar chart */}
         <div className="bg-white rounded-xl shadow-soft border border-stone-100 p-6">
           <h2 className="font-semibold text-stone-900 mb-6">Recent order revenue (kr)</h2>
@@ -172,10 +181,13 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Recent orders table */}
-      <div className="bg-white rounded-xl shadow-soft border border-stone-100">
+      <motion.div
+        variants={fadeUp}
+        className="bg-white rounded-xl shadow-soft border border-stone-100"
+      >
         <div className="px-6 py-4 border-b border-stone-100">
           <h2 className="font-semibold text-stone-900">Recent orders</h2>
         </div>
@@ -210,7 +222,7 @@ export default function AdminDashboard() {
             ))
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Weekly revenue trend */}
       {weeklyRevenue && weeklyRevenue.length > 1 && (
@@ -296,6 +308,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

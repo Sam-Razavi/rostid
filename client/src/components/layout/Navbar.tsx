@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { duration, ease, spring } from '../../animations/variants';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { useCart } from '../../hooks/useCart';
@@ -18,6 +19,14 @@ export function Navbar() {
   });
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const cartCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
   const wishlistCount = wishlistItems?.length ?? 0;
@@ -33,12 +42,21 @@ export function Navbar() {
     }
   }
 
+  const underline =
+    "relative py-1 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-current after:transition-transform after:duration-300 after:ease-out after:content-['']";
+
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `text-sm font-medium transition-colors ${isActive ? 'text-espresso-800' : 'text-stone-600 hover:text-stone-900'}`;
+    `text-sm font-medium transition-colors ${underline} ${isActive ? 'text-espresso-800 after:scale-x-100' : 'text-stone-600 hover:text-stone-900 after:scale-x-0 hover:after:scale-x-100'}`;
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-stone-200">
+      <header
+        className={`sticky top-0 z-50 border-b backdrop-blur-md transition-[background-color,box-shadow,border-color] duration-300 ${
+          scrolled
+            ? 'bg-white/85 border-stone-200/80 shadow-[0_8px_30px_-12px_rgba(33,16,8,0.18)]'
+            : 'bg-white/95 border-stone-200'
+        }`}
+      >
         <div className="container-page">
           <div className="flex h-16 items-center justify-between">
             <Link
@@ -55,15 +73,12 @@ export function Navbar() {
               </NavLink>
               <NavLink
                 to="/products?category=equipment"
-                className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                className={`text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors ${underline} after:scale-x-0 hover:after:scale-x-100`}
               >
                 Equipment
               </NavLink>
               {isAuthenticated && (
-                <NavLink
-                  to="/subscriptions"
-                  className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
-                >
+                <NavLink to="/subscriptions" className={navLinkClass}>
                   Subscriptions
                 </NavLink>
               )}
@@ -85,9 +100,15 @@ export function Navbar() {
                     />
                   </svg>
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
+                    <motion.span
+                      key={wishlistCount}
+                      initial={{ scale: 0.4, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={spring.press}
+                      className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1"
+                    >
                       {wishlistCount > 99 ? '99+' : wishlistCount}
-                    </span>
+                    </motion.span>
                   )}
                 </Link>
               )}
@@ -106,9 +127,15 @@ export function Navbar() {
                     />
                   </svg>
                   {cartCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-espresso-800 text-white text-[10px] font-bold rounded-full px-1">
+                    <motion.span
+                      key={cartCount}
+                      initial={{ scale: 0.4, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={spring.press}
+                      className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] flex items-center justify-center bg-espresso-800 text-white text-[10px] font-bold rounded-full px-1"
+                    >
                       {cartCount > 99 ? '99+' : cartCount}
-                    </span>
+                    </motion.span>
                   )}
                 </Link>
               )}
@@ -192,8 +219,8 @@ export function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 bg-black/40"
+              transition={{ duration: duration.base, ease: ease.out }}
+              className="fixed inset-0 z-50 bg-espresso-950/40 backdrop-blur-sm"
               onClick={() => setDrawerOpen(false)}
             />
 
@@ -203,7 +230,7 @@ export function Navbar() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+              transition={{ duration: duration.slow, ease: ease.out }}
               className="fixed top-0 right-0 h-full z-50 w-72 bg-white shadow-warm flex flex-col"
             >
               <div className="flex items-center justify-between px-6 py-5 border-b border-stone-100">

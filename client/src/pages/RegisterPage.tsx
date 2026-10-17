@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { register } from '../api/auth.api';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { AuthLayout } from '../components/layout/AuthLayout';
 import { checkPasswordStrength } from '../utils/passwordStrength';
 
 export default function RegisterPage() {
@@ -42,85 +43,73 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="font-serif text-3xl font-semibold text-espresso-950">
-            Rostid
-          </Link>
-          <h1 className="text-xl font-semibold text-stone-900 mt-4">Create your account</h1>
-          <p className="text-stone-500 mt-1 text-sm">Start your coffee journey</p>
-        </div>
-
-        <div className="card p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
+    <AuthLayout title="Create your account" subtitle="Start your coffee journey">
+      <div className="card p-8">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Your name"
+            required
+            autoComplete="name"
+          />
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+            autoComplete="email"
+          />
+          <div>
             <Input
-              label="Name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 8 characters"
               required
-              autoComplete="name"
+              autoComplete="new-password"
             />
-            <Input
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              autoComplete="email"
-            />
-            <div>
-              <Input
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 8 characters"
-                required
-                autoComplete="new-password"
-              />
-              {password.length > 0 &&
-                (() => {
-                  const s = checkPasswordStrength(password);
-                  return (
-                    <div className="mt-2">
-                      <div className="flex gap-1 mb-1">
-                        {[1, 2, 3, 4].map((i) => (
-                          <div
-                            key={i}
-                            className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`}
-                          />
-                        ))}
-                      </div>
-                      <p className="text-xs text-stone-500">{s.label}</p>
+            {password.length > 0 &&
+              (() => {
+                const s = checkPasswordStrength(password);
+                return (
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className={`h-1 flex-1 rounded-full transition-colors ${i <= s.score ? s.color : 'bg-stone-200'}`}
+                        />
+                      ))}
                     </div>
-                  );
-                })()}
-            </div>
+                    <p className="text-xs text-stone-500">{s.label}</p>
+                  </div>
+                );
+              })()}
+          </div>
 
-            {error && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
-            )}
+          {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
-            <Button type="submit" loading={loading} size="lg" className="w-full">
-              Create account
-            </Button>
-          </form>
-        </div>
-
-        <p className="text-center text-sm text-stone-500 mt-6">
-          Already have an account?{' '}
-          <Link
-            to="/login"
-            className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors"
-          >
-            Sign in
-          </Link>
-        </p>
+          <Button type="submit" loading={loading} size="lg" className="w-full">
+            Create account
+          </Button>
+        </form>
       </div>
-    </div>
+
+      <p className="text-center text-sm text-stone-500 mt-6">
+        Already have an account?{' '}
+        <Link
+          to="/login"
+          className="text-espresso-700 hover:text-espresso-900 font-medium transition-colors"
+        >
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }

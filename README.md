@@ -19,7 +19,11 @@
 
 ### Storefront
 
-![Rostid storefront home page](docs/screenshots/home.png)
+![Rostid storefront hero with masked headline reveal and origins marquee](docs/screenshots/home.png)
+
+### New arrivals & subscriptions
+
+![Rostid home page product collection and subscription call-to-action](docs/screenshots/home-collection.png)
 
 ### Product browsing
 
@@ -31,7 +35,7 @@
 
 ### Authentication
 
-![Rostid sign-in page](docs/screenshots/login.png)
+![Rostid sign-in page with editorial image panel](docs/screenshots/login.png)
 
 ### Admin dashboard
 
@@ -55,7 +59,7 @@
 | Layer | Tech |
 |---|---|
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS |
-| Animations | Framer Motion |
+| Animations | Framer Motion (shared motion tokens, reduced-motion aware) |
 | State | Zustand, React Query v5 |
 | Routing | React Router v6 (lazy-loaded, code-split) |
 | Backend | Node.js, Express, TypeScript |
@@ -199,6 +203,7 @@ make typecheck   # TypeScript check both packages
 - Sentry error monitoring on both server and client
 - PWA-ready: favicon, web manifest, Open Graph and Twitter meta tags
 - Accessibility: skip-to-content, focus trap in modals, aria-labels, 44px touch targets
+- Motion system: shared easing/duration tokens, masked headline reveals, clip-path image reveals, scroll parallax, and a global `MotionConfig reducedMotion="user"` so every animation respects `prefers-reduced-motion`
 
 ---
 

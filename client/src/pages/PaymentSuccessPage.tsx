@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { fadeUp, staggerContainer } from '../animations/variants';
+import { duration, ease, fadeUp, scaleIn, staggerContainer } from '../animations/variants';
 
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -15,7 +15,7 @@ export default function PaymentSuccessPage() {
         animate="visible"
       >
         <motion.div
-          variants={fadeUp}
+          variants={scaleIn}
           className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
         >
           <svg
@@ -24,7 +24,15 @@ export default function PaymentSuccessPage() {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <motion.path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ delay: 0.35, duration: duration.slow, ease: ease.out }}
+            />
           </svg>
         </motion.div>
 
